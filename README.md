@@ -23,6 +23,10 @@
 ```
 # 🛠️ FORGE Project                 
 **Welcome to the FORGE Project!**  
-**FORGE** (**F**ramework for **O**pen and **R**esourceful **G**uitar **E**ffects) is a combined hardware and software platform that empowers you to design and build your own digital effects pedals for guitar, voice, keyboards, and beyond.  
+**FORGE** (**F**ramework for **O**pen and **R**esourceful **G**uitar **E**ffects) is a software platform designed to empower creators to build their own digital effects pedals for guitar, voice, keyboards, and more.  
+  
+**The goal** of this project is to provide a solid and reliable foundation that handles the full complexity of embedded audio software development, covering both driver-level and middleware-level layers.  
+  
+FORGE manages all the hardware interfaces—microcontroller, audio CODEC, encoders, switches, memory devices, TFT display, USB—as well as the software modules needed for the display, user interface, parameter persistence, filter libraries, delay lines, DCO, and more.
 
-The ambition of this project is to serve as a solid starting point, handling the full complexity of hardware design and its associated software framework—so you can focus on what matters most: creating the digital effects of your dreams.
+This leaves you free to focus on what truly matters: **designing and creating the digital effects you’ve always dreamed of**.
