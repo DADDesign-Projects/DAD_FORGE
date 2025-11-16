@@ -27,6 +27,6 @@
   
 **The goal** of this project is to provide a solid and reliable foundation that handles the full complexity of embedded audio software development, covering both driver-level and middleware-level layers.  
   
-FORGE manages all the hardware interfaces—microcontroller, audio CODEC, encoders, switches, memory devices, TFT display, USB—as well as the software modules needed for the display, user interface, parameter persistence, filter libraries, delay lines, DCO, and more.
+**FORGE manages** all the hardware interfaces—microcontroller, audio CODEC, encoders, switches, memory devices, TFT display, USB—as well as the software modules needed for the display, user interface, parameter persistence, filter libraries, delay lines, DCO, and more.
 
 This leaves you free to focus on what truly matters: **designing and creating the digital effects you’ve always dreamed of**.
