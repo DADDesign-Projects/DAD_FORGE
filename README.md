@@ -50,3 +50,28 @@ The repository is organized as follows:
 # 🛠️ Development Tools
 FORGE is developed using STM32CubeIDE, the development environment and IDE provided by STMicroelectronics (https://www.st.com/en/development-tools/stm32cubeide.html).  
 The framework must be integrated as a Git submodule within a main project, allowing easy updates and seamless reuse across multiple projects.
+
+# 🚀 Getting Started
+
+## 1. Clone the OSCAR hardware project
+
+```bash
+git clone --recurse-submodules https://github.com/DADDesign-Projects/OSCAR_P01A01.git
+```
+
+## 2. Create a new audio effect
+Duplicate the template folder: OSCAR_P01A01/DAD_FORGE/Effects/Template
+Rename the folder to match your new effect name.
+Edit the source file: Src/Template.cpp to implement your own audio processing.
+
+## 3. Register your effect
+add your effet in the configuration file: OSCAR_P01A01/DAD_FORGE/Effects/@Config/EffectsConfig.h
+Your effect will then be integrated into the FORGE framework.
+    
+# 📬 Contact
+Feel free to contact me for any questions, feedback, improvement suggestions, or collaboration proposals related to the FORGE framework or the OSCAR hardware platform.
+I am always open to discussion and community contributions (daddesign.projects@gmail.com).  
+  
+---
+
+
