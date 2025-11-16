@@ -29,4 +29,11 @@
   
 **FORGE manages** all the hardware interfaces—microcontroller, audio CODEC, encoders, switches, memory devices, TFT display, USB—as well as the software modules needed for the display, user interface, parameter persistence, filter libraries, delay lines, DCO, and more.
 
-This leaves you free to focus on what truly matters: **designing and creating the digital effects you’ve always dreamed of**.
+This leaves you free to focus on what truly matters: **designing and creating the digital effects you’ve always dreamed of**.  
+
+**FORGE** runs on the **OSCAR hardware platform** (https://github.com/DADDesign-Projects/OSCAR_P01A01)  
+  
+The framework is **now mature** and fully operational: it already includes a **delay**, a **tremolo/vibrato**, and a **chorus** effect.
+
+Development is actively ongoing to add new features, introduce new audio effects, and bring FORGE to additional hardware platforms.
+
