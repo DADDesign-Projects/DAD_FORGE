@@ -1,0 +1,32 @@
+	{
+		DadGFX::sColor(100, 92, 77, 255),	// 	MenuBack
+		DadGFX::sColor(221, 225, 230, 255),	// 	MenuText
+		DadGFX::sColor(30, 35, 40, 255),	// 	MenuActiveText
+		DadGFX::sColor(255, 214, 70, 255),	// 	MenuActive
+		DadGFX::sColor(221, 225, 230, 255),	// 	MenuArrow
+		DadGFX::sColor(7, 10, 10, 255),	// 	ParameterBack
+		DadGFX::sColor(241, 243, 245, 255),	// 	ParameterName
+		DadGFX::sColor(221, 225, 230, 255),	// 	ParameterNum
+		DadGFX::sColor(241, 243, 245, 255),	// 	ParameterValue
+		DadGFX::sColor(202, 217, 214, 255),	// 	ParameterLines
+		DadGFX::sColor(255, 214, 70, 255),	// 	ParameterCursor
+		DadGFX::sColor(145, 133, 111, 255),	// 	ParamInfoBack
+		DadGFX::sColor(241, 243, 245, 255),	// 	ParamInfoName
+		DadGFX::sColor(241, 243, 245, 255),	// 	ParamInfoValue
+		DadGFX::sColor(100, 92, 77, 255),	// 	MainInfoBack
+		DadGFX::sColor(241, 243, 245, 255),	// 	MainInfoMem
+		DadGFX::sColor(255, 255, 128, 255),	// 	MainInfoDirty
+		DadGFX::sColor(241, 243, 245, 255),	// 	MainInfoState
+		DadGFX::sColor(0, 0, 0, 255),	// 	MemViewBack
+		DadGFX::sColor(241, 243, 245, 255),	// 	MemViewText
+		DadGFX::sColor(252, 252, 252, 255),	// 	MemViewLine
+		DadGFX::sColor(235, 171, 52, 255),	// 	MemViewActive
+		DadGFX::sColor(0, 0, 0, 255),	// 	VuMeterBack
+		DadGFX::sColor(241, 243, 245, 255),	// 	VuMeterText
+		DadGFX::sColor(231, 234, 237, 255),	// 	VuMeterLine
+		DadGFX::sColor(255, 219, 94, 255),	// 	VuMeterCursor
+		DadGFX::sColor(241, 243, 245, 255),	// 	VuMeterPick
+		DadGFX::sColor(255, 80, 80, 255),	// 	VuMeterClip
+		DadGFX::sColor(50, 50, 128, 255),	// 	SplatchBack
+		DadGFX::sColor(255, 255, 255, 255)	// 	SplatchText
+	}
