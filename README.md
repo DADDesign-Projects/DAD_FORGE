@@ -46,3 +46,7 @@ The repository is organized as follows:
    * **PersistentStorage/**: management of parameter saving/loading in non-volatile memory
    * **STM_GFX2/**: graphics driver and library (ST7789, etc.)
    * **Utilities/**: shared utility functions (monitoring, logging, conversions, helpers)
+
+# 🛠️ Development Tools
+FORGE is developed using STM32CubeIDE, the development environment and IDE provided by STMicroelectronics (https://www.st.com/en/development-tools/stm32cubeide.html).  
+The framework must be integrated as a Git submodule within a main project, allowing easy updates and seamless reuse across multiple projects.
