@@ -37,3 +37,12 @@ The framework is **now mature** and fully operational: it already includes a **d
 
 Development is actively ongoing to add new features, introduce new audio effects, and bring FORGE to additional hardware platforms.
 
+# 📁 Project Structure
+The repository is organized as follows:
+   * **DSP/**: DSP components (audio processing, filters, oscillators, etc.)
+   * **Drivers/**: hardware drivers (audio CODEC, GPIO, memory devices, etc.)
+   * **Effects/**: effect implementations (delay, distortion, modulation, etc.)
+   * **GUI/**: graphical user interface (menus, widgets, UI panels)
+   * **PersistentStorage/**: management of parameter saving/loading in non-volatile memory
+   * **STM_GFX2/**: graphics driver and library (ST7789, etc.)
+   * **Utilities/**: shared utility functions (monitoring, logging, conversions, helpers)
