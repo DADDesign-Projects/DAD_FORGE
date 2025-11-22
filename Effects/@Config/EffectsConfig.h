@@ -8,9 +8,9 @@
 #include "ID.h"
 #include "stdint.h"
 //#define MODULATIONS_EFFECT
-#define DELAY_EFFECT
+//#define DELAY_EFFECT
 //#define MODULATIONS_EFFECT
-//#define TEMPLATE_EFFECT
+#define TEMPLATE_EFFECT
 //#define TEMPLATE_MULTI_MODE_EFFECT
 
 // Configuring the DELAY Template
