@@ -14,44 +14,55 @@
 namespace DadEffect {
 
 //**********************************************************************************
-// Template effect class for audio processing with GUI interface
+// Class: cTemplateEffect
+// Description: Template effect class for audio processing with GUI interface
 //**********************************************************************************
+
 class cTemplateEffect: public cEffectBase {
 public:
+    // =============================================================================
+    // Public Methods
+    // =============================================================================
+
     // -----------------------------------------------------------------------------
-    // Constructor (initializes nothing by itself)
+    // Constructor - initializes nothing by itself
+    // -----------------------------------------------------------------------------
     cTemplateEffect() = default;
 
     // -----------------------------------------------------------------------------
     // Initializes DSP components and user interface parameters
+    // -----------------------------------------------------------------------------
     void onInitialize() override;
 
     // -----------------------------------------------------------------------------
-    //
+    // Returns the unique effect identifier
+    // -----------------------------------------------------------------------------
     uint32_t getEffectID() override;
 
     // -----------------------------------------------------------------------------
-    // Audio processing function: processes one input/output audio buffer
+    // Audio processing function - processes one input/output audio buffer
+    // -----------------------------------------------------------------------------
     ITCM void Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff);
 
 protected:
     // =============================================================================
+    // Protected Member Variables
+    // =============================================================================
+
+    // -----------------------------------------------------------------------------
     // Parameter declarations
-    // =============================================================================
+    // -----------------------------------------------------------------------------
+    DadGUI::cUIParameter                m_ParameterGain;         // Gain control parameter
 
-    DadGUI::cUIParameter                m_ParameterGain;  // Volume parameter
-
-    // =============================================================================
+    // -----------------------------------------------------------------------------
     // Parameter view declarations
-    // =============================================================================
+    // -----------------------------------------------------------------------------
+    DadGUI::cParameterNumNormalView     m_ParameterGainView;     // GUI view for gain parameter
 
-    DadGUI::cParameterNumNormalView     m_ParameterGainView;  // Normal numeric parameter view
-
-    // =============================================================================
+    // -----------------------------------------------------------------------------
     // Panel declarations
-    // =============================================================================
-
-    DadGUI::cPanelOfParameterView       m_ParametrerDemoPanel; // Demo parameters panel
+    // -----------------------------------------------------------------------------
+    DadGUI::cPanelOfParameterView       m_ParametrerDemoPanel;   // Demo panel containing parameter views
 
 };
 
