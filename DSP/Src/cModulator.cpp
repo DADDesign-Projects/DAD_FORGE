@@ -71,7 +71,7 @@ void cModulator::setPitchVariation(float PitchVariationMin, float PitchVariation
 
 // -----------------------------------------------------------------------------
 // Process audio sample with pitch modulation
-ITCM float cModulator::Process(float Sample, float Depth)
+ITCM float cModulator::Process(float Sample, float Depth, uint8_t Shape, float Feedback, bool Mode)
 {
     // Check for valid parameters
     if((Depth > 1.0f) || (m_BufferSize == 0)) {
@@ -81,8 +81,13 @@ ITCM float cModulator::Process(float Sample, float Depth)
     // Advance DCO step for LFO generation
     m_DCO.Step();
 
-    // Get DCO sine value for modulation (range 0 to +1)
-    float DCO = m_DCO.getSineValue();
+    // Get LFO (range 0 to +1)
+    float DCO;
+    if(Shape == 0){
+    	DCO = m_DCO.getSineValue();
+    }else{
+    	DCO = m_DCO.getTriangleValue();
+    }
 
     // Calculate dynamic delay based on LFO and depth
     float Delay = m_NbSampleOffset + m_SamplesMax + ((m_SamplesMax - m_SamplesMin) * Depth * DCO);
@@ -95,9 +100,21 @@ ITCM float cModulator::Process(float Sample, float Depth)
         Delay = m_BufferSize - 1.0f;
     }
 
-    // Process sample through delay line
-    m_DelayLine.Push(Sample);                     // Store current sample in delay line
-    return m_DelayLine.Pull(Delay);               // Retrieve and return delayed sample
+    if(Feedback == 0){
+        m_DelayLine.Push(Sample);   	// Store current sample in delay line
+        return m_DelayLine.Pull(Delay);	// Retrieve and return delayed sample
+    }else{
+        // Process sample through delay line
+        float SampleOut = m_DelayLine.Pull(Delay);  // Retrieve delayed sample
+        if(Mode){
+        	SampleOut = -SampleOut;
+        }
+        float SampleMix = SampleOut;
+        Sample *= cosf(Feedback * M_PI_2);
+        SampleMix *= sinf(Feedback * M_PI_2);
+        m_DelayLine.Push(Sample + SampleMix);   // Store current mixed sample in delay line
+        return SampleOut;
+    }
 }
 
 // =============================================================================

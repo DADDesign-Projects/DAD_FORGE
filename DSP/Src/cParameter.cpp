@@ -38,7 +38,7 @@ void cParameter::Init(float InitValue, float Min, float Max,
         m_Step = (Max-Min)/ Slope;                  // Scaled step based on slope
     }
 
-    m_TargetValue = InitValue;                      // Target value for smoothing
+    m_Value = m_Min;                                // Initialize value
     m_Slope = Slope;                                // Smoothing slope factor
 
     // Register MIDI control change callback if control specified
