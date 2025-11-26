@@ -1,6 +1,6 @@
 //==================================================================================
 //==================================================================================
-// File: Modulations.h
+// File: cModulations.h
 //
 // 
 // Copyright (c) 2025 Dad Design.
@@ -15,7 +15,7 @@ namespace DadEffect {
 // Description: Main multi-mode modulations effect
 //**********************************************************************************
 
-constexpr uint8_t NB_EFFECTS = 3;                                       // Number of available effects
+constexpr uint8_t NB_EFFECTS = 4;                                       // Number of available effects
 
 class cMainModulations : public cMainMultiModeEffect {
 public:
