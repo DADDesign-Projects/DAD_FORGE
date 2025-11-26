@@ -52,30 +52,30 @@ void cTremoloVibrato::onInitialize(){
     // =============================================================================
 
 	// LFO Frequency parameter
-	m_Freq.Init(TREMOLO_ID, TREMOLO_ID, 2.5f, FREQ_MIN, FREQ_MAX, 0.5f, 0.1f, SpeedChange, (uint32_t)this,
+	m_Freq.Init(TREMOLO_ID, 2.5f, FREQ_MIN, FREQ_MAX, 0.5f, 0.1f, SpeedChange, (uint32_t)this,
 				5.0f * RT_RATE, 20);
 
 	// Tremolo Depth parameter
-	m_TremoloDeep.Init(TREMOLO_ID, TREMOLO_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0,
+	m_TremoloDeep.Init(TREMOLO_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0,
 					   0.5f * RT_RATE, 21);
 
 	// Vibrato Depth parameter (used for delay-based pitch modulation)
-	m_VibratoDeep.Init(TREMOLO_ID, TREMOLO_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0,
+	m_VibratoDeep.Init(TREMOLO_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0,
 					   0.5f * RT_RATE, 22);
 
 	// DryWet Mix parameter
-	m_DryWetMix.Init(TREMOLO_ID, TREMOLO_ID, 0, 0, 100, 5, 1, MixChange, (uint32_t) this, 0.5f * RT_RATE, 23);
+	m_DryWetMix.Init(TREMOLO_ID, 0, 0, 100, 5, 1, MixChange, (uint32_t) this, 0.5f * RT_RATE, 23);
 
 	// LFO Shape parameter (0: Triangle, 1: Square)
-	m_LFOShape.Init(TREMOLO_ID, TREMOLO_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0,
+	m_LFOShape.Init(TREMOLO_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0,
 					0.0f, 24);
 
 	// LFO Duty Cycle Ratio parameter
-	m_LFORatio.Init(TREMOLO_ID, TREMOLO_ID, 50.0f, 0.0f, 100.0f, 5.0f, 1.0f, RatioChange, (uint32_t)this,
+	m_LFORatio.Init(TREMOLO_ID, 50.0f, 0.0f, 100.0f, 5.0f, 1.0f, RatioChange, (uint32_t)this,
 					0.5f * RT_RATE, 25);
 
 	// Stereo mode parameter
-	m_StereoMode.Init(TREMOLO_ID, TREMOLO_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0, 0.0f, 26);
+	m_StereoMode.Init(TREMOLO_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0, 0.0f, 26);
 
     // =============================================================================
     // VIEW SETUP SECTION
@@ -107,7 +107,7 @@ void cTremoloVibrato::onInitialize(){
     // MAIN MENU CONFIGURATION SECTION
     // =============================================================================
 
-	m_Menu.addMenuItem(&m_ItemTremoloMenu, "Main");   // Add tremolo menu to main section
+	m_Menu.addMenuItem(&m_ItemTremoloMenu, "Tre/Vib");   // Add tremolo menu to main section
 	m_Menu.addMenuItem(&m_ItemLFOMenu, "LFO");        // Add LFO menu to LFO section
 	m_Menu.addMenuItem(&m_ItemStereoMode, "Stereo");  // Add stereo mode to stereo section
 

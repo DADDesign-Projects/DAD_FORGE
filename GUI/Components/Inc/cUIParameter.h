@@ -37,7 +37,18 @@ public:
     // Initializes parameter with configuration and registers with GUI systems
     //***********************************************************************************
     void Init(uint32_t SerializeID,
-              uint32_t RTProcessID,
+              float InitValue,
+              float Min,
+              float Max,
+              float RapidIncrement,
+              float SlowIncrement,
+              DadDSP::CallbackType Callback = nullptr,
+              uint32_t CallbackUserData = 0,
+              float Slope = 0,
+              uint8_t Control = 0xFF);
+
+    void Init(uint32_t SerializeID,
+    		  uint32_t RtProcessID,
               float InitValue,
               float Min,
               float Max,

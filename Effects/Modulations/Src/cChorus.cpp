@@ -1,7 +1,7 @@
 //==================================================================================
 //==================================================================================
-// File: TremoloVibrato.cpp
-// Description: Tremolo and Vibrato audio effect implementation
+// File: cChorus.cpp
+// Description: Chorus audio effect implementation
 // 
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
@@ -16,6 +16,13 @@ constexpr float MODULATOR_OFFSET_LEFT_2  = 0.005f;
 constexpr float MODULATOR_OFFSET_RIGHT_2 = 0.007f;
 constexpr float MODULATOR_OFFSET_LEFT_3  = 0.01f;
 constexpr float MODULATOR_OFFSET_RIGHT_3 = 0.02f;
+
+//constexpr float MODULATOR_OFFSET_LEFT_1  = 0.00002f;
+//constexpr float MODULATOR_OFFSET_RIGHT_1 = 0.00001f;
+//constexpr float MODULATOR_OFFSET_LEFT_2  = 0.0005f;
+//constexpr float MODULATOR_OFFSET_RIGHT_2 = 0.0007f;
+//constexpr float MODULATOR_OFFSET_LEFT_3  = 0.001f;
+//constexpr float MODULATOR_OFFSET_RIGHT_3 = 0.002f;
 
 // Modulator frequency constants for different LFOs
 constexpr float MODULATOR_FREQ_LEFT_1  = 2.0f;
@@ -101,13 +108,13 @@ void cChorus::onInitialize() {
     // =============================================================================
 
     // Initialize effect depth parameter
-    m_Deep.Init(CHORUS_ID, CHORUS_ID, 45.0f, 0.0f, 100, 5, 1, nullptr, 0, 0.8f * RT_RATE, 30);
+    m_Deep.Init(CHORUS_ID, 45.0f, 0.0f, 100, 5, 1, nullptr, 0, 0.8f * RT_RATE, 30);
 
     // Initialize mode parameter with callback for mode changes
-    m_Mode.Init(CHORUS_ID, CHORUS_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, ModeChange, (uint32_t) this, 0.0f, 31);
+    m_Mode.Init(CHORUS_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, ModeChange, (uint32_t) this, 0.0f, 31);
 
     // Initialize dry/wet mix parameter with callback for mix changes
-    m_DryWetMix.Init(CHORUS_ID, CHORUS_ID, 50.0f, 0.0f, 100.0f, 5, 1, MixChange, (uint32_t) this, 3.0f * RT_RATE, 32);
+    m_DryWetMix.Init(CHORUS_ID, 50.0f, 0.0f, 100.0f, 5, 1, MixChange, (uint32_t) this, 3.0f * RT_RATE, 32);
 
     // =============================================================================
     // VIEW SETUP SECTION
@@ -134,7 +141,7 @@ void cChorus::onInitialize() {
     // =============================================================================
 
     // Add panels to main menu
-    m_Menu.addMenuItem(&m_PanelChorus, "Main");
+    m_Menu.addMenuItem(&m_PanelChorus, "Chorus");
 }
 
 // ---------------------------------------------------------------------------------

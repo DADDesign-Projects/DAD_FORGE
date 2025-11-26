@@ -27,7 +27,7 @@ namespace DadGUI {
 // Description:
 // Initializes parameter with configuration and registers with GUI systems
 //***********************************************************************************
-void cUIParameter::Init(uint32_t SerializeID, uint32_t RTProcessID,
+void cUIParameter::Init(uint32_t SerializeID,
                         float InitValue, float Min, float Max,
                         float RapidIncrement, float SlowIncrement,
                         DadDSP::CallbackType Callback,
@@ -41,9 +41,26 @@ void cUIParameter::Init(uint32_t SerializeID, uint32_t RTProcessID,
 
     // Register parameter with GUI serialization and real-time processing systems
     __GUI.addSerializeObject(this, SerializeID);
-    __GUI.addRtProcessObject(this, RTProcessID);
+    __GUI.addRtProcessObject(this, SerializeID);
 }
 
+void cUIParameter::Init(uint32_t SerializeID,
+						uint32_t RtProcessID,
+                        float InitValue, float Min, float Max,
+                        float RapidIncrement, float SlowIncrement,
+                        DadDSP::CallbackType Callback,
+                        uint32_t CallbackUserData,
+                        float Slope,
+                        uint8_t Control)
+{
+    // Initialize base parameter functionality
+    cParameter::Init(InitValue, Min, Max, RapidIncrement, SlowIncrement,
+                     Callback, CallbackUserData, Slope, Control);
+
+    // Register parameter with GUI serialization and real-time processing systems
+    __GUI.addSerializeObject(this, SerializeID);
+    __GUI.addRtProcessObject(this, RtProcessID);
+}
 //***********************************************************************************
 // Method: Save
 // Description:

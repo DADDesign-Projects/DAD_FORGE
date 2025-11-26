@@ -66,22 +66,22 @@ void cDelay::Initialize() {
 
     // GUI Parameter Initialization
     // Delay 1 parameters
-    m_Time.Init(DELAY_ID, DELAY_ID, 0.450f, DELAY_MIN_TIME, DELAY_MAX_TIME, 0.05f, 0.01f, nullptr, 0, 5.0f * RT_RATE, 20);  // Delay time parameter
-    m_Repeat.Init(DELAY_ID, DELAY_ID, 30.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.2f * RT_RATE, 21);  // Feedback parameter
-    m_Mix.Init(DELAY_ID, DELAY_ID, 10.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.8f * RT_RATE, 22);  // delay mix parameter
+    m_Time.Init(DELAY_ID, 0.450f, DELAY_MIN_TIME, DELAY_MAX_TIME, 0.05f, 0.01f, nullptr, 0, 5.0f * RT_RATE, 20);  // Delay time parameter
+    m_Repeat.Init(DELAY_ID, 30.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.2f * RT_RATE, 21);  // Feedback parameter
+    m_Mix.Init(DELAY_ID, 10.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.8f * RT_RATE, 22);  // delay mix parameter
 
     // Delay 2 parameters
-    m_SubDelay.Init(DELAY_ID, DELAY_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0, 0.0f, 23);  // Subdivision parameter
-    m_RepeatDelay2.Init(DELAY_ID, DELAY_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.2f * RT_RATE, 24);  // Delay 2 feedback
-    m_BlendD1D2.Init(DELAY_ID, DELAY_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 1.0f * RT_RATE, 25);  // Blend between delays
+    m_SubDelay.Init(DELAY_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0, 0.0f, 23);  // Subdivision parameter
+    m_RepeatDelay2.Init(DELAY_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.2f * RT_RATE, 24);  // Delay 2 feedback
+    m_BlendD1D2.Init(DELAY_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 1.0f * RT_RATE, 25);  // Blend between delays
 
     // Tone control parameters
-    m_Bass.Init(DELAY_ID, DELAY_ID, 50.0f, 0.0f, 100.0f, 5.0f, 1.0f, BassChange, (uint32_t)this, 0.2f * RT_RATE, 26);  // Bass control
-    m_Treble.Init(DELAY_ID, DELAY_ID, 50.0f, 0.0f, 100.0f, 5.0f, 1.0f, TrebleChange, (uint32_t)this, 0.2f * RT_RATE, 27);  // Treble control
+    m_Bass.Init(DELAY_ID, 50.0f, 0.0f, 100.0f, 5.0f, 1.0f, BassChange, (uint32_t)this, 0.2f * RT_RATE, 26);  // Bass control
+    m_Treble.Init(DELAY_ID, 50.0f, 0.0f, 100.0f, 5.0f, 1.0f, TrebleChange, (uint32_t)this, 0.2f * RT_RATE, 27);  // Treble control
 
     // Modulation parameters
-    m_ModulationDeep.Init(DELAY_ID, DELAY_ID, 10.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 1.0f * RT_RATE, 28);  // Modulation depth
-    m_ModulationSpeed.Init(DELAY_ID, DELAY_ID, 1.5f, 0.5f, 10.0f, 0.5f, 0.05f, SpeedChange, (uint32_t)this, 0.5f * RT_RATE, 29);  // Modulation speed
+    m_ModulationDeep.Init(DELAY_ID, 10.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 1.0f * RT_RATE, 28);  // Modulation depth
+    m_ModulationSpeed.Init(DELAY_ID, 1.5f, 0.5f, 10.0f, 0.5f, 0.05f, SpeedChange, (uint32_t)this, 0.5f * RT_RATE, 29);  // Modulation speed
 
     // Parameter Views Setup
     m_TimeView.Init(&m_Time, "Time", "Time", "s", "second");  // Time parameter view

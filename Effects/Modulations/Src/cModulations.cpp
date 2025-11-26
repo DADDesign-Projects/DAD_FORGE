@@ -10,6 +10,7 @@
 #include "cTremoloVibrato.h"
 #include "cChorus.h"
 #include "cFlanger.h"
+#include "cUniVibe.h"
 
 namespace DadEffect {
 //**********************************************************************************
@@ -21,6 +22,7 @@ namespace DadEffect {
 alignas(cTremoloVibrato) uint8_t TremoloVibratoBuffer[sizeof(cTremoloVibrato)];
 alignas(cChorus) uint8_t ChorusBuffer[sizeof(cChorus)];
 alignas(cFlanger) uint8_t FlangerBuffer[sizeof(cFlanger)];
+alignas(cUniVibe) uint8_t UniVibeBuffer[sizeof(cUniVibe)];
 
 // ---------------------------------------------------------------------------------
 // Initialize
@@ -28,9 +30,10 @@ alignas(cFlanger) uint8_t FlangerBuffer[sizeof(cFlanger)];
 // ---------------------------------------------------------------------------------
 void cMainModulations::Initialize(){
 	// Create effect instances using placement new in pre-allocated buffers
-	m_TabEffects[2] = new (TremoloVibratoBuffer) cTremoloVibrato();
-	m_TabEffects[1] = new (ChorusBuffer) cChorus();
-	m_TabEffects[0] = new (FlangerBuffer) cFlanger();
+	m_TabEffects[3] = new (TremoloVibratoBuffer) cTremoloVibrato();
+	m_TabEffects[2] = new (ChorusBuffer) cChorus();
+	m_TabEffects[1] = new (FlangerBuffer) cFlanger();
+	m_TabEffects[0] = new (UniVibeBuffer) cUniVibe();
 
 	// Configure multi-mode effect system
 	m_NbEffects = NB_EFFECTS;                              // Set number of available effects

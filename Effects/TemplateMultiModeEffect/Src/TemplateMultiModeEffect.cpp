@@ -26,9 +26,9 @@ void cTemplateMultiModeEffect1::onInitialize(){
 	m_ID = TEMPLATE_MULTI_1_ID;                            // Unique effect identifier
 
 	// Initialize effect parameters with their ranges and default values
-	m_ParameterDemo1.Init(TEMPLATE_MULTI_1_ID, TEMPLATE_MULTI_1_ID, 0.0f, 0.0f, 1.0f, 0.10f, 0.05f, nullptr, 0, .5, 20);
-	m_ParameterDemo2.Init(TEMPLATE_MULTI_1_ID, TEMPLATE_MULTI_1_ID, 0.0f, -100.0f, 100.0f, 10.0f, 1.0f, nullptr, .5, 0, 21);
-	m_ParameterDemo3.Init(TEMPLATE_MULTI_1_ID, TEMPLATE_MULTI_1_ID, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, nullptr, 0, 0, 22);
+	m_ParameterDemo1.Init(TEMPLATE_MULTI_1_ID, 0.0f, 0.0f, 1.0f, 0.10f, 0.05f, nullptr, 0, .5, 20);
+	m_ParameterDemo2.Init(TEMPLATE_MULTI_1_ID, 0.0f, -100.0f, 100.0f, 10.0f, 1.0f, nullptr, .5, 0, 21);
+	m_ParameterDemo3.Init(TEMPLATE_MULTI_1_ID, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, nullptr, 0, 0, 22);
 
 	// Configure parameter views for user interface
 	m_ParameterDemo1View.Init(&m_ParameterDemo1, "Volume", "Volume", "%", "%");
@@ -90,9 +90,9 @@ void cTemplateMultiModeEffect2::onInitialize(){
 	m_ID = TEMPLATE_MULTI_2_ID;                            // Unique effect identifier
 
 	// Initialize effect parameters with their ranges and default values
-	m_ParameterDemo1.Init(TEMPLATE_MULTI_2_ID, TEMPLATE_MULTI_2_ID, 0.0f, 0.0f, 1.0f, 0.10f, 0.05f, nullptr, 0, .5, 20);
-	m_ParameterDemo2.Init(TEMPLATE_MULTI_2_ID, TEMPLATE_MULTI_2_ID, 0.0f, -100.0f, 100.0f, 10.0f, 1.0f, nullptr, .5, 0, 21);
-	m_ParameterDemo3.Init(TEMPLATE_MULTI_2_ID, TEMPLATE_MULTI_2_ID, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, nullptr, 0, 0, 22);
+	m_ParameterDemo1.Init(TEMPLATE_MULTI_2_ID, 0.0f, 0.0f, 1.0f, 0.10f, 0.05f, nullptr, 0, .5, 20);
+	m_ParameterDemo2.Init(TEMPLATE_MULTI_2_ID, 0.0f, -100.0f, 100.0f, 10.0f, 1.0f, nullptr, .5, 0, 21);
+	m_ParameterDemo3.Init(TEMPLATE_MULTI_2_ID, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, nullptr, 0, 0, 22);
 
 	// Configure parameter views for user interface
 	m_ParameterDemo1View.Init(&m_ParameterDemo1, "Volume", "Volume", "%", "%");

@@ -25,7 +25,6 @@ constexpr uint32_t TEMPLATE_ID BUILD_ID('T', 'E', 'M', 'P');
 void cTemplateEffect::onInitialize(){
     // Initialize gain parameter with DSP configuration
     m_ParameterGain.Init(TEMPLATE_ID,              // SerializeID
-                         TEMPLATE_ID,              // RTProcessID
                          50.0f,                    // Initial Value
                          0.0f,                     // Min Value
                          100.0f,                   // Max Value

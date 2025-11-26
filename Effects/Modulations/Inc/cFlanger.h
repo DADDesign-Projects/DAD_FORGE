@@ -16,8 +16,8 @@
 namespace DadEffect {
 
 //**********************************************************************************
-// Class: cChorus
-// Description: Implements chorus audio effect using multiple modulated delay lines
+// Class: cFlanger
+// Description: Implements flanger audio effect
 //**********************************************************************************
 
 constexpr uint32_t FLANGER_ID BUILD_ID('F', 'L', 'A', 'N');

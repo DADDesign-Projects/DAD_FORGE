@@ -71,6 +71,7 @@ void cUIMenu::Activate() {
 
     m_isActive = true;                    // Mark as active
     m_ActiveItem = 0;
+    m_MenuShift = 0;
     drawTab();                            // Draw menu tabs
 
     // Activate the current item if available
