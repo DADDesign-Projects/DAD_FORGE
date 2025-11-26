@@ -21,10 +21,10 @@ namespace DadDSP {
 // =============================================================================
 
 constexpr float PEAK_HOLD_TIME  = 1.0f;   // Peak hold time in seconds
-constexpr float CLIP_THRESHOLD  = 0.9f;   // Clipping threshold (95%)
+constexpr float CLIP_THRESHOLD  = 0.75f;   // Clipping threshold (85%)
 constexpr float CLIP_HOLD_TIME  = 4.0f;   // Clip hold time in seconds
 constexpr float DB_MIN          = -45.0f; // Minimum level in dB
-constexpr float DB_MAX          = 0.0f;   // Maximum level in dB
+constexpr float DB_MAX          = -3.0f;   // Maximum level in dB
 constexpr float ATTACK_TIME     = 0.15f;  // Attack time in seconds
 constexpr float RELEASE_TIME    = 0.3f;   // Release time in seconds
 
