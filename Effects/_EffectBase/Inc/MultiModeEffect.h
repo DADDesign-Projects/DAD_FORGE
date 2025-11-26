@@ -11,6 +11,7 @@
 #include "GUI_Include.h"
 #include "cPanelOfSystemView.h"
 #include "cPanelOfEffectChoice.h"
+#include "cPanelOfTone.h"
 #include "cDryWet.h"
 
 namespace DadEffect {
@@ -165,6 +166,7 @@ protected:
     DadGUI::cUIVuMeter              m_VuMeterPanel;         // Audio level display panel
     DadGUI::cPanelOfSystemView      m_PanelOfSystemView;    // System information panel
     DadGUI::cPanelOfEffectChoice    m_PanelOfEffectChoice;  // Effect selection panel
+    DadGUI::cPanelOfTone			m_PanelOfTone;			// Tone panel
 
     DadGUI::cInfoView               m_InfoView;             // Information display view
     DadGUI::cSwitchOnOff            m_SwitchOnOff;          // On/off switch controller

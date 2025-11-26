@@ -60,6 +60,7 @@ namespace DadEffect {
         m_PanelOfEffectChoice.Initialize(0, EffectChange, (uint32_t) this);
         m_VuMeterPanel.Init();                              // VU meter display
         m_PanelOfSystemView.Initialize(0); 					// System view panel
+        m_PanelOfTone.Initialize(0);						// Tone panel
 
         // Iterate through all available effects and set up their menus
         uint8_t NumEffect = 0;              // Effect counter
@@ -69,9 +70,11 @@ namespace DadEffect {
             m_PanelOfEffectChoice.addEffect(pEffect->getShortName(), pEffect->getLongName());
             m_PanelOfSystemView.addToSerializeFamily(pEffect->getID());
             m_PanelOfEffectChoice.addToSerializeFamily(pEffect->getID());
+            m_PanelOfTone.addToSerializeFamily(pEffect->getID());
             __GUI.addSerializeObject(&m_PanelOfEffectChoice, pEffect->getID());
             // Set up menu structure for each effect
             DadGUI::cUIMenu* pMenu = pEffect->getMenu();
+            pMenu->addMenuItem(&m_PanelOfTone,          "Tone");      // Memory management
             pMenu->addMenuItem(&m_MemoryPanel,          "Memory");      // Memory management
             pMenu->addMenuItem(&m_VuMeterPanel,         "Vu-Meter");    // Audio level display
             pMenu->addMenuItem(&m_PanelOfSystemView,    "System");      // System information
@@ -113,7 +116,9 @@ namespace DadEffect {
         	}
     	}else{
     		__DryWet.Process(OnOff == eOnOff::On);
-    		m_pActiveEffect->Process(pIn, pOut, OnOff); // Delegate processing to active effect
+    		AudioBuffer OutEffect;
+    		m_pActiveEffect->Process(pIn, &OutEffect, OnOff); // Delegate processing to active effect
+    		m_PanelOfTone.Process(&OutEffect, pOut, OnOff);
     	}
     }
 
