@@ -265,11 +265,18 @@ public:
     }
 
     //-------------------------------------------------------------------------
-    // GUIProcess
+    // GUIProcessIn
     //
-    // Description: Processes GUI-related audio operations.
+    // Description: Process audio buffer through GUI object before audio process
     //-------------------------------------------------------------------------
-    ITCM void GUIProcess(AudioBuffer* pIn);
+    ITCM void GUIProcessIn(AudioBuffer* pIn);
+
+    //-------------------------------------------------------------------------
+    // GUIProcessOut
+    //
+    // Description: Process audio buffer through GUI object after audio process
+    //-------------------------------------------------------------------------
+    ITCM void GUIProcessOut(AudioBuffer* pOut);
 
     // =============================================================================
     // Serialization Management
@@ -446,7 +453,7 @@ protected:
     //-------------------------------------------------------------------------
     // GUI Process Management
     //-------------------------------------------------------------------------
-    iGUIProcessObject* m_pGUIProcessObject;                         // GUI process object pointer
+    iGUIProcessObject* m_pGUIProcessObject;                       // GUI process object pointer
 
     //-------------------------------------------------------------------------
     // Font Resources

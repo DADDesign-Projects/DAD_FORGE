@@ -20,15 +20,21 @@ DECLARE_LAYER(VuMeterLayer, SCREEN_WIDTH, PARAM_HEIGHT);
 //**********************************************************************************
 // Static layout constants
 //**********************************************************************************
-constexpr uint16_t VuMeterHeight     = 26;  // Height of each VU-meter bar
-constexpr uint16_t VuMeterWidth      = 240; // Width of each VU-meter bar
-constexpr uint16_t VuMeterOffset     = 10;  // Vertical offset between meters
-constexpr uint16_t TextXOffset       = 5;   // X offset for channel labels
-constexpr uint16_t ClipXOffset       = 5;   // X offset for clipping indicators
-constexpr uint16_t LayerHalfHeight   = PARAM_HEIGHT / 2;  // Half height of the layer
-constexpr uint16_t XVuMeter          = (SCREEN_WIDTH - VuMeterWidth) / 2;  // X position centered
-constexpr uint16_t YVuMeterL         = LayerHalfHeight - VuMeterOffset - VuMeterHeight;  // Y position left channel
-constexpr uint16_t YVuMeterR         = LayerHalfHeight + VuMeterOffset;     // Y position right channel
+constexpr uint16_t VuMeterHeight       = 18; // Height of each VU-meter bar
+constexpr uint16_t VuMeterWidth        = 210;// Width of each VU-meter bar
+constexpr uint16_t VuMeterCenterOffset = 10; // Vertical offset between meters
+constexpr uint16_t VuMeterLROffset     = 6;  // Vertical offset between meters
+
+constexpr uint16_t TextXOffset       = 50;   // X offset for channel labels
+constexpr uint16_t ClipXOffset       = 5;    // X offset for clipping indicators
+constexpr uint16_t LayerHalfHeight   = PARAM_HEIGHT / 2;  										// Half height of the layer
+constexpr uint16_t XVuMeter          = ((SCREEN_WIDTH - VuMeterWidth) / 2) + 20;				// X position centered
+
+constexpr uint16_t YVuMeterInL       = LayerHalfHeight - VuMeterCenterOffset - (2 * VuMeterHeight) - VuMeterLROffset; // Y position left channel
+constexpr uint16_t YVuMeterInR       = LayerHalfHeight - VuMeterCenterOffset - VuMeterHeight;     				      // Y position right channel
+constexpr uint16_t YVuMeterOutL      = LayerHalfHeight + VuMeterCenterOffset;  										  // Y position left channel
+constexpr uint16_t YVuMeterOutR      = LayerHalfHeight + VuMeterCenterOffset + VuMeterHeight + VuMeterLROffset ;  	  // Y position right channel
+
 constexpr uint16_t ClipRadius        = 6;   // Radius of clipping indicator circles
 
 //**********************************************************************************
@@ -42,12 +48,16 @@ constexpr uint16_t ClipRadius        = 6;   // Radius of clipping indicator circ
 void cUIVuMeter::Init() {
     // Attach display layer and initialize meters
     m_pVuMeterLayer  = ADD_LAYER(__Display, VuMeterLayer, 0, MENU_HEIGHT, 0);
-    m_VuMeterLeft.Init(SAMPLING_RATE);
-    m_VuMeterRight.Init(SAMPLING_RATE);
+    m_VuMeterInLeft.Init(SAMPLING_RATE);
+    m_VuMeterInRight.Init(SAMPLING_RATE);
+    m_VuMeterOutLeft.Init(SAMPLING_RATE);
+    m_VuMeterOutRight.Init(SAMPLING_RATE);
 
     m_isActive = false;           // UI active state flag
-    m_MemClippingLeft  = false;   // Left channel clipping memory
-    m_MemClippingRight = false;   // Right channel clipping memory
+    m_MemClippingInLeft  = false;   // Left channel clipping memory
+    m_MemClippingOutRight = false;   // Right channel clipping memory
+    m_MemClippingOutLeft  = false;   // Left channel clipping memory
+    m_MemClippingOutRight = false;   // Right channel clipping memory
 }
 
 // ---------------------------------------------------------------------------------
@@ -58,10 +68,15 @@ void cUIVuMeter::Activate() {
     m_isActive = true;  // Mark UI as active
 
     // Reset meter states
-    m_VuMeterLeft.reset();
-    m_VuMeterLeft.resetPeak();
-    m_VuMeterRight.reset();
-    m_VuMeterRight.resetPeak();
+    m_VuMeterInLeft.reset();
+    m_VuMeterInLeft.resetPeak();
+    m_VuMeterInRight.reset();
+    m_VuMeterInRight.resetPeak();
+
+    m_VuMeterOutLeft.reset();
+    m_VuMeterOutLeft.resetPeak();
+    m_VuMeterOutRight.reset();
+    m_VuMeterOutRight.resetPeak();
 
     // Register GUI process callback
     __GUI.setGUIProcess(this);
@@ -85,10 +100,15 @@ void cUIVuMeter::Deactivate() {
     __GUI.setGUIProcess(nullptr);
 
     // Reset VU-meter states
-    m_VuMeterLeft.reset();
-    m_VuMeterLeft.resetPeak();
-    m_VuMeterRight.reset();
-    m_VuMeterRight.resetPeak();
+    m_VuMeterInLeft.reset();
+    m_VuMeterInLeft.resetPeak();
+    m_VuMeterInRight.reset();
+    m_VuMeterInRight.resetPeak();
+
+    m_VuMeterOutLeft.reset();
+    m_VuMeterOutLeft.resetPeak();
+    m_VuMeterOutRight.reset();
+    m_VuMeterOutRight.resetPeak();
 
     // Move layer to background
     m_pVuMeterLayer->changeZOrder(0);
@@ -128,18 +148,32 @@ void cUIVuMeter::drawStatPartOffLayer() {
     m_pVuMeterLayer->eraseLayer(__pActivePalette->VuMeterBack);
 
     // Configure text rendering
-    m_pVuMeterLayer->setFont(FONTMB);
+    m_pVuMeterLayer->setFont(FONTSB);
     m_pVuMeterLayer->setTextFrontColor(__pActivePalette->VuMeterText);
 
     // Draw channel labels
-    m_pVuMeterLayer->setCursor(TextXOffset, YVuMeterL - 2);
+    m_pVuMeterLayer->setCursor(5, YVuMeterInL + VuMeterLROffset);
+    m_pVuMeterLayer->drawText("In");
+
+    m_pVuMeterLayer->setCursor(TextXOffset, YVuMeterInL - 2);
     m_pVuMeterLayer->drawChar('L');
-    m_pVuMeterLayer->setCursor(TextXOffset, YVuMeterR - 2);
+    m_pVuMeterLayer->setCursor(TextXOffset, YVuMeterInR - 2);
+    m_pVuMeterLayer->drawChar('R');
+
+    m_pVuMeterLayer->setCursor(5, YVuMeterOutR - VuMeterHeight);
+    m_pVuMeterLayer->drawText("Out");
+
+    m_pVuMeterLayer->setCursor(TextXOffset, YVuMeterOutL - 2);
+    m_pVuMeterLayer->drawChar('L');
+    m_pVuMeterLayer->setCursor(TextXOffset, YVuMeterOutR - 2);
     m_pVuMeterLayer->drawChar('R');
 
     // Draw VU-meter frames
-    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterL - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __pActivePalette->VuMeterLine);
-    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterR - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __pActivePalette->VuMeterLine);
+    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterInL - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __pActivePalette->VuMeterLine);
+    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterInR - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __pActivePalette->VuMeterLine);
+    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterOutL - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __pActivePalette->VuMeterLine);
+    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterOutR - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __pActivePalette->VuMeterLine);
+
 }
 
 // ---------------------------------------------------------------------------------
@@ -148,57 +182,112 @@ void cUIVuMeter::drawStatPartOffLayer() {
 // ---------------------------------------------------------------------------------
 void cUIVuMeter::drawDynPartOffLayer() {
     // Erase old levels by filling with background color
-    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterL, VuMeterWidth, VuMeterHeight, __pActivePalette->VuMeterBack);
-    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterR, VuMeterWidth, VuMeterHeight, __pActivePalette->VuMeterBack);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterInL, VuMeterWidth, VuMeterHeight, __pActivePalette->VuMeterBack);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterInR, VuMeterWidth, VuMeterHeight, __pActivePalette->VuMeterBack);
 
     // Draw current signal levels based on dB percentage
-    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterL, VuMeterWidth * m_VuMeterLeft.getLevelPercentDB(), VuMeterHeight, __pActivePalette->VuMeterCursor);
-    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterR, VuMeterWidth * m_VuMeterRight.getLevelPercentDB(), VuMeterHeight, __pActivePalette->VuMeterCursor);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterInL, VuMeterWidth * m_VuMeterInLeft.getLevelPercentDB(), VuMeterHeight, __pActivePalette->VuMeterCursor);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterInR, VuMeterWidth * m_VuMeterInRight.getLevelPercentDB(), VuMeterHeight, __pActivePalette->VuMeterCursor);
+
+    // Erase old levels by filling with background color
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterOutL, VuMeterWidth, VuMeterHeight, __pActivePalette->VuMeterBack);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterOutR, VuMeterWidth, VuMeterHeight, __pActivePalette->VuMeterBack);
+
+    // Draw current signal levels based on dB percentage
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterOutL, VuMeterWidth * m_VuMeterOutLeft.getLevelPercentDB(), VuMeterHeight, __pActivePalette->VuMeterCursor);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterOutR, VuMeterWidth * m_VuMeterOutRight.getLevelPercentDB(), VuMeterHeight, __pActivePalette->VuMeterCursor);
 
     // Draw peak indicators for left channel
-    uint16_t XPeakLine = XVuMeter + VuMeterWidth * m_VuMeterLeft.getPeakPercentDB();
-    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterL, XPeakLine, YVuMeterL + VuMeterHeight, __pActivePalette->VuMeterPeak);
-    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterL, XPeakLine - 1, YVuMeterL + VuMeterHeight, __pActivePalette->VuMeterPeak);
+    uint16_t XPeakLine = XVuMeter + VuMeterWidth * m_VuMeterInLeft.getPeakPercentDB();
+    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterInL, XPeakLine, YVuMeterInL + VuMeterHeight, __pActivePalette->VuMeterPeak);
+    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterInL, XPeakLine - 1, YVuMeterInL + VuMeterHeight, __pActivePalette->VuMeterPeak);
 
     // Draw peak indicators for right channel
-    XPeakLine = XVuMeter + VuMeterWidth * m_VuMeterRight.getPeakPercentDB();
-    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterR, XPeakLine, YVuMeterR + VuMeterHeight, __pActivePalette->VuMeterPeak);
-    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterR, XPeakLine - 1, YVuMeterR + VuMeterHeight, __pActivePalette->VuMeterPeak);
+    XPeakLine = XVuMeter + VuMeterWidth * m_VuMeterInRight.getPeakPercentDB();
+    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterInR, XPeakLine, YVuMeterInR + VuMeterHeight, __pActivePalette->VuMeterPeak);
+    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterInR, XPeakLine - 1, YVuMeterInR + VuMeterHeight, __pActivePalette->VuMeterPeak);
+
+    // Draw peak indicators for left channel
+    XPeakLine = XVuMeter + VuMeterWidth * m_VuMeterOutLeft.getPeakPercentDB();
+    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterOutL, XPeakLine, YVuMeterOutL + VuMeterHeight, __pActivePalette->VuMeterPeak);
+    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterOutL, XPeakLine - 1, YVuMeterOutL + VuMeterHeight, __pActivePalette->VuMeterPeak);
+
+    // Draw peak indicators for right channel
+    XPeakLine = XVuMeter + VuMeterWidth * m_VuMeterOutRight.getPeakPercentDB();
+    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterOutR, XPeakLine, YVuMeterOutR + VuMeterHeight, __pActivePalette->VuMeterPeak);
+    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterOutR, XPeakLine - 1, YVuMeterOutR + VuMeterHeight, __pActivePalette->VuMeterPeak);
 
     // Update left channel clipping indicator if state changed
-    bool IsClipping = m_VuMeterLeft.isClipping();
-    if (m_MemClippingLeft != IsClipping) {
-        m_MemClippingLeft = IsClipping;
+    bool IsClipping = m_VuMeterInLeft.isClipping();
+    if (m_MemClippingInLeft != IsClipping) {
+        m_MemClippingInLeft = IsClipping;
         m_pVuMeterLayer->drawFillCircle(
             XVuMeter + VuMeterWidth + ClipXOffset + ClipRadius,
-            YVuMeterL + (VuMeterHeight / 2),
+            YVuMeterInL + (VuMeterHeight / 2),
             ClipRadius,
             IsClipping ? __pActivePalette->VuMeterClip : __pActivePalette->VuMeterBack
         );
     }
 
     // Update right channel clipping indicator if state changed
-    IsClipping = m_VuMeterRight.isClipping();
-    if (m_MemClippingRight != IsClipping) {
-        m_MemClippingRight = IsClipping;
+    IsClipping = m_VuMeterInRight.isClipping();
+    if (m_MemClippingInRight != IsClipping) {
+        m_MemClippingInRight = IsClipping;
         m_pVuMeterLayer->drawFillCircle(
             XVuMeter + VuMeterWidth + ClipXOffset + ClipRadius,
-            YVuMeterR + (VuMeterHeight / 2),
+            YVuMeterInR + (VuMeterHeight / 2),
             ClipRadius,
             IsClipping ? __pActivePalette->VuMeterClip : __pActivePalette->VuMeterBack
         );
     }
+
+    // Update left channel clipping indicator if state changed
+    IsClipping = m_VuMeterOutLeft.isClipping();
+    if (m_MemClippingOutLeft != IsClipping) {
+        m_MemClippingOutLeft = IsClipping;
+        m_pVuMeterLayer->drawFillCircle(
+            XVuMeter + VuMeterWidth + ClipXOffset + ClipRadius,
+            YVuMeterOutL + (VuMeterHeight / 2),
+            ClipRadius,
+            IsClipping ? __pActivePalette->VuMeterClip : __pActivePalette->VuMeterBack
+        );
+    }
+
+    // Update right channel clipping indicator if state changed
+    IsClipping = m_VuMeterOutRight.isClipping();
+    if (m_MemClippingOutRight != IsClipping) {
+        m_MemClippingOutRight = IsClipping;
+        m_pVuMeterLayer->drawFillCircle(
+            XVuMeter + VuMeterWidth + ClipXOffset + ClipRadius,
+            YVuMeterOutR + (VuMeterHeight / 2),
+            ClipRadius,
+            IsClipping ? __pActivePalette->VuMeterClip : __pActivePalette->VuMeterBack
+        );
+    }
+
 }
 
 // ---------------------------------------------------------------------------------
-// Function: GUIProcess
+// Function: GUIProcessIn
 // Description: Processes audio input buffers and updates VU-meter readings in real time
 // ---------------------------------------------------------------------------------
-ITCM void cUIVuMeter::GUIProcess(AudioBuffer* pIn) {
+ITCM void cUIVuMeter::GUIProcessIn(AudioBuffer* pIn) {
     if (m_isActive) {
         // Process left and right audio channels
-        m_VuMeterLeft.Process(pIn->Left);
-        m_VuMeterRight.Process(pIn->Right);
+        m_VuMeterInLeft.Process(pIn->Left);
+        m_VuMeterInRight.Process(pIn->Right);
+    }
+}
+
+// ---------------------------------------------------------------------------------
+// Function: GUIProcessOut
+// Description: Processes audio output buffers and updates VU-meter readings in real time
+// ---------------------------------------------------------------------------------
+ITCM void cUIVuMeter::GUIProcessOut(AudioBuffer* pOut) {
+    if (m_isActive) {
+        // Process left and right audio channels
+        m_VuMeterOutLeft.Process(pOut->Left);
+        m_VuMeterOutRight.Process(pOut->Right);
     }
 }
 

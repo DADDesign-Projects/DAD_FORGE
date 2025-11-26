@@ -248,12 +248,24 @@ void cMainGUI::RTProcess() {
 //-------------------------------------------------------------------------
 // GUIProcess
 //
-// Description: Processes GUI-related audio operations if a GUI process
+// Description: Process audio buffer through GUI object before audio process
 // object is registered.
 //-------------------------------------------------------------------------
-void cMainGUI::GUIProcess(AudioBuffer* pIn) {
+void cMainGUI::GUIProcessIn(AudioBuffer* pIn) {
     if (m_pGUIProcessObject) {
-        m_pGUIProcessObject->GUIProcess(pIn);
+        m_pGUIProcessObject->GUIProcessIn(pIn);
+    }
+}
+
+//-------------------------------------------------------------------------
+// GUIProcess
+//
+// Description: Process audio buffer through GUI object after audio process
+// object is registered.
+//-------------------------------------------------------------------------
+void cMainGUI::GUIProcessOut(AudioBuffer* pOut) {
+    if (m_pGUIProcessObject) {
+        m_pGUIProcessObject->GUIProcessOut(pOut);
     }
 }
 

@@ -51,10 +51,16 @@ public:
     void Update() override;
 
     // ---------------------------------------------------------------------------------
-    // Function: GUIProcess
-    // Description: Processes real-time audio buffers to compute current and peak levels
+    // Function: GUIProcessIn
+    // Description: Processes audio input buffers and updates VU-meter readings in real time
     // ---------------------------------------------------------------------------------
-    ITCM void GUIProcess(AudioBuffer* pIn) override;
+    ITCM void GUIProcessIn(AudioBuffer* pIn) override;
+
+    // ---------------------------------------------------------------------------------
+    // Function: GUIProcessOut
+    // Description: Processes audio ouput buffers and updates VU-meter readings in real time
+    // ---------------------------------------------------------------------------------
+    ITCM void GUIProcessOut(AudioBuffer* pOut) override;
 
     // ---------------------------------------------------------------------------------
     // Function: Redraw
@@ -78,10 +84,14 @@ protected:
     // Member variables
     DadGFX::cLayer*    m_pVuMeterLayer;    // Pointer to the dedicated display layer
     bool               m_isActive;         // Indicates whether the UI component is active
-    DadDSP::cVuMeter   m_VuMeterLeft;      // Left channel VU-meter processor
-    DadDSP::cVuMeter   m_VuMeterRight;     // Right channel VU-meter processor
-    bool               m_MemClippingLeft;  // Stores previous clipping state for left channel
-    bool               m_MemClippingRight; // Stores previous clipping state for right channel
+    DadDSP::cVuMeter   m_VuMeterInLeft;    // Left channel VU-meter processor
+    DadDSP::cVuMeter   m_VuMeterInRight;   // Right channel VU-meter processor
+    DadDSP::cVuMeter   m_VuMeterOutLeft;   // Left channel VU-meter processor
+    DadDSP::cVuMeter   m_VuMeterOutRight;  // Right channel VU-meter processor
+    bool               m_MemClippingInLeft;  // Stores previous clipping state for left channel
+    bool               m_MemClippingInRight; // Stores previous clipping state for right channel
+    bool               m_MemClippingOutLeft;  // Stores previous clipping state for left channel
+    bool               m_MemClippingOutRight; // Stores previous clipping state for right channel
 };
 
 } // namespace DadGUI

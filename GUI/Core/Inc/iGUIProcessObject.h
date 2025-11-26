@@ -36,8 +36,12 @@ public:
     // Pure Virtual Methods
     // -----------------------------------------------------------------------------
 
-    // Process audio buffer through GUI object
-    virtual void GUIProcess(AudioBuffer *pIn) = 0;
+    // Process audio buffer through GUI object before audio process
+    virtual void GUIProcessIn(AudioBuffer *pIn) = 0;
+
+    // Process audio buffer through GUI object after audio process
+    virtual void GUIProcessOut(AudioBuffer *pOut) = 0;
+
 };
 
 } // namespace DadGUI
