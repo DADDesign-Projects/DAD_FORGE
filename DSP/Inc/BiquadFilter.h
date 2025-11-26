@@ -38,7 +38,8 @@ enum class FilterType : int {
     NOTCH,     // Notch Filter
     PEQ,       // Peaking band EQ filter
     LSH,       // Low shelf filter
-    HSH        // High shelf filter
+    HSH,       // High shelf filter
+	AFP		   // All-pass filter
 };
 
 //**********************************************************************************
@@ -81,7 +82,7 @@ public:
     // -----------------------------------------------------------------------------
     // Coefficient calculation
     // -----------------------------------------------------------------------------
-    ITCM void CalculateParameters();
+    void CalculateParameters();
 
     // -----------------------------------------------------------------------------
     // Frequency response analysis

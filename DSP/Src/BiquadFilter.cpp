@@ -110,7 +110,6 @@ void cBiQuad::CalculateParameters() {
         a2 = (A + 1) + (A - 1) * cs - beta * sn;
         break;
     case FilterType::HSH:
-    default:
         // High shelf filter coefficients
         b0 = A * ((A + 1) + (A - 1) * cs + beta * sn);
         b1 = -2 * A * ((A - 1) + (A + 1) * cs);
@@ -118,6 +117,16 @@ void cBiQuad::CalculateParameters() {
         a0 = (A + 1) - (A - 1) * cs + beta * sn;
         a1 = 2 * ((A - 1) - (A + 1) * cs);
         a2 = (A + 1) - (A - 1) * cs - beta * sn;
+        break;
+    case FilterType::AFP:
+    default:
+        // All-pass filter coefficients
+        b0 = 1 - alpha;
+        b1 = -2 * cs;
+        b2 = 1 + alpha;
+        a0 = 1 + alpha;
+        a1 = -2 * cs;
+        a2 = 1 - alpha;
         break;
     }
 
@@ -130,30 +139,6 @@ void cBiQuad::CalculateParameters() {
     m_a3 = a1 / a0;    // a1 normalized
     m_a4 = a2 / a0;    // a2 normalized
     __enable_irq();
-}
-
-//**********************************************************************************
-// Frequency response analysis
-//**********************************************************************************
-
-// -----------------------------------------------------------------------------
-// Calculate filter gain at specified frequency
-// -----------------------------------------------------------------------------
-float cBiQuad::GainDb(float freq) {
-    // Calculate intermediate variable for frequency response
-    float Phi = 4 * std::sin(std::pow(kPi * freq / m_sampleRate, 2.0));
-
-    // Calculate numerator and denominator of transfer function
-    float num = ((m_a0 * m_a2 * (Phi * Phi)) + std::pow(m_a0 + m_a1 + m_a2, 2.0) - (((m_a0 * m_a1) + (4 * m_a0 * m_a2) + (m_a1 * m_a2)) * Phi));
-    float denum = (m_a4 * std::pow(Phi, 2.0)) + std::pow(m_a3 + m_a4 + 1, 2.0) - (((m_a3 * m_a4) + m_a3 + (4 * +m_a4)) * Phi);
-
-    // Calculate gain in dB, with special handling for 2nd order filters
-    if ((m_type == FilterType::LPF24) || (m_type == FilterType::HPF24)) {
-        return (20 * std::log10(std::sqrt(num / denum))) + (20 * log10(std::sqrt(num / denum)));
-    }
-    else {
-        return 20 * std::log10(std::sqrt(num / denum));
-    }
 }
 
 //**********************************************************************************
