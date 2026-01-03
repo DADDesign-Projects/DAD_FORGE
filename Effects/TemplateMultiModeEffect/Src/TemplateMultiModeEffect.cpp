@@ -54,7 +54,7 @@ void cTemplateMultiModeEffect1::onInitialize(){
 void cTemplateMultiModeEffect1::onActivate(){
 	// Activation logic placeholder
 	// Activation logic placeholder
-	__DryWet.setMix(1.0f);
+	__DryWet.setMix(100);
 }
 
 // ---------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ void cTemplateMultiModeEffect1::onDesactivate(){
 // Process
 // Audio processing method - applies effect to input buffer
 // ---------------------------------------------------------------------------------
-void cTemplateMultiModeEffect1::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff){
+void cTemplateMultiModeEffect1::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence){
 	// Apply volume scaling when effect is active
 	pOut->Left = pIn->Left * m_ParameterDemo1.getValue() * __DryWet.getGainWet();
 	pOut->Right = pIn->Right * m_ParameterDemo1.getValue() * __DryWet.getGainWet();
@@ -117,7 +117,7 @@ void cTemplateMultiModeEffect2::onInitialize(){
 // ---------------------------------------------------------------------------------
 void cTemplateMultiModeEffect2::onActivate(){
 	// Activation logic placeholder
-	__DryWet.setMix(1.0f);
+	__DryWet.setMix(100);
 
 }
 
@@ -133,7 +133,7 @@ void cTemplateMultiModeEffect2::onDesactivate(){
 // Process
 // Audio processing method - applies effect to input buffer
 // ---------------------------------------------------------------------------------
-void cTemplateMultiModeEffect2::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff){
+void cTemplateMultiModeEffect2::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence){
 	// Apply volume scaling when effect is active
 	pOut->Left = pIn->Left * m_ParameterDemo1.getValue() * __DryWet.getGainWet();
 	pOut->Right = pIn->Right * m_ParameterDemo1.getValue() * __DryWet.getGainWet();
