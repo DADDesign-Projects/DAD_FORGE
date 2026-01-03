@@ -130,8 +130,8 @@ void cInfoView::Redraw(){
 // -----------------------------------------------------------------------------
 
 // Layout constants for text placement
-#define MEM_OFFSET    2      // Vertical offset for memory label
-#define NUM_OFFSET    1      // Vertical offset for memory number
+#define MEM_OFFSET    64      // Vertical offset for memory label
+#define NUM_OFFSET    10     // Vertical offset for memory number
 #define CENTER_MEM    65     // Horizontal center for memory display
 #define CENTER_STATE  220    // Horizontal center for state display
 
@@ -147,20 +147,20 @@ void cInfoView::ShowView(bool isDirty, uint8_t MemSlot, const std::string State)
 	//------------------------
 	// Memory label
 	//------------------------
-	m_pInfoLayer->setFont(FONTMB);                                      // Set font for label
-	uint16_t MemWidth = m_pInfoLayer->getTextWidth("Mem.");             // Calculate text width
-	m_pInfoLayer->setCursor(CENTER_MEM - (MemWidth / 2), MEM_OFFSET);   // Position cursor
+	m_pInfoLayer->setFont(FONTXSB);                                      // Set font for label
+	uint16_t MemWidth = m_pInfoLayer->getTextWidth("Memory");           // Calculate text width
+	m_pInfoLayer->setCursor(CENTER_MEM - (MemWidth / 2) + 2, MEM_OFFSET);   // Position cursor
 	m_pInfoLayer->setTextFrontColor(__pActivePalette->MainInfoMem);     // Set text color
-	m_pInfoLayer->drawText("Mem.");                                     // Draw memory label
+	m_pInfoLayer->drawText("Memory");                                   // Draw memory label
 
 	//------------------------
 	// Memory number
 	//------------------------
-	std::string NumMem = std::to_string(MemSlot);                       // Convert slot to string
+	std::string NumMem = std::to_string(MemSlot);						// Convert slot to string
+	m_pInfoLayer->setFont(FONTXXXLB);
 	uint16_t MemHeight = m_pInfoLayer->getTextHeight();                 // Get text height
-	m_pInfoLayer->setFont(FONTXLB);                                     // Set larger font for number
 	uint16_t NumWidth = m_pInfoLayer->getTextWidth(NumMem.c_str());     // Calculate number width
-	m_pInfoLayer->setCursor(CENTER_MEM - (NumWidth / 2), MemHeight + NUM_OFFSET);  // Position cursor
+	m_pInfoLayer->setCursor(CENTER_MEM - (NumWidth / 2), yCenterView - (MemHeight/2) - NUM_OFFSET);  // Position cursor
 	m_pInfoLayer->setTextFrontColor(__pActivePalette->MainInfoMem);     // Set text color
 	m_pInfoLayer->drawText(NumMem.c_str());                             // Draw memory number
 
@@ -170,7 +170,7 @@ void cInfoView::ShowView(bool isDirty, uint8_t MemSlot, const std::string State)
 	if (isDirty) {
 		std::string Dirty = "Dirty";                                    // Dirty indicator text
 		m_pInfoLayer->setFont(FONTXXSB);                                // Set small font
-		m_pInfoLayer->setCursorOffset(5, 2);                            // Position offset
+		m_pInfoLayer->setCursorOffset(6, 4);                            // Position offset
 		m_pInfoLayer->setTextFrontColor(__pActivePalette->MainInfoDirty); // Set dirty color
 		m_pInfoLayer->drawText(Dirty.c_str());                          // Draw dirty indicator
 	}
