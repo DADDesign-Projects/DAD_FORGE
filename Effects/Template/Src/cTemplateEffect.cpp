@@ -50,6 +50,7 @@ void cTemplateEffect::onInitialize(){
     // Add panel to menu system
     m_Menu.addMenuItem(&m_ParametrerDemoPanel,     // Panel
                        "Demo");                    // menu item name
+
 }
 
 // -----------------------------------------------------------------------------
@@ -64,9 +65,9 @@ uint32_t cTemplateEffect::getEffectID(){
 // Method: Process
 // Description: Audio processing function - processes one input/output audio buffer
 // -----------------------------------------------------------------------------
-ITCM void cTemplateEffect::Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff){
+ITCM void cTemplateEffect::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence){
     // Retrieve current gain value from parameter system
-    float gainValue = m_ParameterGain.getValue();
+    float gainValue = m_ParameterGain.getValue()/100;
     
     // Apply gain to both left and right audio channels
     pOut->Left = pIn->Left * gainValue;

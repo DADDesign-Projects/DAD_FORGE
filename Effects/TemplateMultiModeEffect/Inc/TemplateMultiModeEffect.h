@@ -44,7 +44,7 @@ public:
     // Process
     // Audio processing method - applies effect to input buffer
     // -----------------------------------------------------------------------------
-    void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff) override;
+    void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) override;
 
 protected:
     // =============================================================================
@@ -93,7 +93,7 @@ public:
     // Process
     // Audio processing method - applies effect to input buffer
     // -----------------------------------------------------------------------------
-    void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff) override;
+    void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) override;
 
 protected:
     // =============================================================================

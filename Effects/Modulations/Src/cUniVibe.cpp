@@ -71,7 +71,7 @@ void cUniVibe::onInitialize() {
     m_Speed.Init(UNIVIBE_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, SpeedChange, 0, 2.0f * RT_RATE, 31);
 
     // Initialize dry/wet mix parameter with callback
-    m_DryWetMix.Init(UNIVIBE_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.0f, MixChange, (uint32_t)this, 3.0f * RT_RATE, 32);
+    m_DryWetMix.Init(UNIVIBE_ID, 35.0f, 0.0f, 100.0f, 5.0f, 1.0f, MixChange, (uint32_t)this, 3.0f * RT_RATE, 32);
 
     // =============================================================================
     // VIEW SETUP SECTION
@@ -130,7 +130,7 @@ void cUniVibe::onDesactivate() {
 // Method: Process
 // Description: Audio processing method - applies UniVibe phaser effect
 // ---------------------------------------------------------------------------------
-void cUniVibe::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff) {
+void cUniVibe::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) {
     // Update LFO position
     m_LFO.Step();
 

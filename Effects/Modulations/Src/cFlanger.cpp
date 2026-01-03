@@ -137,7 +137,7 @@ void cFlanger::onDesactivate() {
 // Method: Process
 // Description: Audio processing method - applies chorus effect to input buffer
 // ---------------------------------------------------------------------------------
-void cFlanger::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff) {
+void cFlanger::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) {
 
     // Declare processing variables
     float OutLeft;   	// Single chorus output left channel

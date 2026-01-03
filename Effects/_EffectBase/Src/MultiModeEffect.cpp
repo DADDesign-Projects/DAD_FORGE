@@ -106,7 +106,7 @@ namespace DadEffect {
     // Process
     // Description: Real-time audio processing delegate to active effect
     //
-    ITCM void cMainMultiModeEffect::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff){
+    ITCM void cMainMultiModeEffect::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence){
     	if(m_IndexChange < 0xFF){
     		__DryWet.forceMix(0.0f);
             // Apply state change only when input is near silence to avoid clicks
@@ -117,7 +117,7 @@ namespace DadEffect {
     	}else{
     		__DryWet.Process(OnOff == eOnOff::On);
     		AudioBuffer OutEffect;
-    		m_pActiveEffect->Process(pIn, &OutEffect, OnOff); // Delegate processing to active effect
+    		m_pActiveEffect->Process(pIn, &OutEffect, OnOff, Silence); // Delegate processing to active effect
     		m_PanelOfTone.Process(&OutEffect, pOut, OnOff);
     	}
     }

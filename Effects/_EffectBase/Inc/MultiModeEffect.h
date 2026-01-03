@@ -76,7 +76,7 @@ public:
     // Process
     // Description: Pure virtual method for real-time audio processing
     //
-    virtual void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff) = 0;
+    virtual void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) = 0;
 
     // =============================================================================
     // Getter Methods
@@ -140,7 +140,7 @@ public:
     // Process
     // Description: Real-time audio processing delegate to active effect
     //
-    ITCM void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff);
+    ITCM void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence);
 
     // -----------------------------------------------------------------------------
     // getEffect
