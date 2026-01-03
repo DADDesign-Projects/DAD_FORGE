@@ -141,14 +141,14 @@ public:
     // -----------------------------------------------------------------------------
     // Reads the sine wave output value
     inline float getSineValue() {
-        // Generate sine wave from phase with offset for positive range
-        return 0.5f + (sin((m_twoPI * m_dcoValue) + m_halfPI) / 2.0f);
+        // Generate sine wave 0 -> 1
+        return 0.5f + (sin((m_twoPI * m_dcoValue) + m_halfPI) * 0.5f);
     }
 
     // -----------------------------------------------------------------------------
     // Reads the sine wave output value
     inline float getSymetricalSineValue() {
-        // Generate sine wave from phase with offset for positive range
+        // Generate sine wave -1 -> 1
         return sin((m_twoPI * m_dcoValue) + m_halfPI);
     }
 
