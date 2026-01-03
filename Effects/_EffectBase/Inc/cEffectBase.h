@@ -34,7 +34,11 @@ public:
 
 	// -----------------------------------------------------------------------------
     // Audio processing function: processes one input/output audio buffer
-    ITCM virtual void Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff) = 0;
+    ITCM virtual void Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence);
+
+	// -----------------------------------------------------------------------------
+    // Audio processing function: processes one input/output audio buffer
+    ITCM virtual void onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence) = 0;
 
 
 protected:
