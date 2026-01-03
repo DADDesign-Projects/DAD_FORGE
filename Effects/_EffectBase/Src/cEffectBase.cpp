@@ -44,10 +44,19 @@ void cEffectBase::Initialize()
     __GUI.activeMainComponent(&m_Menu);
 
     // Initialize audio processing settings
-    __DryWet.setMix(1.0f);
+    __DryWet.setMix(100);
     SetPIN(AUDIO_MUTE);
 }
 
-} // namespace DadEffect
+// -----------------------------------------------------------------------------
+// Audio processing function: processes one input/output audio buffer
+ITCM void cEffectBase::Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence){
+	 __DryWet.Process(OnOff == eOnOff::On);  // Process dry/wet mix
+	 onProcess(pIn, pOut, OnOff, Silence);
+}
+
+}
+
+// namespace DadEffect
 
 //***End of file**************************************************************
