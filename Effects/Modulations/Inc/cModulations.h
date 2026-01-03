@@ -15,7 +15,7 @@ namespace DadEffect {
 // Description: Main multi-mode modulations effect
 //**********************************************************************************
 
-constexpr uint8_t NB_EFFECTS = 4;                                       // Number of available effects
+constexpr uint8_t NB_EFFECTS = 5;                                       // Number of available effects
 
 class cMainModulations : public cMainMultiModeEffect {
 public:
