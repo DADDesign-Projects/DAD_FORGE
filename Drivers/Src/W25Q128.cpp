@@ -70,12 +70,14 @@ HAL_StatusTypeDef cW25Q128::Init(QSPI_HandleTypeDef* phqspi, bool DualMode, uint
     HAL_StatusTypeDef Result = HAL_OK;    // Operation result
     QSPI_CommandTypeDef cmd;              // QSPI command structure
 
+    //==================================================================
     // Store configuration parameters
     m_pQSPI = phqspi;                     // Store QSPI handle
     m_DualMode = DualMode;                // Store dual mode setting
     m_MemoryMappedBaseAddress = MemoryMappedBaseAddress; // Store memory mapped base address
     m_MappedMode = false;                 // Start in indirect mode
 
+    //==================================================================
     // Perform software reset to ensure clean state
     cmd = {0};
     cmd.Instruction = CMD_ENABLE_RESET;   // Enable Reset command
@@ -86,10 +88,57 @@ HAL_StatusTypeDef cW25Q128::Init(QSPI_HandleTypeDef* phqspi, bool DualMode, uint
     CHECK_RESULT(HAL_QSPI_Command(m_pQSPI, &cmd, DEFAULT_TIMEOUT));
 
     HAL_Delay(100);                       // Wait for reset to complete
+    //==================================================================
+    // Initialize Status register 1
+
+    // Set Output Driver Strength and protected flag
+    W25Q128_StatusReg1 StatusReg1[4] = {}; // Status register 1 buffer
+/*
+    // Read current status register 3
+    cmd = {0};
+    cmd.Instruction = CMD_READ_STATUS_REG1; // Read Status Register-3
+    cmd.InstructionMode = QSPI_INSTRUCTION_1_LINE;
+    cmd.DataMode = QSPI_DATA_1_LINE;
+    if(m_DualMode){
+        cmd.NbData = 2;                   // Read from both chips in dual mode
+    }else{
+        cmd.NbData = 1;                   // Single chip read
+    }
+    CHECK_RESULT(HAL_QSPI_Command(m_pQSPI, &cmd, DEFAULT_TIMEOUT));
+    CHECK_RESULT(HAL_QSPI_Receive(m_pQSPI, (uint8_t *)StatusReg1, DEFAULT_TIMEOUT));
+*/
+    // Set register
+    StatusReg1[0].BP0 = 0;
+    StatusReg1[0].BP1 = 0;
+    StatusReg1[0].BP2 = 0;
+    StatusReg1[0].SRP0 = 0;
+    StatusReg1[0].SEC = 0;
+    StatusReg1[0].TB = 0;
+
+    StatusReg1[1] = StatusReg1[0];        // Copy for dual mode
+
+    // Enable write operations
+    cmd = {0};
+    cmd.Instruction = CMD_WRITE_ENABLE;   // Write Enable command
+    cmd.InstructionMode = QSPI_INSTRUCTION_1_LINE;
+    CHECK_RESULT(HAL_QSPI_Command(m_pQSPI, &cmd, DEFAULT_TIMEOUT));
+
+    // Write modified status register 1
+    cmd.Instruction = CMD_WRITE_STATUS_REG1; // Write Status Register-3
+    cmd.InstructionMode = QSPI_INSTRUCTION_1_LINE;
+    cmd.DataMode = QSPI_DATA_1_LINE;
+    cmd.NbData = 1;                       // Write one byte
+    CHECK_RESULT(HAL_QSPI_Command(m_pQSPI, &cmd, DEFAULT_TIMEOUT));
+    CHECK_RESULT(HAL_QSPI_Transmit(m_pQSPI, (uint8_t *)StatusReg1, DEFAULT_TIMEOUT));
+
+    CHECK_RESULT(WaitWhileBusy());        // Wait for write operation to complete
+
+    //==================================================================
+    // Initialize Status register 3
 
     // Set Output Driver Strength and protected flag
     W25Q128_StatusReg3 StatusReg3[4] = {}; // Status register 3 buffer
-
+/*
     // Read current status register 3
     cmd = {0};
     cmd.Instruction = CMD_READ_STATUS_REG3; // Read Status Register-3
@@ -102,6 +151,7 @@ HAL_StatusTypeDef cW25Q128::Init(QSPI_HandleTypeDef* phqspi, bool DualMode, uint
     }
     CHECK_RESULT(HAL_QSPI_Command(m_pQSPI, &cmd, DEFAULT_TIMEOUT));
     CHECK_RESULT(HAL_QSPI_Receive(m_pQSPI, (uint8_t *)StatusReg3, DEFAULT_TIMEOUT));
+*/
 
     // Set driver strength bits
     StatusReg3[0].DRV0 = 0;               // Configure driver strength
@@ -125,10 +175,14 @@ HAL_StatusTypeDef cW25Q128::Init(QSPI_HandleTypeDef* phqspi, bool DualMode, uint
 
     CHECK_RESULT(WaitWhileBusy());        // Wait for write operation to complete
 
+    //==================================================================
+    // Initialize Status register 2
     // Enable quad mode
+
     W25Q128_StatusReg2 StatusReg2[4] = {}; // Status register 2 buffer
 
     // Read current status register 2
+/*
     cmd = {0};
     cmd.Instruction = CMD_READ_STATUS_REG2; // Read Status Register-2
     cmd.InstructionMode = QSPI_INSTRUCTION_1_LINE;
@@ -140,9 +194,15 @@ HAL_StatusTypeDef cW25Q128::Init(QSPI_HandleTypeDef* phqspi, bool DualMode, uint
     }
     CHECK_RESULT(HAL_QSPI_Command(m_pQSPI, &cmd, DEFAULT_TIMEOUT));
     CHECK_RESULT(HAL_QSPI_Receive(m_pQSPI, (uint8_t *)StatusReg2, DEFAULT_TIMEOUT));
+*/
 
     // Set QE (Quad Enable) bit
-    StatusReg2[0].QE = 1;                 // Enable quad mode
+    StatusReg2[0].CMP = 0;
+    StatusReg2[0].LB1 = 0;
+    StatusReg2[0].LB2 = 0;
+    StatusReg2[0].LB3 = 0;
+    StatusReg2[0].SRP1 = 0;
+    StatusReg2[0].QE  = 1;                // Enable quad mode
     StatusReg2[1] = StatusReg2[0];        // Copy for dual mode
 
     // Enable write operations
@@ -162,7 +222,11 @@ HAL_StatusTypeDef cW25Q128::Init(QSPI_HandleTypeDef* phqspi, bool DualMode, uint
 
     CHECK_RESULT(WaitWhileBusy());        // Wait for write operation to complete
 
-    CHECK_RESULT(ModeMemoryMap());        // Switch to memory mapped mode
+    //==================================================================
+    // Switch to memory mapped mode
+    CHECK_RESULT(ModeMemoryMap());
+
+
     return Result;
 }
 
