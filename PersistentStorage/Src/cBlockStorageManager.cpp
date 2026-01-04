@@ -56,7 +56,10 @@ bool cBlockStorageManager::Init(uint32_t NumBuild) {
 
     // Generate random starting index for wear leveling
     uint32_t randomValue;
-    HAL_RNG_GenerateRandomNumber(&hrng, &randomValue);
+    HAL_StatusTypeDef Status = HAL_RNG_GenerateRandomNumber(&hrng, &randomValue);
+    if(Status != HAL_OK){
+    	Error_Handler();
+    }
     constexpr uint32_t totalBlocks = NUM_BLOCKS;
     m_LastFreeIndex = randomValue % totalBlocks;
 
