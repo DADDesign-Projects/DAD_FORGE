@@ -37,15 +37,16 @@ constexpr uint32_t kMaGicBuild = BUILD_ID('M', 'A', 'B', 'a');  // Magic number 
 // Pattern 0xDADDBA55 chosen for its distinctive bit pattern
 constexpr uint32_t HEADER_MAGIC = 0xDADDBA55;
 
-// Value indicating an invalid or erased block
+// Value indicating erased block
 // In flash memory, erased state is all bits set to 1
-constexpr uint32_t INVALID_MARKER = 0xFFFFFFFF;
+constexpr uint32_t ERASED_MARKER = 0xFFFFFFFF;
 
 // Marqueur pour un bloc supprimé (mais pas encore effacé physiquement)
 constexpr uint32_t DELETED_MARKER = 0x00000000;
 
 // --------------------------------------------------------------------------
 // Initializes the persistent storage system
+// return true if memory need initialized
 bool cBlockStorageManager::Init(uint32_t NumBuild) {
     sMainBlock MainBlock;
     uint32_t   ReadSize;
@@ -239,8 +240,7 @@ sSaveBlock* cBlockStorageManager::findFreeBlock(sSaveBlock* blockExcl)
             continue;
 
         // Check if block is free (effacé) ou supprimé
-        if (pBlock->m_isValid == INVALID_MARKER || pBlock->m_isValid == DELETED_MARKER)
-        {
+        if ((pBlock->m_isValid == ERASED_MARKER) || (pBlock->m_isValid == DELETED_MARKER)) {
             // Update index for next allocation
             m_LastFreeIndex = (currentIndex + 1) % totalBlocks;
             return pBlock;
