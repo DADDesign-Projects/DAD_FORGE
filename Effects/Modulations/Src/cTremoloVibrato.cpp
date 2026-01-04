@@ -53,29 +53,29 @@ void cTremoloVibrato::onInitialize(){
 
 	// LFO Frequency parameter
 	m_Freq.Init(TREMOLO_ID, 2.5f, FREQ_MIN, FREQ_MAX, 0.5f, 0.1f, SpeedChange, (uint32_t)this,
-				5.0f * RT_RATE, 20);
+				5.0f * RT_RATE, 30);
 
 	// Tremolo Depth parameter
-	m_TremoloDeep.Init(TREMOLO_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0,
-					   0.5f * RT_RATE, 21);
+	m_TremoloDeep.Init(TREMOLO_ID, 55.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0,
+					   0.5f * RT_RATE, 31);
 
 	// Vibrato Depth parameter (used for delay-based pitch modulation)
-	m_VibratoDeep.Init(TREMOLO_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0,
-					   0.5f * RT_RATE, 22);
+	m_VibratoDeep.Init(TREMOLO_ID, 10.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0,
+					   0.5f * RT_RATE, 32);
 
 	// DryWet Mix parameter
-	m_DryWetMix.Init(TREMOLO_ID, 0, 0, 100, 5, 1, MixChange, (uint32_t) this, 0.5f * RT_RATE, 23);
+	m_DryWetMix.Init(TREMOLO_ID, 75, 0, 100, 5, 1, MixChange, (uint32_t) this, 0.5f * RT_RATE, 33);
 
 	// LFO Shape parameter (0: Triangle, 1: Square)
 	m_LFOShape.Init(TREMOLO_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0,
-					0.0f, 24);
+					0.0f, 34);
 
 	// LFO Duty Cycle Ratio parameter
 	m_LFORatio.Init(TREMOLO_ID, 50.0f, 0.0f, 100.0f, 5.0f, 1.0f, RatioChange, (uint32_t)this,
-					0.5f * RT_RATE, 25);
+					0.5f * RT_RATE, 35);
 
 	// Stereo mode parameter
-	m_StereoMode.Init(TREMOLO_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0, 0.0f, 26);
+	m_StereoMode.Init(TREMOLO_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0, 0.0f, 36);
 
     // =============================================================================
     // VIEW SETUP SECTION
@@ -87,8 +87,9 @@ void cTremoloVibrato::onInitialize(){
 	m_DryWetMixView.Init(&m_DryWetMix, "Dry", "Dry", "%", "%");                   // Dry/Wet mix view
 	m_LFORatioView.Init(&m_LFORatio, "Ratio", "Ratio", "%", "%");                 // LFO ratio view
 	m_LFOShapeView.Init(&m_LFOShape, "Shape", "Shape");                           // LFO shape view
-	m_LFOShapeView.AddDiscreteValue("Sinus", "");                                 // Sinus shape option
-	m_LFOShapeView.AddDiscreteValue("Square", "Square");                          // Square shape option
+	m_LFOShapeView.AddDiscreteValue("Sine", "Sine wave");                                 // Sinus shape option
+	m_LFOShapeView.AddDiscreteValue("Triangle", "Triangle wave");                                 // Sinus shape option
+	m_LFOShapeView.AddDiscreteValue("Square", "Square wave");                          // Square shape option
 	m_StereoModeView.Init(&m_StereoMode, "Stereo", "Stereo");                     // Stereo mode view
 	m_StereoModeView.AddDiscreteValue("No", "No St. Effect");                     // No stereo effect
 	m_StereoModeView.AddDiscreteValue("Trem", "Tremolo St.");                     // Tremolo stereo
@@ -133,7 +134,7 @@ void cTremoloVibrato::onInitialize(){
 // Description: Called when effect becomes active
 // ---------------------------------------------------------------------------------
 void cTremoloVibrato::onActivate(){
-	__DryWet.setMix(m_DryWetMix.getValue());  // Set initial dry/wet mix
+	__DryWet.setMix(100-m_DryWetMix.getValue());  // Set initial dry/wet mix
 }
 
 // ---------------------------------------------------------------------------------
@@ -148,7 +149,7 @@ void cTremoloVibrato::onDesactivate(){
 // Method: Process
 // Description: Audio processing method - applies effect to input buffer
 // ---------------------------------------------------------------------------------
-void cTremoloVibrato::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff){
+void cTremoloVibrato::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence){
     // Update LFO phases
 	m_LFOLeft.Step();
 	m_LFORight.Step();
@@ -175,6 +176,17 @@ void cTremoloVibrato::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff)
 			}
 			break;
 		case 1:  // Square wave shape
+			if((m_StereoMode == 0) || (m_StereoMode == 2)){
+                // Mono tremolo: same modulation for both channels
+				VolumeModulationLeft = 1 - (m_LFOLeft.getTriangleModValue() * TremoloDeep);
+				VolumeModulationRight = VolumeModulationLeft;
+			}else if((m_StereoMode == 1) || (m_StereoMode == 3)){
+                // Stereo tremolo: independent modulation per channel
+				VolumeModulationLeft = 1 - (m_LFOLeft.getTriangleModValue() * TremoloDeep);
+				VolumeModulationRight = 1 - (m_LFORight.getTriangleModValue() * TremoloDeep);
+			}
+			break;
+		case 2:  // Square wave shape
 			if((m_StereoMode == 0) || (m_StereoMode == 2)){
                 // Mono tremolo: same modulation for both channels
 				VolumeModulationLeft = 1 - (m_LFOLeft.getSquareModValue() * TremoloDeep);
