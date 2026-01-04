@@ -10,19 +10,13 @@
 #include "cChorus.h"
 
 // Modulator offset constants for different delay lines
-constexpr float MODULATOR_OFFSET_LEFT_1  = 0.0002f;
-constexpr float MODULATOR_OFFSET_RIGHT_1 = 0.001f;
-constexpr float MODULATOR_OFFSET_LEFT_2  = 0.005f;
-constexpr float MODULATOR_OFFSET_RIGHT_2 = 0.007f;
-constexpr float MODULATOR_OFFSET_LEFT_3  = 0.01f;
-constexpr float MODULATOR_OFFSET_RIGHT_3 = 0.02f;
 
-//constexpr float MODULATOR_OFFSET_LEFT_1  = 0.00002f;
-//constexpr float MODULATOR_OFFSET_RIGHT_1 = 0.00001f;
-//constexpr float MODULATOR_OFFSET_LEFT_2  = 0.0005f;
-//constexpr float MODULATOR_OFFSET_RIGHT_2 = 0.0007f;
-//constexpr float MODULATOR_OFFSET_LEFT_3  = 0.001f;
-//constexpr float MODULATOR_OFFSET_RIGHT_3 = 0.002f;
+constexpr float MODULATOR_OFFSET_LEFT_1  = 0.0002f;
+constexpr float MODULATOR_OFFSET_RIGHT_1 = 0.0001f;
+constexpr float MODULATOR_OFFSET_LEFT_2  = 0.0005f;
+constexpr float MODULATOR_OFFSET_RIGHT_2 = 0.0007f;
+constexpr float MODULATOR_OFFSET_LEFT_3  = 0.002f;
+constexpr float MODULATOR_OFFSET_RIGHT_3 = 0.003f;
 
 // Modulator frequency constants for different LFOs
 constexpr float MODULATOR_FREQ_LEFT_1  = 2.0f;
@@ -33,7 +27,7 @@ constexpr float MODULATOR_FREQ_LEFT_3  = 4.0f;
 constexpr float MODULATOR_FREQ_RIGHT_3 = 4.5f;
 
 // Modulator pitch range limits
-constexpr float MODULATOR_PLICH_MAX = 4.5f;
+constexpr float MODULATOR_PLICH_MAX = 4.0f;
 constexpr float MODULATOR_PLICH_MIN = 2.5f;
 
 //**********************************************************************************
@@ -165,7 +159,7 @@ void cChorus::onDesactivate() {
 // Method: Process
 // Description: Audio processing method - applies chorus effect to input buffer
 // ---------------------------------------------------------------------------------
-void cChorus::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff) {
+void cChorus::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) {
 
     // Declare processing variables
     float OutSingleLeft;   // Single chorus output left channel
