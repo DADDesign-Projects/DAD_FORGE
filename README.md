@@ -1,4 +1,4 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
 ![Platform](https://img.shields.io/badge/Platform-Software-orange)
 ![MCU](https://img.shields.io/badge/MCU-STM32H7-brightgreen)
 ![Languages](https://img.shields.io/badge/Languages-C%20%7C%20C++-yellow)
