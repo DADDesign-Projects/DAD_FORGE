@@ -31,48 +31,32 @@ void cSwitchOnOff::Init(DadDrivers::cSwitch* pFootSwitch, uint32_t EffectID) {
     m_LastPressTime = 0;          // Reset last press timestamp
     __GUI.addUpdateComponent(this, EffectID);  // Register with GUI update system
 }
-
 //-----------------------------------------------------------------------------------
 // Function: Update
 // Description:
-//   - Detects single, double, and long presses on the footswitch
+//   - Detects single, and long presses on the footswitch
 //   - Short press toggles On/Off states
-//   - Double press (within 1 second) triggers Bypass mode
+//   - Long press (within .6 second) triggers Bypass mode
 //-----------------------------------------------------------------------------------
 void cSwitchOnOff::Update() {
-    float PressDuration;                          // Duration of current press
-    uint8_t SwitchState = m_pFootSwitch->getState(PressDuration);  // Current switch state
-    uint32_t PressCount = m_pFootSwitch->getPressCount();          // Total press count
+    float 		PressDuration;                          			  // Duration of current press
+    uint8_t	 	SwitchState = m_pFootSwitch->getState(PressDuration); // Current switch state
+    uint32_t 	PressCount = m_pFootSwitch->getPressCount();          // Total press count
 
     // Check if a new press has occurred
     if (m_OldPressCount != PressCount) {
         if (SwitchState == 0) {
-            // Button released - check for double tap pattern
-            uint32_t currentTime = HAL_GetTick();      // Get current system time
-            uint32_t Delta = currentTime - m_LastPressTime;  // Calculate time since last press
-
-            // Detect double press (within 1000ms window)
-            if ((Delta < 1000) && (m_LastPressTime != 0)) {
-                __OnOffCmd = ByPass;  // Activate bypass mode
-                m_LastPressTime = 0;  // Reset timestamp
-            } else {
-                m_LastPressTime = currentTime;  // Store timestamp for next potential double tap
-            }
-
-            m_OldPressCount = PressCount;  // Update press count tracking
-        } else {
-            // Button pressed - check for long press
-            if (PressDuration >= 0.150f) {
-                // Toggle between On and Off states
-                if (__OnOffCmd == Off || __OnOffCmd == ByPass) {
-                    __OnOffCmd = On;   // Turn on if currently off or in bypass
-                } else if (__OnOffCmd == On) {
-                    __OnOffCmd = Off;  // Turn off if currently on
+        	m_OldPressCount = PressCount;
+        	if(PressDuration < .6f){
+                if (__OnOffCmd == eOnOff::Off || __OnOffCmd == eOnOff::ByPass) {
+                    __OnOffCmd = eOnOff::On;   // Turn on if currently off or in bypass
+                } else if (__OnOffCmd == eOnOff::On) {
+                    __OnOffCmd = eOnOff::Off;  // Turn off if currently on
                 }
+        	}
 
-                m_OldPressCount = PressCount;  // Update press count tracking
-                m_LastPressTime = 0;           // Reset double tap timing
-            }
+        }else if(PressDuration > 0.8f ){
+        		__OnOffCmd = eOnOff::ByPass;
         }
     }
 }
@@ -120,7 +104,7 @@ void cTapTempoMemChange::Update() {
             m_OldPressCount = PressCount;
         } else {
             // Long press detection for memory slot change
-            if (PressDuration >= 0.250f) {
+            if (PressDuration >= 0.200f) {
                 __MemoryManager.IncrementSlot(1);      // Advance to next memory slot
                 m_OldPressCount = PressCount;          // Update press count tracking
                 m_PeriodUpdateCount = PeriodUpdateCount;  // Sync period update counter
