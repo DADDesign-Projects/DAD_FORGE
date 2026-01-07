@@ -71,7 +71,7 @@ void cSwitch::Init(GPIO_TypeDef* pPort, uint16_t Pin,
 // - Exponential Moving Average (EMA) period calculation
 // - Automatic timeout handling
 //**********************************************************************************
-void cSwitch::Debounce()
+ITCM void cSwitch::Debounce()
 {
     // Step 1: Increment timing counters
     m_CurrentPeriod++;  // Increment period between presses

@@ -154,11 +154,11 @@ protected:
     // =============================================================================
     // Filter coefficients
     // =============================================================================
-    float m_a0 = 0;            // b0 coefficient normalized
-    float m_a1 = 0;            // b1 coefficient normalized
-    float m_a2 = 0;            // b2 coefficient normalized
-    float m_a3 = 0;            // a1 coefficient normalized
-    float m_a4 = 0;            // a2 coefficient normalized
+    volatile float m_a0 = 0;            // b0 coefficient normalized
+    volatile float m_a1 = 0;            // b1 coefficient normalized
+    volatile float m_a2 = 0;            // b2 coefficient normalized
+    volatile float m_a3 = 0;            // a1 coefficient normalized
+    volatile float m_a4 = 0;            // a2 coefficient normalized
 
     // =============================================================================
     // Filter state storage

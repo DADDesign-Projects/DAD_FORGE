@@ -80,7 +80,7 @@ void cSoftSPI::Transmit(uint32_t Data) {
 
 // -----------------------------------------------------------------------------
 // Timer interrupt callback function to handle SPI transmission state machine
-void cSoftSPI::TimerCallback() {
+ITCM void cSoftSPI::TimerCallback() {
     switch (m_TransState) {
     case eTransState::Stop:
         // Transmission stopped - no action required

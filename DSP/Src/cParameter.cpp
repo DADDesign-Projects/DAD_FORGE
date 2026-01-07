@@ -67,7 +67,7 @@ void cParameter::setValue(float value) {
 
 // -----------------------------------------------------------------------------
 // Update the current value smoothly according to the slope
-void cParameter::Process() {
+ITCM void cParameter::Process() {
     // Check if current value needs to approach target
     if(m_Value != m_TargetValue){
         // Move current value toward target with smoothing

@@ -54,7 +54,7 @@ void cEncoder::Init(GPIO_TypeDef* pAPort, uint16_t APIn,
 // ------------------------------------------------------------------------------
 // Handles debouncing for rotary encoder and switch, updates encoder position
 // and switch state based on elapsed time since last update
-void cEncoder::Debounce()
+ITCM void cEncoder::Debounce()
 {
     // Process encoder position reading
     m_ctEncoderPeriod++;                       // Increment encoder period counter

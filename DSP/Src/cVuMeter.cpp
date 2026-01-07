@@ -26,7 +26,7 @@ namespace DadDSP {
 // Description: Processes audio input to calculate current level, peak detection and clipping
 // Parameters: input - Audio sample to process
 // -----------------------------------------------------------------------------
-void cVuMeter::Process(float input)
+void cVuMeter::CalcPeakAndLevel(float input)
 {
     // Convert input to absolute value and clamp to valid range
     float absValue = std::abs(input);

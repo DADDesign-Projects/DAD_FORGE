@@ -85,7 +85,7 @@ public:
     // Description:
     // Performs real-time value updates and smoothing between current and target values
     //***********************************************************************************
-    void RtProcess() override;
+    ITCM void RtProcess() override;
 
     // Note: No protected or private sections declared in this class
     // Note: Inherits functionality from base classes cParameter, cSerializedObject, and iRtObject

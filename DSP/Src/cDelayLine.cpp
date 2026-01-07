@@ -32,7 +32,7 @@ void cDelayLine::Clear() {
 
 // -----------------------------------------------------------------------------
 // Adds a new sample to the delay line
-void cDelayLine::Push(float inputSample) {
+ITCM void cDelayLine::Push(float inputSample) {
     if (m_Buffer) {
         // Increment current index with circular buffer wrapping
         m_CurrentIndex++;
@@ -45,7 +45,7 @@ void cDelayLine::Push(float inputSample) {
 
 // -----------------------------------------------------------------------------
 // Retrieves a delayed sample without interpolation
-float cDelayLine::Pull(int32_t delay) {
+ITCM float cDelayLine::Pull(int32_t delay) {
     //assert(delay < m_NumElements);
     if (m_Buffer) {
         // Calculate output index with circular buffer wrapping
@@ -60,7 +60,7 @@ float cDelayLine::Pull(int32_t delay) {
 
 // -----------------------------------------------------------------------------
 // Retrieves a delayed sample with linear interpolation
-float cDelayLine::Pull(float delay) {
+ITCM float cDelayLine::Pull(float delay) {
     //assert(delay < m_NumElements);
 
     if (m_Buffer) {

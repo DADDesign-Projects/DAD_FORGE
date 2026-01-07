@@ -41,20 +41,11 @@ public:
     // Process audio
     ITCM void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff);
 
-    // Callback for bass parameter changes
-    static void BassCallback(DadDSP::cParameter* pParameter, uint32_t Context);
-
-    // Callback for mid parameter changes
-    static void MidCallback(DadDSP::cParameter* pParameter, uint32_t Context);
-
-    // Callback for treble parameter changes
-    static void TrebleCallback(DadDSP::cParameter* pParameter, uint32_t Context);
-
 protected:
     // =============================================================================
     // Protected Member Variables
     // =============================================================================
-
+    char dumm[40];
     // DSP components
     DadDSP::cBiQuad                 m_BassBiQuad;   // BiQuad filter for bass control
     DadDSP::cBiQuad                 m_TrebleBiQuad;	// BiQuad filter for treble control

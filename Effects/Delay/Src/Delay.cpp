@@ -152,7 +152,7 @@ void cDelay::Initialize() {
 // Function: Process
 // Description: Main audio processing function
 // -----------------------------------------------------------------------------
-void cDelay::Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff) {
+ITCM void cDelay::Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence) {
 
 	// Update LFO and dry/wet processing
     m_LFO.Step();  // Advance LFO

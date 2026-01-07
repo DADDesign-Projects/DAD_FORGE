@@ -138,6 +138,7 @@ void cBiQuad::CalculateParameters() {
     m_a2 = b2 / a0;    // b2 normalized
     m_a3 = a1 / a0;    // a1 normalized
     m_a4 = a2 / a0;    // a2 normalized
+    __DMB(); // Data Memory Barrier
     __enable_irq();
 }
 
@@ -148,7 +149,7 @@ void cBiQuad::CalculateParameters() {
 // -----------------------------------------------------------------------------
 // Process single sample through biquad filter
 // -----------------------------------------------------------------------------
-float cBiQuad::Process(float sample, sFilterState &FilterState) {
+ITCM float cBiQuad::Process(float sample, sFilterState &FilterState) {
     // Apply biquad filter difference equation:
     // y[n] = b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2]
     float result = (m_a0 * sample)

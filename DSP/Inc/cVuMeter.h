@@ -21,10 +21,10 @@ namespace DadDSP {
 // =============================================================================
 
 constexpr float PEAK_HOLD_TIME  = 1.0f;   // Peak hold time in seconds
-constexpr float CLIP_THRESHOLD  = 0.75f;   // Clipping threshold (85%)
+constexpr float CLIP_THRESHOLD  = 0.70f;   // Clipping threshold (85%)
 constexpr float CLIP_HOLD_TIME  = 4.0f;   // Clip hold time in seconds
 constexpr float DB_MIN          = -45.0f; // Minimum level in dB
-constexpr float DB_MAX          = -3.0f;   // Maximum level in dB
+constexpr float DB_MAX          = -6.0f;   // Maximum level in dB
 constexpr float ATTACK_TIME     = 0.15f;  // Attack time in seconds
 constexpr float RELEASE_TIME    = 0.3f;   // Release time in seconds
 
@@ -65,7 +65,7 @@ public:
     // Process
     // Description: Processes audio input to calculate current level, peak detection and clipping
     // Parameters: input - Audio sample to process
-    ITCM void Process(float input);
+    void CalcPeakAndLevel(float input);
 
     // -----------------------------------------------------------------------------
     // getLevelPercent

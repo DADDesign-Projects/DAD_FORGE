@@ -274,8 +274,8 @@ void cUIVuMeter::drawDynPartOffLayer() {
 ITCM void cUIVuMeter::GUIProcessIn(AudioBuffer* pIn) {
     if (m_isActive) {
         // Process left and right audio channels
-        m_VuMeterInLeft.Process(pIn->Left);
-        m_VuMeterInRight.Process(pIn->Right);
+        m_VuMeterInLeft.CalcPeakAndLevel(pIn->Left);
+        m_VuMeterInRight.CalcPeakAndLevel(pIn->Right);
     }
 }
 
@@ -286,8 +286,8 @@ ITCM void cUIVuMeter::GUIProcessIn(AudioBuffer* pIn) {
 ITCM void cUIVuMeter::GUIProcessOut(AudioBuffer* pOut) {
     if (m_isActive) {
         // Process left and right audio channels
-        m_VuMeterOutLeft.Process(pOut->Left);
-        m_VuMeterOutRight.Process(pOut->Right);
+        m_VuMeterOutLeft.CalcPeakAndLevel(pOut->Left);
+        m_VuMeterOutRight.CalcPeakAndLevel(pOut->Right);
     }
 }
 
