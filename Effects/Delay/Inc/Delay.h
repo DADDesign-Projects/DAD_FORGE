@@ -47,7 +47,7 @@ public:
     //   pOut - Pointer to output audio buffer
     //   OnOff - Effect state (bypassed or active)
     // -----------------------------------------------------------------------------
-    ITCM void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff);
+    ITCM void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence);
 
     // -----------------------------------------------------------------------------
     // Static callbacks (UI parameter change handlers)
