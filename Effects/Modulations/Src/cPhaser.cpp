@@ -74,7 +74,7 @@ void cPhaser::onInitialize() {
     // Initialize parameter views for user interface
     m_DeepView.Init(&m_Deep, "Deep", "Deep", "%", "%");
     m_SpeedView.Init(&m_Speed, "Speed", "LFO Frequency", "Hz", "Hz");
-    m_DryWetMixView.Init(&m_DryWetMix, "Mix", "Mix", "%", "%");
+    m_DryWetMixView.Init(&m_DryWetMix, "Dry", "Dry", "%", "%");
     m_FeedbackView.Init(&m_Feedback, "Feedback", "Feedback", "%", "%");
     m_ModeView.Init(&m_Mode, "Mode", "Mode");
 
@@ -247,7 +247,7 @@ void cPhaser::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Si
     m_RightFeedback = OutRight;
 
     // Step 7: Apply wet gain and fade to output signals
-    float WetGain = __DryWet.getGainWet();
+    float WetGain = __DryWet.getGainWet()*0.4f;
     pOut->Left = OutLeft * WetGain * m_Fad;
     pOut->Right = OutRight * WetGain * m_Fad;
 }
