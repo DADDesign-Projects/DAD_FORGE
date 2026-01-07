@@ -10,6 +10,7 @@
 //#define DELAY_EFFECT
 #define MODULATIONS_EFFECT
 //#define TEMPLATE_EFFECT
+//#define TEST_EFFECT
 //#define TEMPLATE_MULTI_MODE_EFFECT
 
 // Configuring the DELAY Template
@@ -17,7 +18,7 @@
 #include "Delay.h"
 #define DECLARE_EFFECT DadEffect::cDelay __Effect
 #define EFFECT_NAME "Delay"
-#define EFFECT_VERSION "Version 1.0"
+#define EFFECT_VERSION "Version 1.01"
 #define EFFECT_SPLATCH_SCREEN "Delay.png"
 constexpr uint32_t EFFECT_BUILD =   BUILD_ID('D', 'E', 'L', '1');
 #endif
@@ -32,6 +33,15 @@ constexpr uint32_t EFFECT_BUILD =   BUILD_ID('D', 'E', 'L', '1');
 constexpr uint32_t EFFECT_BUILD =   BUILD_ID('T', 'E', 'M', '1');
 #endif
 
+// Configuring the Template effect
+#ifdef TEST_EFFECT
+#include "cTestEffect.h"
+#define DECLARE_EFFECT DadEffect::cTestEffect __Effect
+#define EFFECT_NAME "Test"
+#define EFFECT_VERSION "Version 1.0"
+#define EFFECT_SPLATCH_SCREEN "Template.png"
+constexpr uint32_t EFFECT_BUILD =   BUILD_ID('T', 'S', 'T', '1');
+#endif
 // Configuring the Template multi-effect
 #ifdef TEMPLATE_MULTI_MODE_EFFECT
 #include "TemplateMultiModeEffect.h"
