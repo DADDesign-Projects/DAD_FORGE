@@ -157,9 +157,9 @@ void cUniVibe::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool S
 
     // Process right channel through all-pass filter cascade
     float OutRight = m_AllPass1.Process(pIn->Right, m_APFStateR1);
-    OutRight = m_AllPass2.Process(OutLeft, m_APFStateR2);
-    OutRight = m_AllPass3.Process(OutLeft, m_APFStateR3);
-    OutRight = m_AllPass4.Process(OutLeft, m_APFStateR4);
+    OutRight = m_AllPass2.Process(OutRight, m_APFStateR2);
+    OutRight = m_AllPass3.Process(OutRight, m_APFStateR3);
+    OutRight = m_AllPass4.Process(OutRight, m_APFStateR4);
 
     // Apply wet gain to output signals
     pOut->Left = OutLeft * __DryWet.getGainWet();
