@@ -6,19 +6,28 @@
 // The wet channel is at the discretion of the user application through the getGainWet method.
 // When the effect is off, the class sets the dry channel to MaxDry and the wet channel to 0.
 // When the effect is on, both channels are mixed according to the value provided through setMix.
+// When the effect is bypassed, the wet channel is set to 0 and the dry channel to 0dB gain.
+//
+// Copyright (c) 2025-2026 Dad Design.
+//==================================================================================
+//==================================================================================
 
-// Copyright (c) 2025 Dad Design.
-//==================================================================================
-//==================================================================================
 #include "cDryWet.h"
 #include "cSoftSPI.h"
+#include "MainGUI.h"
+#include "HardwareAndCo.h"
+#include "DadUtilities.h"
+
 extern DadDrivers::cSoftSPI __SoftSPI;
+
 namespace DadDrivers {
 
 //**********************************************************************************
 // cDryWet
 //
 // Handles dry/wet mix control with smooth fading between on/off states
+// IMPORTANT: Fading is done on the MIX parameter, not on individual gains
+// This ensures proper volume progression during transitions
 //**********************************************************************************
 
 // =============================================================================
@@ -29,107 +38,134 @@ namespace DadDrivers {
 // Function: Init
 // Description: Initializes mix volume parameters and ranges
 // -----------------------------------------------------------------------------
-void cDryWet::Init(float MinDry, float MaxDry, float Increment) {
-    // Clamp dry volume parameters to valid range
-    if(MinDry > 31.5f) MinDry = 31.5f;
-    if(MinDry < -95.5f) MinDry = -95.5f;
-    if(m_MaxDry > 31.5f) MinDry = 31.5f;
-    if(m_MaxDry < -95.5f) MinDry = -95.5f;
+void cDryWet::Init(float MinDry, float MaxDry, float TimeChange) {
+    // Clamp dry volume parameters to valid range of -95.5dB to 31.5dB (PGA2310/11 range)
+    DadClamp(MinDry, -95.5f, 31.5f);
+    DadClamp(MaxDry, -95.5f, 31.5f);
 
     // Convert dB values to hardware volume indices
-	m_MinDry = 192 + (MinDry * 2);     // Minimum dry volume index
-    m_MaxDry = 192 + (MaxDry * 2);     // Maximum dry volume index
-    m_Increment = Increment;           // Fade step size
+    // 0dB = 192 in hardware index (PGA2310/11)
+    // 0.5dB = 1 step resolution (PGA2310/11)
+    m_MinDry = 192.0f + (MinDry * 2.0f);
+    m_MaxDry = 192.0f + (MaxDry * 2.0f);
 
-    // Initialize state variables
-    m_MemOn = false;       // Initial bypass state
-    m_Mix = m_MemMix = m_TargetMix = m_OldMix = 0.0f;  // Reset all mix levels
-    m_ProcessFade = false;             // No fade active initially
-    m_GainWet = 0.0f;                  // Initial wet gain
+    // Calculate mix increment for smooth transitions
+    // RT_TIME is the real-time processing period
+    m_MixIncrement = RT_TIME / (TimeChange);
+
+    // Initialize mix parameters
+    m_CurrentMix = 0.0f;        // Start at full dry
+    m_PreviousMix = 0.1f;       // Set to 0.1 to force initial hardware transmission
+    m_TargetMix = 0.0f;         // Target is also full dry
+    m_UserMix = 0.0f;           // User hasn't set a mix yet
+
+    // Initialize gains
+    m_OldComputedDryGain = 0.0f;
+    m_CurrentWetGain = 0.0f;    // Silent at start (bypass)
+    m_CurrentDryGain = 0.0f;    // Silent at start (bypass)
+
+    // State management - start in bypass
+    m_State = m_CurrentState = eDryWetState_t::bypass;
+
+    // Set initial hardware gain
+    m_OldDryVolumeIndex = 0u;
+
+    // Subscribe to GUI events
+    __GUI_EventManager.Subscribe_FastUpdate(this);
+    __GUI_EventManager.Subscribe_RT_Process(this);
 }
 
 // -----------------------------------------------------------------------------
-// Function: Process
-// Description: Processes mix state transitions and computes current gains
+// Function: on_GUI_FastUpdate
+// Description: Processes mix state transitions and sets target mix values
 // -----------------------------------------------------------------------------
-void cDryWet::Process(bool On) {
-    // Check for state change to trigger fade
-    if (m_MemOn != On) {
-        m_MemOn = On;            		// Update stored state
+void cDryWet::on_GUI_FastUpdate() {
+    // Determine target mix based on current state
+    if (m_State == eDryWetState_t::on) {
+        // Effect is ON: use user-defined mix and fade in from bypass if needed
+        m_TargetMix = m_UserMix;
+    } else if (m_State == eDryWetState_t::off) {
+        // Effect is OFF: full dry (mix = 0) and fade in from bypass if needed
+        m_TargetMix = 0.0f;
+    } else { // bypass
+        // Effect is BYPASSED: fade out to silence
+        m_TargetMix = 0.0f;
+    }
 
-        // Set target mix based on new state
-        if (On == true) {
-            m_TargetMix = m_MemMix;    // Fade to stored mix level when turning on
-        } else {
-            m_TargetMix = 0.0f;        // Fade to silence when bypassing
+    // Update current state when both fades are complete
+    if (m_CurrentMix == m_TargetMix) {
+        m_CurrentState = m_State;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// Function: on_GUI_RT_Process
+// Description: Performs smooth crossfading by fading the MIX parameter and BYPASS fade
+// -----------------------------------------------------------------------------
+void cDryWet::on_GUI_RT_Process() {
+    // Update mix fade (smooth transition between on/off states)
+    if (m_CurrentMix > m_TargetMix) {
+        m_CurrentMix -= m_MixIncrement;
+        if (m_CurrentMix < m_TargetMix) {
+            m_CurrentMix = m_TargetMix;
+        }
+    } else if (m_CurrentMix < m_TargetMix) {
+        m_CurrentMix += m_MixIncrement;
+        if (m_CurrentMix > m_TargetMix) {
+            m_CurrentMix = m_TargetMix;
         }
     }
 
-	// Fade up towards target
-	if (m_Mix < m_TargetMix) {
-		m_Mix += m_Increment;
-		if (m_Mix > m_TargetMix) {
-			m_Mix = m_TargetMix;   // Clamp to avoid overshoot
-		}
-	}
-	// Fade down towards target
-	else if (m_Mix > m_TargetMix) {
-		m_Mix -= m_Increment;
-		if (m_Mix < m_TargetMix) {
-			m_Mix = m_TargetMix;   // Clamp to avoid undershoot
-		}
-	}
+    // Update hardware and wet gain only when mix changes to avoid unnecessary processing
+    if (m_CurrentMix != m_PreviousMix) {
+        m_PreviousMix = m_CurrentMix;
 
-    // Update gains if mix level changed
-    if (m_Mix != m_OldMix) {
-        m_OldMix = m_Mix;              // Store current mix for change detection
-        computeMix();                  // Recalculate wet/dry gains
+        // Calculate dry and wet gains from current mix value
+        // Uses equal-power crossfade (sine/cosine) for constant perceived volume
+        // This maintains constant perceived loudness during transitions
+        m_CurrentWetGain = sinf(m_CurrentMix * M_PI_2);  // Wet: sin(0 to π/2) = 0 to 1
+        m_CurrentDryGain = cosf(m_CurrentMix * M_PI_2); // Dry: cos(0 to π/2) = 1 to 0
+
+        // Update hardware if dry gain changed
+        if (m_CurrentDryGain != m_OldComputedDryGain) {
+            m_OldComputedDryGain = m_CurrentDryGain;
+
+            // Compute and transmit gain value to hardware (SPI) for dry signal
+            // Map linear gain (0.0 to 1.0) to hardware volume index range
+            float volumeIndex = m_MinDry + (m_CurrentDryGain * (m_MaxDry - m_MinDry));
+
+            // Round to nearest integer and convert to uint16_t
+            uint16_t dryVolumeIndex = static_cast<uint16_t>(volumeIndex + 0.5f);
+            DadClampMAX(dryVolumeIndex, (uint16_t) 255);
+
+            // Only update if changed (to avoid unnecessary SPI calls)
+            if (dryVolumeIndex != m_OldDryVolumeIndex) {
+                m_OldDryVolumeIndex = dryVolumeIndex;
+
+                // Send to hardware via SPI (both channels get same value)
+                __SoftSPI.Transmit(((dryVolumeIndex << 8) & 0x0000FF00) + dryVolumeIndex);
+            }
+        }
     }
 }
 
 // -----------------------------------------------------------------------------
-// Function: setMix
-// Description: Force the mix level no fading (0.0 = full dry, 1.0 = full wet)
+// Function: setNormalizedMix
+// Description: Sets the target mix level (0 to 1, i.e., 0 = 0%, 1 = 100%)
 // -----------------------------------------------------------------------------
-void cDryWet::forceMix(float Mix){
-	m_Mix = m_TargetMix = Mix /100;
-	computeMix();
-}
+void cDryWet::setNormalizedMix(float Mix) {
+    // Clamp mix to valid range
+    DadClamp(Mix, 0.0f, 1.0f);
 
-// -----------------------------------------------------------------------------
-// Function: setMix
-// Description: Sets the target mix level (0-100%)
-// -----------------------------------------------------------------------------
-void cDryWet::setMix(float Mix) {
-    m_MemMix = Mix / 100;              // Convert percentage to 0-1 range
+    // Store user mix setting
+    m_UserMix = Mix;
 
-    // Apply immediately if currently active
-    if (m_MemOn == true) {
-    	m_TargetMix = m_MemMix;
+    // If effect is currently ON, update target mix immediately
+    if (m_State == eDryWetState_t::on) {
+        m_TargetMix = m_UserMix;
     }
 }
 
-// =============================================================================
-// Private Methods
-// =============================================================================
+} // namespace DadDrivers
 
-// -----------------------------------------------------------------------------
-// Function: computeMix
-// Description: Computes wet/dry gains based on current mix position
-// -----------------------------------------------------------------------------
-void cDryWet::computeMix() {
-    // Calculate crossfade gains using trigonometric equal-power curves
-    float wetGain = sinf(m_Mix * M_PI_2);  // Wet gain: sin(0 to π/2) = 0 to 1
-    float dryGain = cosf(m_Mix * M_PI_2);  // Dry gain: cos(0 to π/2) = 1 to 0
-
-    m_GainWet = wetGain;
-
-    // Convert wet gain from linear to dB scale, then to linear amplitude
-    float db = m_MinDry + (dryGain * (m_MaxDry - m_MinDry));
-    // Calculate dry volume and send to hardware
-    uint16_t dryVolumeIndex =  static_cast<uint16_t>(db + 0.5f); // Round to nearest integer
-    __SoftSPI.Transmit(((dryVolumeIndex << 8) & 0x0000FF00) + dryVolumeIndex);
-}
-
-} // namespace DadUtilities
 //***End of file**************************************************************

@@ -7,11 +7,21 @@
 // When the effect is off, the class sets the dry channel to MaxDry and the wet channel to 0.
 // When the effect is on, both channels are mixed according to the value provided through setMix.
 // 
-// Copyright (c) 2025 Dad Design.
+// Copyright (c) 2025-2026 Dad Design.
 //==================================================================================
 //==================================================================================
+
 #pragma once
 #include "main.h"
+#include "sections.h"
+#include "GUI_Event.h"
+
+// State definitions for Dry/Wet control
+enum class eDryWetState_t : uint8_t {
+    bypass = 0,
+    off,
+    on
+};
 
 namespace DadDrivers {
 
@@ -22,13 +32,13 @@ namespace DadDrivers {
 // during delay mix operations. Includes fading and incremental mix control.
 //**********************************************************************************
 
-class cDryWet {
+class alignas(4) cDryWet : public DadGUI::iGUI_EventListener {
 public:
     // =============================================================================
     // Constructor / Destructor
     // =============================================================================
 
-	cDryWet() = default;
+    cDryWet() = default;
     ~cDryWet() = default;
 
     // =============================================================================
@@ -40,70 +50,104 @@ public:
     // Description: Initializes mix parameters for dry/wet control
     // Parameters:
     //   MinDry/MaxDry - Minimum and maximum dry gain in dB
-    //   MinWet/MaxWet - Minimum and maximum wet gain in dB
-    //   Increment - Mix increment per frame for smooth fade
+    //   TimeChange - Time in seconds for a full mix transition
     // -----------------------------------------------------------------------------
-    void Init(float MinDry, float MaxDry, float Increment);
+    void Init(float MinDry, float MaxDry, float TimeChange);
 
     // -----------------------------------------------------------------------------
-    // Function: Process
+    // Function: on_GUI_FastUpdate
     // Description: Updates internal mix state depending on effect On/Off status
     // -----------------------------------------------------------------------------
-    void Process(bool On);
+    void on_GUI_FastUpdate() override;
+
+    // -----------------------------------------------------------------------------
+    // Function: on_GUI_RT_Process
+    // Description: Performs smooth crossfading between dry and wet signals
+    // -----------------------------------------------------------------------------
+    void on_GUI_RT_Process() override;
 
     // -----------------------------------------------------------------------------
     // Function: setMix
+    // Description: Sets the mix level target (0.0 = full dry, 100.0 = full wet)
+    // -----------------------------------------------------------------------------
+    inline void setMix(float Mix) {
+        setNormalizedMix(Mix * 0.01f); // Convert percentage to 0-1 range
+    }
+
+    // -----------------------------------------------------------------------------
+    // Function: setNormalizedMix
     // Description: Sets the mix level target (0.0 = full dry, 1.0 = full wet)
     // -----------------------------------------------------------------------------
-    void setMix(float Mix);
+    void setNormalizedMix(float Mix);
 
     // -----------------------------------------------------------------------------
-    // Function: setMix
-    // Description: Force the mix level no fading (0.0 = full dry, 1.0 = full wet)
+    // Function: FadeToOn
+    // Description: Start fade to ON state (effect active with current mix)
     // -----------------------------------------------------------------------------
-    void forceMix(float Mix);
+    inline void FadeToOn() {
+        m_State = eDryWetState_t::on;
+    }
+
+    // -----------------------------------------------------------------------------
+    // Function: FadeToOff
+    // Description: Start fade to OFF state (effect bypassed, full dry)
+    // -----------------------------------------------------------------------------
+    inline void FadeToOff() {
+        m_State = eDryWetState_t::off;
+    }
+
+    // -----------------------------------------------------------------------------
+    // Function: FadeToBypass
+    // Description: Start fade to BYPASS state (silent)
+    // -----------------------------------------------------------------------------
+    inline void FadeToBypass() {
+        m_State = eDryWetState_t::bypass;
+    }
+
+    // -----------------------------------------------------------------------------
+    // Function: getState
+    // Description: Returns current state
+    // -----------------------------------------------------------------------------
+    inline uint8_t getState() {
+        return (uint8_t) m_CurrentState;
+    }
 
     // -----------------------------------------------------------------------------
     // Function: getGainWet
     // Description: Returns the current wet gain value
     // -----------------------------------------------------------------------------
     inline float getGainWet() {
-        return m_GainWet;
+        return m_CurrentWetGain;
     }
 
 protected:
     // =============================================================================
-    // Protected Methods
-    // =============================================================================
-
-    // -----------------------------------------------------------------------------
-    // Function: computeMix
-    // Description: Computes and updates the dry/wet gains based on current mix value
-    // -----------------------------------------------------------------------------
-    void computeMix();
-
-    // =============================================================================
     // Member Variables
     // =============================================================================
 
-    // Dry/Wet gain range limits
-    float       m_MinDry;       // Minimum dry gain
-    float       m_MaxDry;       // Maximum dry gain
+    // Current gains (computed from current mix)
+    float       m_OldComputedDryGain;   // Previous dry gain for change detection
+    float       m_CurrentWetGain;       // Current wet gain (0.0 to 1.0)
+    float       m_CurrentDryGain;       // Current dry gain (0.0 to 1.0)
 
-    // Mix interpolation parameters
-    float       m_Increment;    // Increment used for fade steps
-    float       m_Mix;          // Current mix value
-    float       m_MemMix;       // Previous mix value
-    float       m_TargetMix;    // Target mix value
-    float       m_OldMix;       // Cached old mix for interpolation
+    // Mix parameters (0.0 = full dry, 1.0 = full wet)
+    float       m_CurrentMix;           // Current mix value (fades smoothly)
+    float       m_TargetMix;            // Target mix value
+    float       m_UserMix;             // User-defined mix setting (when effect is ON)
+    float       m_PreviousMix;         // Previous mix for change detection in RT processing
+    float       m_MixIncrement;        // Mix increment per sample for smooth transitions
 
-    // Computed results
-    float       m_GainWet;      // Computed wet gain
-    bool        m_ProcessFade;  // Indicates if a mix fade is active
+    // Dry gain range limits (used for hardware gain control)
+    float       m_MinDry;              // Minimum dry gain (hardware index)
+    float       m_MaxDry;              // Maximum dry gain (hardware index)
+
+    uint32_t    m_OldDryVolumeIndex;   // Previous hardware volume index (avoids unnecessary updates)
 
     // State management
-    bool        m_MemOn;        // Previous On/Off state for smooth transition
+    eDryWetState_t m_State;            // Target state
+    eDryWetState_t m_CurrentState;     // Current state (when fade is complete)
 };
 
-} // namespace DadUtilities
+} // namespace DadDrivers
+
 //***End of file**************************************************************
