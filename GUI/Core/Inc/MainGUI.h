@@ -1,21 +1,19 @@
 //==================================================================================
 //==================================================================================
 // File: DadGUI.h
-// Description: Core infrastructure for graphical user interface
+// Description: Core infrastructure for graphical user interface management
 //
-// Copyright (c) 2025 Dad Design.
+// Copyright (c) 2025-2026 Dad Design.
 //==================================================================================
 //==================================================================================
 
 #pragma once
-
 #include "Sections.h"
 #include "iUIComponent.h"
-#include "iRTObject.h"
-#include "iGUIProcessObject.h"
 #include "cMemoryManager.h"
-#include "cObjectIterator.h"
-#include "Serialize.h"
+#include "GUI_Event.h"
+#include "cCallBackIterator.h"
+#include "cParameter.h"
 #include "GFX.h"
 #include <cstdint>
 
@@ -48,13 +46,11 @@ namespace DadGUI {
 #define SCREEN_WIDTH        320     // Total screen width in pixels
 #define SCREEN_HEIGHT       240     // Total screen height in pixels
 
-// Menu layout parameters
 #define MENU_HEIGHT         22      // Height of the menu area
 #define MENU_EDGE           10      // Edge margin for menu items
 #define NB_MENU_ITEM        4       // Number of menu items
 #define MENU_ITEM_WIDTH     ((SCREEN_WIDTH - (2*MENU_EDGE)) / NB_MENU_ITEM)  // Width per menu item
 
-// Parameter area layout parameters
 #define MAIN_WIDTH          SCREEN_WIDTH                    // Main area width
 #define PARAM_HEIGHT        128                             // Height of parameter area
 #define NB_PARAM_ITEM       3                               // Number of parameter items
@@ -63,14 +59,13 @@ namespace DadGUI {
 #define PARAM_FORM_HEIGHT   64                              // Height for parameter forms
 #define PARAM_VAL_HEIGHT    32                              // Height for parameter values
 
-// Info area layout parameters
 #define INFO_HEIGHT         (SCREEN_HEIGHT - (MENU_HEIGHT + PARAM_HEIGHT))  // Calculated info area height
 
 // =============================================================================
 // Color Palette Definition
 // =============================================================================
 
-#define NB_PALETTE 4  // Number of available color palettes
+#define NB_PALETTE 4  // Number of available color palette
 
 // Structure defining a complete color palette for the GUI
 struct sColorPalette {
@@ -127,7 +122,6 @@ extern const sColorPalette* __pActivePalette;           // Pointer to currently 
 // Font Shortcuts
 // =============================================================================
 
-// Macros for quick access to different font sizes and styles
 #define FONTXXS    __GUI.GetFontXXS()    // Extra extra small font
 #define FONTXXSB   __GUI.GetFontXXSB()   // Extra extra small bold font
 #define FONTXS     __GUI.GetFontXS()     // Extra small font
@@ -145,319 +139,215 @@ extern const sColorPalette* __pActivePalette;           // Pointer to currently 
 #define FONTXXXL   __GUI.GetFontXXXL()   // Extra extra extra large font
 #define FONTXXXLB  __GUI.GetFontXXXLB()  // Extra extra extra large bold font
 
-//-------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Slot Memory Manager
-//-------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 extern cMemoryManager __MemoryManager;  // Global memory manager instance
+
+class cParameterView;
 
 //**********************************************************************************
 // Class: cMainGUI
 //
 // Description:
-// Main class responsible for managing the PENDA graphical user interface.
-// Handles activation and update cycles of UI components, persistent serialization
-// of user parameters or GUI states, and centralized management of color palettes
-// and fonts. The GUI is organized into functional "families" (menu, parameter, info),
-// and each family can contain multiple registered components managed dynamically
-// through iterators.
+//   Main GUI controller class that manages components, event handling,
+//   and system-wide GUI operations.
 //**********************************************************************************
 
-class cMainGUI {
+class cMainGUI : public iGUI_EventListener {
 public:
+    virtual ~cMainGUI() = default;
+
     // =============================================================================
-    // System Initialization
+    // Public Methods
     // =============================================================================
 
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     // Initialize
     //
     // Description: Prepares the GUI system by initializing fonts, palettes,
-    // and layout data.
-    //-------------------------------------------------------------------------
+    //   and layout data.
+    // -----------------------------------------------------------------------------
     void Initialize();
 
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     // Start
     //
     // Description: Initializes memory management and sets up system callbacks.
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     void Start();
 
-    // =============================================================================
-    // Update Management
-    // =============================================================================
-
-    //-------------------------------------------------------------------------
-    // setUpdateID
+    // -----------------------------------------------------------------------------
+    // on_GUI_Update
     //
-    // Description: Sets the active update family ID for component grouping.
-    //-------------------------------------------------------------------------
-    void setUpdateID(uint32_t updateID);
-
-    //-------------------------------------------------------------------------
-    // addUpdateComponent
-    //
-    // Description: Registers a component in a specific update family.
-    //-------------------------------------------------------------------------
-    void addUpdateComponent(iUIComponent* pUpdateComponent, uint32_t ID);
-
-    //-------------------------------------------------------------------------
-    // Update (inline)
-    //
-    // Description: Updates all components using the current active update family.
-    //-------------------------------------------------------------------------
-    inline void Update() {
-        Update(m_UpdateID);
-    }
-
-    //-------------------------------------------------------------------------
-    // Update
-    //
-    // Description: Updates all UI components for the specified update family.
-    //-------------------------------------------------------------------------
-    void Update(uint32_t updateID);
-
-    //-------------------------------------------------------------------------
-    // setComponentNeedUpdate
-    //
-    // Description: Marks a specific component for immediate update.
-    //-------------------------------------------------------------------------
-    void setComponentNeedUpdate(iUIComponent* pComponent) {
-        m_pComponentNeedUpdate = pComponent;
-    }
-
-    // =============================================================================
-    // Real-Time Process Management
-    // =============================================================================
-
-    //-------------------------------------------------------------------------
-    // setRtProcessID
-    //
-    // Description: Sets the active real-time process family ID.
-    //-------------------------------------------------------------------------
-    void setRtProcessID(uint32_t RtrocessID);
-
-    //-------------------------------------------------------------------------
-    // addRtProcessObject
-    //
-    // Description: Registers a real-time processing object.
-    //-------------------------------------------------------------------------
-    void addRtProcessObject(iRtObject* pRtObject, uint32_t ID);
-
-    //-------------------------------------------------------------------------
-    // RTProcess
-    //
-    // Description: Executes real-time processing for active family objects.
-    //-------------------------------------------------------------------------
-    ITCM void RTProcess();
-
-    // =============================================================================
-    // GUI Process Management
-    // =============================================================================
-
-    //-------------------------------------------------------------------------
-    // setGUIProcess
-    //
-    // Description: Sets the GUI process object for audio-related operations.
-    //-------------------------------------------------------------------------
-    void setGUIProcess(iGUIProcessObject* pGUIProcessObject) {
-        m_pGUIProcessObject = pGUIProcessObject;
-    }
-
-    //-------------------------------------------------------------------------
-    // GUIProcessIn
-    //
-    // Description: Process audio buffer through GUI object before audio process
-    //-------------------------------------------------------------------------
-    ITCM void GUIProcessIn(AudioBuffer* pIn);
-
-    //-------------------------------------------------------------------------
-    // GUIProcessOut
-    //
-    // Description: Process audio buffer through GUI object after audio process
-    //-------------------------------------------------------------------------
-    ITCM void GUIProcessOut(AudioBuffer* pOut);
-
-    // =============================================================================
-    // Serialization Management
-    // =============================================================================
-
-    //-------------------------------------------------------------------------
-    // setSerializeID
-    //
-    // Description: Sets the active serialization family ID.
-    //-------------------------------------------------------------------------
-    void setSerializeID(uint32_t serializeID);
-
-    //-------------------------------------------------------------------------
-    // addSerializeObject
-    //
-    // Description: Registers a serializable object for persistent storage.
-    //-------------------------------------------------------------------------
-    void addSerializeObject(DadPersistentStorage::cSerializedObject* pSerializedObject, uint32_t serializeID);
-
-    //-------------------------------------------------------------------------
-    // Save (inline)
-    //
-    // Description: Saves all objects from the active serialization family.
-    //-------------------------------------------------------------------------
-    inline void Save(DadPersistentStorage::cSerialize* pSerializer) {
-        Save(pSerializer, m_SerializeID);
-    }
-
-    //-------------------------------------------------------------------------
-    // Save
-    //
-    // Description: Saves objects from specified serialization family.
-    //-------------------------------------------------------------------------
-    void Save(DadPersistentStorage::cSerialize* pSerializer, uint32_t serializeID);
-
-    //-------------------------------------------------------------------------
-    // Restore (inline)
-    //
-    // Description: Restores all objects for the active serialization family.
-    //-------------------------------------------------------------------------
-    void Restore(DadPersistentStorage::cSerialize* pSerializer) {
-        Restore(pSerializer, m_SerializeID);
-    }
-
-    //-------------------------------------------------------------------------
-    // Restore
-    //
-    // Description: Restores objects from specified serialization family.
-    //-------------------------------------------------------------------------
-    void Restore(DadPersistentStorage::cSerialize* pSerializer, uint32_t serializeID);
-
-    //-------------------------------------------------------------------------
-    // IsRestoreInProcess
-    //
-    // Description: Checks if a restore operation is currently in progress.
-    //-------------------------------------------------------------------------
-    bool IsRestoreInProcess() {
-        return m_RestoreInProcess;
-    }
-
-    //-------------------------------------------------------------------------
-    // resetRestoreInProcess
-    //
-    // Description: Resets the restore in process flag.
-    //-------------------------------------------------------------------------
-    void resetRestoreInProcess() {
-        m_RestoreInProcess = false;
-    }
-
-    //-------------------------------------------------------------------------
-    // isParametresDirty
-    //
-    // Description: Checks if any serializable object has unsaved changes.
-    //-------------------------------------------------------------------------
-    bool isParametresDirty();
+    // Description: Handles GUI update events, updates components and manages
+    //   palette changes.
+    // -----------------------------------------------------------------------------
+    void on_GUI_Update() override;
 
     // =============================================================================
     // Component Activation
     // =============================================================================
 
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     // activeMainComponent
     //
     // Description: Activates a new main component, deactivating previous one.
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     void activeMainComponent(iUIComponent* pMainComponent);
 
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     // activeBackComponent
     //
     // Description: Activates a new background component, deactivating previous one.
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     void activeBackComponent(iUIComponent* pBackComponent);
+
+    // =============================================================================
+    // Parameter Change notification
+    // =============================================================================
+
+    // -----------------------------------------------------------------------------
+    // RegisterParameterListener
+    //   Adds a callback + context to be notified on parameter changes
+    // -----------------------------------------------------------------------------
+    void RegisterParameterListener(DadUtilities::IteratorCallback_t Callback, uint32_t ListenerContext){
+        m_ParameterCallBackIterator.RegisterListener(Callback, ListenerContext);
+    }
+
+    // -----------------------------------------------------------------------------
+    // NotifyParamChange
+    //   Broadcasts parameter change to all registered listeners
+    //   pParameter   The modified parameter (passed as void* to callbacks)
+    // -----------------------------------------------------------------------------
+    void NotifyParamChange(cParameterView* pParameter){
+        m_ParameterCallBackIterator.NotifyListeners((void*)pParameter);
+    }
+
+    // =============================================================================
+    // Notification to restore slot operation
+    // =============================================================================
+
+    // -----------------------------------------------------------------------------
+    // RegisterStartRestoreListener
+    //   Adds a callback + context to be notified on start of a backup slot restoration operation
+    // -----------------------------------------------------------------------------
+    void RegisterStartRestoreListener(DadUtilities::IteratorCallback_t Callback, uint32_t ListenerContext){
+        m_StartRestoreCallBackIterator.RegisterListener(Callback, ListenerContext);
+    }
+
+    // -----------------------------------------------------------------------------
+    // NotifyStartRestore
+    //   Description: called by the memory manager at the start of a backup slot restoration operation
+    // -----------------------------------------------------------------------------
+    void NotifyStartRestore(uint32_t Slot){
+        m_StartRestoreCallBackIterator.NotifyListeners(&Slot);
+    }
+
+    // -----------------------------------------------------------------------------
+    // RegisterEndRestoreListener
+    //   Adds a callback + context to be notified on end of a backup slot restoration operation
+    // -----------------------------------------------------------------------------
+    void RegisterEndRestoreListener(DadUtilities::IteratorCallback_t Callback, uint32_t ListenerContext){
+        m_EndRestoreCallBackIterator.RegisterListener(Callback, ListenerContext);
+    }
+
+    // -----------------------------------------------------------------------------
+    // NotifyEndRestore
+    //   Description: called by the memory manager at the end of a backup slot restoration operation
+    // -----------------------------------------------------------------------------
+    void NotifyEndRestore(uint32_t ID){
+        m_EndRestoreCallBackIterator.NotifyListeners(&ID);
+    }
 
     // =============================================================================
     // Font Accessors
     // =============================================================================
 
     // Provides type-safe access to all predefined font sizes and styles
-    inline DadGFX::cFont* GetFontXXS()   const { return m_pFontXXS;   }
-    inline DadGFX::cFont* GetFontXXSB()  const { return m_pFontXXSB;  }
-    inline DadGFX::cFont* GetFontXS()    const { return m_pFontXS;    }
-    inline DadGFX::cFont* GetFontXSB()   const { return m_pFontXSB;   }
-    inline DadGFX::cFont* GetFontS()     const { return m_pFontS;     }
-    inline DadGFX::cFont* GetFontSB()    const { return m_pFontSB;    }
-    inline DadGFX::cFont* GetFontM()     const { return m_pFontM;     }
-    inline DadGFX::cFont* GetFontMB()    const { return m_pFontMB;    }
-    inline DadGFX::cFont* GetFontL()     const { return m_pFontL;     }
-    inline DadGFX::cFont* GetFontLB()    const { return m_pFontLB;    }
-    inline DadGFX::cFont* GetFontXL()    const { return m_pFontXL;    }
-    inline DadGFX::cFont* GetFontXLB()   const { return m_pFontXLB;   }
-    inline DadGFX::cFont* GetFontXXL()   const { return m_pFontXXL;   }
-    inline DadGFX::cFont* GetFontXXLB()  const { return m_pFontXXLB;  }
-    inline DadGFX::cFont* GetFontXXXL()  const { return m_pFontXXXL;  }
-    inline DadGFX::cFont* GetFontXXXLB() const { return m_pFontXXXLB; }
+    inline DadGFX::cFont* GetFontXXS()   const { return m_pFontXXS;   }   // Extra extra small font
+    inline DadGFX::cFont* GetFontXXSB()  const { return m_pFontXXSB;  }   // Extra extra small bold font
+    inline DadGFX::cFont* GetFontXS()    const { return m_pFontXS;    }   // Extra small font
+    inline DadGFX::cFont* GetFontXSB()   const { return m_pFontXSB;   }   // Extra small bold font
+    inline DadGFX::cFont* GetFontS()     const { return m_pFontS;     }   // Small font
+    inline DadGFX::cFont* GetFontSB()    const { return m_pFontSB;    }   // Small bold font
+    inline DadGFX::cFont* GetFontM()     const { return m_pFontM;     }   // Medium font
+    inline DadGFX::cFont* GetFontMB()    const { return m_pFontMB;    }   // Medium bold font
+    inline DadGFX::cFont* GetFontL()     const { return m_pFontL;     }   // Large font
+    inline DadGFX::cFont* GetFontLB()    const { return m_pFontLB;    }   // Large bold font
+    inline DadGFX::cFont* GetFontXL()    const { return m_pFontXL;    }   // Extra large font
+    inline DadGFX::cFont* GetFontXLB()   const { return m_pFontXLB;   }   // Extra large bold font
+    inline DadGFX::cFont* GetFontXXL()   const { return m_pFontXXL;   }   // Extra extra large font
+    inline DadGFX::cFont* GetFontXXLB()  const { return m_pFontXXLB;  }   // Extra extra large bold font
+    inline DadGFX::cFont* GetFontXXXL()  const { return m_pFontXXXL;  }   // Extra extra extra large font
+    inline DadGFX::cFont* GetFontXXXLB() const { return m_pFontXXXLB; }   // Extra extra extra large bold font
 
 protected:
     // =============================================================================
-    // MIDI Callback Functions
+    // Protected Methods
     // =============================================================================
 
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     // MIDI_On_CallBack
     //
     // Description: MIDI callback for system ON command.
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     static void MIDI_On_CallBack(uint8_t control, uint8_t value, uint32_t userData);
 
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     // MIDI_Off_CallBack
     //
     // Description: MIDI callback for system OFF command.
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     static void MIDI_Off_CallBack(uint8_t control, uint8_t value, uint32_t userData);
 
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     // MIDI_ByPass_CallBack
     //
     // Description: MIDI callback for system BYPASS command.
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     static void MIDI_ByPass_CallBack(uint8_t control, uint8_t value, uint32_t userData);
 
+private:
     // =============================================================================
-    // Member Variables
+    // Private Member Variables
     // =============================================================================
 
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     // UI Components
-    //-------------------------------------------------------------------------
-    iUIComponent* m_pMenuComponent;  // Currently active menu component
+    // -----------------------------------------------------------------------------
     iUIComponent* m_pMainComponent;  // Currently active main component
     iUIComponent* m_pBackComponent;  // Currently active background component
 
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     // Update Management
-    //-------------------------------------------------------------------------
-    DadUtilities::cObjectIterator<iUIComponent*> m_UpdateComponent;  // Update component iterator
-    uint32_t m_UpdateID;                                             // Current update family ID
-    iUIComponent* m_pComponentNeedUpdate;                            // Component needing immediate update
+    // -----------------------------------------------------------------------------
+    uint32_t m_updateID;            // Active update family ID
+    uint32_t m_fastUpdateID;        // Active fast update family ID
 
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
+    // Parameter Change notification
+    // -----------------------------------------------------------------------------
+    DadUtilities::cCallBackIterator m_ParameterCallBackIterator;  // Iterator for parameter change listeners
+
+    // -----------------------------------------------------------------------------
+    // End restore memory slot change notification
+    // -----------------------------------------------------------------------------
+    DadUtilities::cCallBackIterator m_EndRestoreCallBackIterator;  // Iterator for end restore listeners
+
+    // -----------------------------------------------------------------------------
+    // Start restore memory slot change notification
+    // -----------------------------------------------------------------------------
+    DadUtilities::cCallBackIterator m_StartRestoreCallBackIterator;  // Iterator for start restore listeners
+
+    // -----------------------------------------------------------------------------
     // Serialization Management
-    //-------------------------------------------------------------------------
-    DadUtilities::cObjectIterator<DadPersistentStorage::cSerializedObject*> m_SerializedObject;  // Serialized object iterator
+    // -----------------------------------------------------------------------------
     uint32_t m_SerializeID;                                         // Current serialization family ID
-    bool m_RestoreInProcess;                                        // Restore operation flag
 
-    //-------------------------------------------------------------------------
-    // Real-Time Process Management
-    //-------------------------------------------------------------------------
-    DadUtilities::cObjectIterator<iRtObject*> m_RtProcessObject;    // Real-time object iterator
-    uint32_t m_RtProcessID;                                         // Current RT process family ID
-
-    //-------------------------------------------------------------------------
-    // GUI Process Management
-    //-------------------------------------------------------------------------
-    iGUIProcessObject* m_pGUIProcessObject;                       // GUI process object pointer
-
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     // Font Resources
-    //-------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
     DadGFX::cFont* m_pFontXXS   = nullptr;   // Extra extra small font
     DadGFX::cFont* m_pFontXXSB  = nullptr;   // Extra extra small bold font
     DadGFX::cFont* m_pFontXS    = nullptr;   // Extra small font
