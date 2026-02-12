@@ -1,18 +1,17 @@
-#pragma once
 //==================================================================================
 //==================================================================================
 // File: MultiModeEffect.h
 // Description: Multi-mode audio effect base classes and main controller interface
 // 
-// Copyright (c) 2025 Dad Design.
+// Copyright (c) 2025-2026 Dad Design.
 //==================================================================================
 //==================================================================================
-
+#pragma once
 #include "GUI_Include.h"
 #include "cPanelOfSystemView.h"
 #include "cPanelOfEffectChoice.h"
 #include "cPanelOfTone.h"
-#include "cDryWet.h"
+#include "cParameterInfoView.h"
 
 namespace DadEffect {
 
@@ -20,17 +19,17 @@ namespace DadEffect {
 // Class: cMultiModeEffect
 // Description: Base class for multi-mode audio effects
 //**********************************************************************************
-class cMultiModeEffect{
+class cMultiModeEffectBase{
 public:
     // -----------------------------------------------------------------------------
     // Constructor
     //
-    cMultiModeEffect() = default;
+	cMultiModeEffectBase() = default;
 
     // -----------------------------------------------------------------------------
     // Destructor
     //
-    virtual ~cMultiModeEffect() = default;
+    virtual ~cMultiModeEffectBase() = default;
 
     // -----------------------------------------------------------------------------
     // Init
@@ -128,7 +127,7 @@ protected:
 // Class: cMainMultiModeEffect
 // Description: Main controller for managing multiple effects and UI components
 //**********************************************************************************
-class cMainMultiModeEffect{
+class cMainMultiModeEffect : public DadGUI::iGUI_EventListener {
 public:
     // -----------------------------------------------------------------------------
     // Initialize
@@ -140,13 +139,19 @@ public:
     // Process
     // Description: Real-time audio processing delegate to active effect
     //
-    ITCM void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence);
+    void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence);
 
     // -----------------------------------------------------------------------------
     // getEffect
     // Description: Retrieves effect pointer by index with bounds checking
     //
-    cMultiModeEffect* getEffect(uint8_t NumEffect) const;
+    cMultiModeEffectBase* getEffect(uint8_t NumEffect) const;
+
+    // -----------------------------------------------------------------------------
+    // on_GUI_FastUpdate
+    // Description: Periodically updates switch state and detects user actions
+    //
+    void on_GUI_FastUpdate() override;
 
 protected:
     // -----------------------------------------------------------------------------
@@ -156,27 +161,53 @@ protected:
     static void EffectChange(DadDSP::cParameter *pParameter, uint32_t CallbackUserData);
 
     // -----------------------------------------------------------------------------
-    // setEffect
-    void setEffect(uint8_t IndexEffect);
+    // StartRestoreEvent
+    // Description: Callback event for memory restore start event
+    //
+    static void StartRestoreEvent(void *pID, uint32_t Data);
 
     // -----------------------------------------------------------------------------
-    // Protected Member Data
+    // EndRestoreEvent
+    // Description: Callback event for memory restore end event
     //
+    static void EndRestoreEvent(void *pID, uint32_t Data);
+
+    // -----------------------------------------------------------------------------
+    // setEffect
+    // Description: Switches to the specified effect
+    //
+    void setEffect(uint8_t IndexEffect);
+
+    // =============================================================================
+    // Panel declarations
+    // =============================================================================
+
     DadGUI::cUIMemory               m_MemoryPanel;          // Memory management panel
     DadGUI::cUIVuMeter              m_VuMeterPanel;         // Audio level display panel
     DadGUI::cPanelOfSystemView      m_PanelOfSystemView;    // System information panel
     DadGUI::cPanelOfEffectChoice    m_PanelOfEffectChoice;  // Effect selection panel
-    DadGUI::cPanelOfTone			m_PanelOfTone;			// Tone panel
+    DadGUI::cPanelOfTone			m_PanelOfTone;			// Tone control panel
 
-    DadGUI::cInfoView               m_InfoView;             // Information display view
-    DadGUI::cSwitchOnOff            m_SwitchOnOff;          // On/off switch controller
-    DadGUI::cTapTempoMemChange      m_SwitchTempoMem;       // Tempo/memory switch controller
+    // =============================================================================
+    // UI component declarations
+    // =============================================================================
 
-    cMultiModeEffect*               m_pActiveEffect = nullptr;  // Currently active effect
-    cMultiModeEffect**              m_pTabEffects = nullptr;    // Array of available effects
-    uint8_t                         m_NbEffects = 0;            // Number of available effects
+    DadGUI::cInfoView               m_InfoView;                // Information display view
+    DadGUI::cParameterInfoView	    m_cParameterInfoView;      // Parameter information display
+    DadGUI::cSwitchOnOff            m_SwitchOnOff;             // On/off switch controller
+    DadGUI::cTapTempoMemChange      m_SwitchTempoMem;          // Tempo/memory switch controller
 
-    uint8_t							m_IndexChange = 0;          // Index of changing effect
+    cMultiModeEffectBase*           m_pActiveEffect = nullptr; // Currently active effect
+    cMultiModeEffectBase**          m_pTabEffects = nullptr;   // Array of available effects
+    uint8_t                         m_NbEffects = 0;           // Number of available effects
+
+    // =============================================================================
+    // Fade for change memory and/or effect
+    // =============================================================================
+    float 							m_FadeIncrement = 0.0f;	   // Wet gain fade increment for memory switch
+    float							m_FadGain = 1.0f;		   // Wet gain for memory switch fade
+    bool 							m_ChangeEffect = false;	   // Effect change pending flag
+    uint8_t							m_TargetSlot = 0.0f;	   // Target memory slot for switch
 };
 
 } // namespace DadEffect

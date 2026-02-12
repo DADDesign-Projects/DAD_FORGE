@@ -3,7 +3,7 @@
 // File: cMemoryManager.h
 // Description: Memory manager class for handling preset slots and MIDI navigation
 //
-// Copyright (c) 2025 Dad Design.
+// Copyright (c) 2025-2026 Dad Design.
 //==================================================================================
 //==================================================================================
 
@@ -11,6 +11,7 @@
 
 #include "main.h"
 #include "GUI_Define.h"
+#include "cCallBackIterator.h"
 
 namespace DadGUI {
 
@@ -66,6 +67,11 @@ public:
         return m_MemoryHeader.m_ActiveSlot;                        // Current active slot index
     }
 
+    // Read if the system is currently restoring a preset from memory
+    inline bool IsInRestoreProcess(){
+    	return m_RestoreInProcess;
+    }
+
 protected:
     // -----------------------------------------------------------------------------
     // Protected Structures
@@ -77,6 +83,13 @@ protected:
         uint32_t m_SlotID[MAX_SLOT];           // Unique identifiers for each slot
         uint32_t m_SlotSize[MAX_SLOT];         // Data size for each slot in bytes
     } m_MemoryHeader;                          // Instance of memory header
+
+    // =============================================================================
+    // Protected Member Variables
+    // =============================================================================
+
+    bool m_RestoreInProcess = false;		   // Indicates if a restore is in progress
+
 };
 
 } // namespace DadGUI
