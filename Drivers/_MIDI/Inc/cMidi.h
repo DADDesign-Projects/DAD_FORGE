@@ -15,22 +15,22 @@
 
 #include "main.h"
 #include <vector>
-#include <functional>
+
 
 // =============================================================================
 // Constants and Definitions
 // =============================================================================
 
-#define MIDI_BUFFER_SIZE 20    // Size of the MIDI ring buffer
+#define MIDI_BUFFER_SIZE 128   // Size of the MIDI ring buffer
 #define MULTI_CHANNEL 0xFF     // Special value to listen on all MIDI channels
 
 // =============================================================================
 // Callback Type Definitions
 // =============================================================================
 
-using ControlChangeCallback = std::function<void(uint8_t control, uint8_t value, uint32_t userData)>;  // CC message callback
-using ProgramChangeCallback = std::function<void(uint8_t program, uint32_t userData)>;                 // PC message callback
-using NoteChangeCallback = std::function<void(uint8_t OnOff, uint8_t note, uint8_t velocity, uint32_t userData)>;  // Note message callback
+using ControlChangeCallback = void (*)(uint8_t control, uint8_t value, uint32_t userData);  			// CC message callback
+using ProgramChangeCallback = void (*)(uint8_t program, uint32_t userData);                 			// PC message callback
+using NoteChangeCallback = void (*)(uint8_t OnOff, uint8_t note, uint8_t velocity, uint32_t userData);  // Note message callback
 
 // =============================================================================
 // Callback Entry Structures
@@ -92,7 +92,7 @@ public:
     // Change MIDI channel
     // @param Channel - new MIDI listening channel
     // -------------------------------------------------------------------------
-    void ChangeChanel(uint8_t Channel){
+    void ChangeChannel(uint8_t Channel){
         m_Channel = Channel;  // Update MIDI channel
     }
 

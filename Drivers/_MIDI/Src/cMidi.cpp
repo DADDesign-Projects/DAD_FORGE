@@ -1,7 +1,7 @@
 //==================================================================================
 //==================================================================================
 // File: cMidi.cpp
-// Description: MIDI interface management with DMA reception and message parsing
+// Description: MIDI UART interface management with DMA reception and message parsing
 //
 // Copyright (c) 2025 Dad Design. All rights reserved.
 //==================================================================================
@@ -29,7 +29,7 @@ uint8_t __MidiBufferReadIndex  = 0;      // Read position in the ring buffer
 // HAL_UART_RxCpltCallback
 // Called when DMA has filled the second half of __RxData
 //**********************************************************************************
-ITCM void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
     __MidiBuffer[__MidiBufferWriteIndex] = __RxData[1];              // Store byte from second buffer half
     __MidiBufferWriteIndex = (__MidiBufferWriteIndex + 1) % MIDI_BUFFER_SIZE;  // Increment write index with wrap-around
 }
@@ -38,7 +38,7 @@ ITCM void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 // HAL_UART_RxHalfCpltCallback
 // Called when DMA has filled the first half of __RxData
 //**********************************************************************************
-ITCM void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart){
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart){
     __MidiBuffer[__MidiBufferWriteIndex] = __RxData[0];              // Store byte from first buffer half
     __MidiBufferWriteIndex = (__MidiBufferWriteIndex + 1) % MIDI_BUFFER_SIZE;  // Increment write index with wrap-around
 }
@@ -118,15 +118,11 @@ void cMidi::addControlChangeCallback(uint8_t control, uint32_t userData, Control
 // @param pCallback - The callback function to remove
 // -----------------------------------------------------------------------------
 void cMidi::removeControlChangeCallback(ControlChangeCallback pCallback) {
-    // Iterate through all registered callbacks
     for (auto it = m_ccCallbacks.begin(); it != m_ccCallbacks.end(); ) {
-        // Compare function pointers to find matching callback
-        auto targetCurrent = it->callback.template target<void(*)(uint8_t, uint32_t)>();
-        auto targetToRemove = pCallback.template target<void(*)(uint8_t, uint32_t)>();
-        if (targetCurrent && targetToRemove && (*targetCurrent == *targetToRemove)) {
-            it = m_ccCallbacks.erase(it);  // Remove this entry
+        if (it->callback == pCallback) {
+            it = m_ccCallbacks.erase(it);
         } else {
-            ++it;  // Move to next entry
+            ++it;
         }
     }
 }
@@ -145,15 +141,11 @@ void cMidi::addProgramChangeCallback(uint32_t userData, ProgramChangeCallback pC
 // @param pCallback - The callback function to remove
 // -----------------------------------------------------------------------------
 void cMidi::removeProgramChangeCallback(ProgramChangeCallback pCallback) {
-    // Iterate through all registered callbacks
     for (auto it = m_pcCallbacks.begin(); it != m_pcCallbacks.end(); ) {
-        // Compare function pointers to find matching callback
-        auto targetCurrent = it->callback.template target<void(*)(uint32_t)>();
-        auto targetToRemove = pCallback.template target<void(*)(uint32_t)>();
-        if (targetCurrent && targetToRemove && (*targetCurrent == *targetToRemove)) {
-            it = m_pcCallbacks.erase(it);  // Remove this entry
+        if (it->callback == pCallback) {
+            it = m_pcCallbacks.erase(it);
         } else {
-            ++it;  // Move to next entry
+            ++it;
         }
     }
 }
@@ -172,15 +164,11 @@ void cMidi::addNoteChangeCallback(uint32_t userData, NoteChangeCallback pCallbac
 // @param pCallback - The callback function to remove
 // -----------------------------------------------------------------------------
 void cMidi::removeNoteChangeCallback(NoteChangeCallback pCallback) {
-    // Iterate through all registered callbacks
     for (auto it = m_noteCallbacks.begin(); it != m_noteCallbacks.end(); ) {
-        // Compare function pointers to find matching callback
-        auto targetCurrent = it->callback.template target<void(*)(uint8_t, uint8_t, uint8_t, uint32_t)>();
-        auto targetToRemove = pCallback.template target<void(*)(uint8_t, uint8_t, uint8_t, uint32_t)>();
-        if (targetCurrent && targetToRemove && (*targetCurrent == *targetToRemove)) {
-            it = m_noteCallbacks.erase(it);  // Remove this entry
+        if (it->callback == pCallback) {
+            it = m_noteCallbacks.erase(it);
         } else {
-            ++it;  // Move to next entry
+            ++it;
         }
     }
 }
