@@ -8,6 +8,7 @@
 //==================================================================================
 
 #include "cModulator.h"
+#include "arm_math.h"
 
 namespace DadDSP {
 
@@ -71,7 +72,7 @@ void cModulator::setPitchVariation(float PitchVariationMin, float PitchVariation
 
 // -----------------------------------------------------------------------------
 // Process audio sample with pitch modulation
-ITCM float cModulator::Process(float Sample, float Depth, uint8_t Shape, float Feedback, bool Mode)
+float cModulator::Process(float Sample, float Depth, uint8_t Shape, float Feedback, bool Mode)
 {
     // Check for valid parameters
     if((Depth > 1.0f) || (m_BufferSize == 0)) {
@@ -110,8 +111,8 @@ ITCM float cModulator::Process(float Sample, float Depth, uint8_t Shape, float F
         	SampleOut = -SampleOut;
         }
         float SampleMix = SampleOut;
-        Sample *= cosf(Feedback * M_PI_2);
-        SampleMix *= sinf(Feedback * M_PI_2);
+        Sample *= arm_cos_f32(Feedback * M_PI_2);
+        SampleMix *= arm_sin_f32(Feedback * M_PI_2);
         m_DelayLine.Push(Sample + SampleMix);   // Store current mixed sample in delay line
         return SampleOut;
     }

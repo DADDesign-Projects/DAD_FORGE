@@ -23,7 +23,7 @@ namespace DadDSP {
 // -----------------------------------------------------------------------------
 void cBiQuad::Initialize(float sampleRate, float cutoffFreq, float gainDb, float bandwidth, FilterType type) {
     // Store filter parameters
-    m_sampleRate = sampleRate;    // Sampling rate in Hz
+	m_InvSampleRate = 1.0f / sampleRate; // Sampling rate in second
     m_cutoffFreq = cutoffFreq;    // Cutoff frequency in Hz
     m_gainDb = gainDb;            // Gain in dB
     m_bandwidth = bandwidth;      // Bandwidth parameter
@@ -44,8 +44,8 @@ void cBiQuad::CalculateParameters() {
     float a0, a1, a2, b0, b1, b2; // Raw filter coefficients
 
     // Calculate intermediate variables for coefficient computation
-    float A = std::pow(10, m_gainDb / 40);                       // Gain in linear scale
-    float omega = 2 * kPi * m_cutoffFreq / m_sampleRate;         // Angular frequency
+    float A = std::pow(10, m_gainDb * 0.025f);                   // Gain in linear scale
+    float omega = 2 * kPi * m_cutoffFreq * m_InvSampleRate;      // Angular frequency
     float sn = std::sin(omega);                                  // Sine of omega
     float cs = std::cos(omega);                                  // Cosine of omega
     float alpha = sn * std::sinh(kNaturalLog2 / 2 * m_bandwidth * omega / sn); // Bandwidth parameter
@@ -56,9 +56,9 @@ void cBiQuad::CalculateParameters() {
     case FilterType::LPF:
     case FilterType::LPF24:
         // Low-pass filter coefficients
-        b0 = (1 - cs) / 2;
+        b0 = (1 - cs) * 0.5f;
         b1 = 1 - cs;
-        b2 = (1 - cs) / 2;
+        b2 = (1 - cs) * 0.5f;
         a0 = 1 + alpha;
         a1 = -2 * cs;
         a2 = 1 - alpha;
@@ -66,9 +66,9 @@ void cBiQuad::CalculateParameters() {
     case FilterType::HPF:
     case FilterType::HPF24:
         // High-pass filter coefficients
-        b0 = (1 + cs) / 2;
+        b0 = (1 + cs) * 0.5f;
         b1 = -(1 + cs);
-        b2 = (1 + cs) / 2;
+        b2 = (1 + cs) * 0.5f;
         a0 = 1 + alpha;
         a1 = -2 * cs;
         a2 = 1 - alpha;
@@ -132,12 +132,13 @@ void cBiQuad::CalculateParameters() {
 
     // Precompute normalized coefficients for efficient processing
     // Disable interrupts during coefficient update to ensure thread safety
+    float a = 1.0f / a0;
     __disable_irq();
-    m_a0 = b0 / a0;    // b0 normalized
-    m_a1 = b1 / a0;    // b1 normalized
-    m_a2 = b2 / a0;    // b2 normalized
-    m_a3 = a1 / a0;    // a1 normalized
-    m_a4 = a2 / a0;    // a2 normalized
+    m_a0 = b0 * a;    // b0 normalized
+    m_a1 = b1 * a;    // b1 normalized
+    m_a2 = b2 * a;    // b2 normalized
+    m_a3 = a1 * a;    // a1 normalized
+    m_a4 = a2 * a;    // a2 normalized
     __DMB(); // Data Memory Barrier
     __enable_irq();
 }
@@ -146,29 +147,6 @@ void cBiQuad::CalculateParameters() {
 // Signal processing
 //**********************************************************************************
 
-// -----------------------------------------------------------------------------
-// Process single sample through biquad filter
-// -----------------------------------------------------------------------------
-ITCM float cBiQuad::Process(float sample, sFilterState &FilterState) {
-    // Apply biquad filter difference equation:
-    // y[n] = b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2]
-    float result = (m_a0 * sample)
-                 + (m_a1 * FilterState.x1)
-                 + (m_a2 * FilterState.x2)
-                 - (m_a3 * FilterState.y1)
-                 - (m_a4 * FilterState.y2);
-
-    // Update filter state for next iteration
-    // Shift input delay line
-    FilterState.x2 = FilterState.x1;    // Move x[n-1] to x[n-2]
-    FilterState.x1 = sample;            // Store current input as x[n-1]
-
-    // Shift output delay line
-    FilterState.y2 = FilterState.y1;    // Move y[n-1] to y[n-2]
-    FilterState.y1 = result;            // Store current output as y[n-1]
-
-    return result;
-}
 
 } // namespace DadDSP
 

@@ -7,6 +7,7 @@
 // Cookbook formulae for audio EQ biquad filter coefficients
 // by Robert Bristow-Johnson  <rbj@audioimagination.com>
 //
+// Copyright (c) 2024-2026 Dad Design.
 //==================================================================================
 //==================================================================================
 
@@ -14,6 +15,7 @@
 
 #include "main.h"
 #include "Sections.h"
+#include "AudioManager.h"
 #include <cstdint>
 #include <cmath>
 
@@ -54,6 +56,13 @@ struct sFilterState {
     float x2; // Input sample x[n-2]
     float y1; // Previous output sample y[n-1]
     float y2; // Output sample y[n-2]
+
+    void Reset(){
+    	x1 = 0.0f;
+    	x2 = 0.0f;
+    	y1 = 0.0f;
+    	y2 = 0.0f;
+    }
 };
 
 // -----------------------------------------------------------------------------
@@ -90,9 +99,17 @@ public:
     float GainDb(float freq);
 
     // -----------------------------------------------------------------------------
+    // Fast Signal processing - to stereo channel processing no filters 24dB
+    // -----------------------------------------------------------------------------
+    inline void ProcessFlast12dbStereo(AudioBuffer* pIn, AudioBuffer* pOut) {
+    	pOut->Left = Process(pIn->Left, m_FilterState[0]);
+    	pOut->Right = Process(pIn->Right, m_FilterState[2]);
+    }
+
+    // -----------------------------------------------------------------------------
     // Signal processing - stereo channel processing
     // -----------------------------------------------------------------------------
-    inline float Process(float sample, eChannel Channel) {
+    inline float Process(float sample, eChannel Channel = eChannel::Left ) {
         // Process sample through appropriate filter chain based on channel
         switch(Channel) {
         case eChannel::Left:
@@ -117,7 +134,7 @@ public:
     // =============================================================================
     // Parameter setters
     // =============================================================================
-    inline void setSampleRate(float sampleRate) { m_sampleRate = sampleRate; }        // Set sampling rate
+    inline void setSampleRate(float sampleRate) { m_InvSampleRate = 1.0f / sampleRate; }  // Set sampling rate
     inline void setCutoffFreq(float cutoffFreq) { m_cutoffFreq = cutoffFreq; }        // Set cutoff frequency
     inline void setGainDb(float gainDb) { m_gainDb = gainDb; }                        // Set gain in dB
     inline void setBandwidth(float bandwidth) { m_bandwidth = bandwidth; }            // Set bandwidth
@@ -126,26 +143,44 @@ public:
     // =============================================================================
     // Parameter getters
     // =============================================================================
-    inline float getSampleRate() { return m_sampleRate; }                             // Get sampling rate
+    inline float getSampleRate() { return 1.0f / m_InvSampleRate; }                   // Get sampling rate
     inline float getCutoffFreq() { return m_cutoffFreq; }                             // Get cutoff frequency
     inline float getGainDb() { return m_gainDb; }                                     // Get gain in dB
     inline float getBandwidth() { return m_bandwidth; }                               // Get bandwidth
     inline FilterType getType() { return m_type; }                                    // Get filter type
 
+    // -----------------------------------------------------------------------------
+    // Mono channel signal processing
+    // -----------------------------------------------------------------------------
+    inline float Process(float sample, sFilterState &FilterState){
+        // Apply biquad filter difference equation:
+        // y[n] = b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2]
+        float result = (m_a0 * sample)
+                     + (m_a1 * FilterState.x1)
+                     + (m_a2 * FilterState.x2)
+                     - (m_a3 * FilterState.y1)
+                     - (m_a4 * FilterState.y2);
+
+        // Update filter state for next iteration
+        // Shift input delay line
+        FilterState.x2 = FilterState.x1;    // Move x[n-1] to x[n-2]
+        FilterState.x1 = sample;            // Store current input as x[n-1]
+
+        // Shift output delay line
+        FilterState.y2 = FilterState.y1;    // Move y[n-1] to y[n-2]
+        FilterState.y1 = result;            // Store current output as y[n-1]
+
+        return result;
+    }
 protected:
     // =============================================================================
     // Protected methods
     // =============================================================================
 
-    // -----------------------------------------------------------------------------
-    // Mono channel signal processing
-    // -----------------------------------------------------------------------------
-    ITCM float Process(float sample, sFilterState &FilterState);
-
     // =============================================================================
     // Filter parameters
     // =============================================================================
-    float m_sampleRate;        // Sampling rate in Hz
+    float m_InvSampleRate;     // Sampling rate in second
     float m_cutoffFreq;        // Cutoff frequency in Hz
     float m_gainDb;            // Gain in dB
     float m_bandwidth;         // Bandwidth parameter

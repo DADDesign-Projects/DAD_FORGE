@@ -10,7 +10,7 @@
 #pragma once
 // =============================================================================
 #include "main.h"
-#include <cmath>
+#include "arm_math.h"
 
 namespace DadDSP {
 
@@ -142,21 +142,21 @@ public:
     // Reads the sine wave output value
     inline float getSineValue() {
         // Generate sine wave 0 -> 1
-        return 0.5f + (sin((m_twoPI * m_dcoValue) + m_halfPI) * 0.5f);
+        return 0.5f + (arm_sin_f32((m_twoPI * m_dcoValue) + m_halfPI) * 0.5f);
     }
 
     // -----------------------------------------------------------------------------
     // Reads the sine wave output value
     inline float getSymetricalSineValue() {
         // Generate sine wave -1 -> 1
-        return sin((m_twoPI * m_dcoValue) + m_halfPI);
+        return arm_sin_f32((m_twoPI * m_dcoValue) + m_halfPI);
     }
 
     // -----------------------------------------------------------------------------
     // Reads the rectified sine wave output value
     inline float getRectifiedSineValue() {
         // Use absolute sine to create half-wave rectified signal
-        return sin(m_PI * m_dcoValue);
+        return arm_sin_f32(m_PI * m_dcoValue);
     }
 
     // -----------------------------------------------------------------------------
