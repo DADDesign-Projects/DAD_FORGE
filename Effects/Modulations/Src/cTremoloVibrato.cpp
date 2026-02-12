@@ -6,7 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-
+#include "EffectsConfig.h"
+#ifdef MODULATIONS_EFFECT
 #include "cTremoloVibrato.h"
 
 // Vibrato constants
@@ -53,29 +54,29 @@ void cTremoloVibrato::onInitialize(){
 
 	// LFO Frequency parameter
 	m_Freq.Init(TREMOLO_ID, 2.5f, FREQ_MIN, FREQ_MAX, 0.5f, 0.1f, SpeedChange, (uint32_t)this,
-				5.0f * RT_RATE, 30);
+				5.0f, 20);
 
 	// Tremolo Depth parameter
 	m_TremoloDeep.Init(TREMOLO_ID, 55.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0,
-					   0.5f * RT_RATE, 31);
+					   0.5f, 21);
 
 	// Vibrato Depth parameter (used for delay-based pitch modulation)
 	m_VibratoDeep.Init(TREMOLO_ID, 10.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0,
-					   0.5f * RT_RATE, 32);
+					   0.5f, 22);
 
 	// DryWet Mix parameter
-	m_DryWetMix.Init(TREMOLO_ID, 75, 0, 100, 5, 1, MixChange, (uint32_t) this, 0.5f * RT_RATE, 33);
+	m_DryWetMix.Init(TREMOLO_ID, 75, 0, 100, 5, 1, MixChange, (uint32_t) this, 0.5f, 23);
 
 	// LFO Shape parameter (0: Triangle, 1: Square)
 	m_LFOShape.Init(TREMOLO_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0,
-					0.0f, 34);
+					0.0f, 24);
 
 	// LFO Duty Cycle Ratio parameter
 	m_LFORatio.Init(TREMOLO_ID, 50.0f, 0.0f, 100.0f, 5.0f, 1.0f, RatioChange, (uint32_t)this,
-					0.5f * RT_RATE, 35);
+					0.5f, 25);
 
 	// Stereo mode parameter
-	m_StereoMode.Init(TREMOLO_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0, 0.0f, 36);
+	m_StereoMode.Init(TREMOLO_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0, 0.0f, 26);
 
     // =============================================================================
     // VIEW SETUP SECTION
@@ -278,5 +279,5 @@ void cTremoloVibrato::MixChange(DadDSP::cParameter *pParameter, uint32_t Callbac
 }
 
 } // namespace DadEffect
-
+#endif
 //***End of file**************************************************************

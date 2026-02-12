@@ -23,7 +23,7 @@ namespace DadEffect {
 
 constexpr uint32_t TREMOLO_ID BUILD_ID('T', 'R', 'V', 'B');  // Unique effect identifier
 
-class cTremoloVibrato : public cMultiModeEffect {
+class cTremoloVibrato : public cMultiModeEffectBase {
 public:
     // -----------------------------------------------------------------------------
     // Method: onInitialize

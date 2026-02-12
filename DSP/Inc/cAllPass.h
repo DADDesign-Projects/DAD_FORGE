@@ -3,7 +3,7 @@
 // File: cAllPass.h
 // Description: First-order and second-order all-pass filter implementations
 //
-// Copyright (c) 2024 DadDSP.
+// Copyright (c) 2026 Dad Design
 //==================================================================================
 //==================================================================================
 

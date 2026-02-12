@@ -30,7 +30,7 @@ protected:
     // Member Variables
     // =============================================================================
 
-    cMultiModeEffect* m_TabEffects[NB_EFFECTS];                         // Array of effect instances
+    cMultiModeEffectBase* m_TabEffects[NB_EFFECTS];                         // Array of effect instances
 };
 
 }// DadEffect

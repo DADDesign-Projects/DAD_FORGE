@@ -11,6 +11,7 @@
 
 #include "GUI_Include.h"
 #include "MultiModeEffect.h"
+#include <array>
 #include "cDCO.h"
 #include "cAllPass.h"
 
@@ -55,7 +56,7 @@ constexpr ModeParam MakeModeParam(uint8_t nbFilter, uint8_t apfOrder,
 // Class: cPhaser
 // Description: Implements phaser audio effect
 //**********************************************************************************
-class cPhaser : public cMultiModeEffect {
+class cPhaser : public cMultiModeEffectBase {
 public:
     // -----------------------------------------------------------------------------
     // Method: onInitialize

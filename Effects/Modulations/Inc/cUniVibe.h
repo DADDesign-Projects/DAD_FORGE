@@ -23,7 +23,7 @@ namespace DadEffect {
 
 constexpr uint32_t UNIVIBE_ID BUILD_ID('U', 'N', 'V', 'B');
 
-class cUniVibe : public cMultiModeEffect {
+class cUniVibe : public cMultiModeEffectBase {
 public:
     // -----------------------------------------------------------------------------
     // Method: onInitialize

@@ -6,7 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-
+#include "EffectsConfig.h"
+#ifdef TEMPLATE_MULTI_MODE_EFFECT
 #include "TemplateMultiModeEffect.h"
 
 namespace DadEffect {
@@ -145,8 +146,8 @@ void cTemplateMultiModeEffect2::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOn
 //**********************************************************************************
 
 // Storage buffers for effect instances with proper alignment
-alignas(cTemplateMultiModeEffect1) uint8_t TemplateMultiModeEffect1Buffer[sizeof(cTemplateMultiModeEffect1)];
-alignas(cTemplateMultiModeEffect2) uint8_t TemplateMultiModeEffect2Buffer[sizeof(cTemplateMultiModeEffect2)];
+alignas(4) uint8_t TemplateMultiModeEffect1Buffer[sizeof(cTemplateMultiModeEffect1)];
+alignas(4) uint8_t TemplateMultiModeEffect2Buffer[sizeof(cTemplateMultiModeEffect2)];
 
 // ---------------------------------------------------------------------------------
 // Initialize
@@ -167,5 +168,5 @@ void cTemplateMainMultiModeEffect::Initialize(){
 }
 
 } // namespace DadEffect
-
+#endif
 //***End of file********************************************************************

@@ -6,6 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
+#include "EffectsConfig.h"
+#ifdef MODULATIONS_EFFECT
 
 #include "cChorus.h"
 
@@ -102,13 +104,13 @@ void cChorus::onInitialize() {
     // =============================================================================
 
     // Initialize effect depth parameter
-    m_Deep.Init(CHORUS_ID, 45.0f, 0.0f, 100, 5, 1, nullptr, 0, 0.8f * RT_RATE, 30);
+    m_Deep.Init(CHORUS_ID, 45.0f, 0.0f, 100, 5, 1, nullptr, 0, 0.8f, 30);
 
     // Initialize mode parameter with callback for mode changes
     m_Mode.Init(CHORUS_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, ModeChange, (uint32_t) this, 0.0f, 31);
 
     // Initialize dry/wet mix parameter with callback for mix changes
-    m_DryWetMix.Init(CHORUS_ID, 50.0f, 0.0f, 100.0f, 5, 1, MixChange, (uint32_t) this, 3.0f * RT_RATE, 32);
+    m_DryWetMix.Init(CHORUS_ID, 50.0f, 0.0f, 100.0f, 5, 1, MixChange, (uint32_t) this, 3.0f, 32);
 
     // =============================================================================
     // VIEW SETUP SECTION
@@ -228,5 +230,5 @@ void cChorus::ModeChange(DadDSP::cParameter *pParameter, uint32_t CallbackUserDa
 }
 
 } // namespace DadEffect
-
+#endif
 //***End of file**************************************************************

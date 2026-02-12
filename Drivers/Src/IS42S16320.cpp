@@ -61,7 +61,7 @@ void SDRAM_Initialize()
     Command.CommandMode            = FMC_SDRAM_CMD_LOAD_MODE;
     Command.CommandTarget          = FMC_SDRAM_CMD_TARGET_BANK1;
     Command.AutoRefreshNumber      = 1;
-    Command.ModeRegisterDefinition = 0x0020;  // CAS=3, BL=0, Sequential
+    Command.ModeRegisterDefinition = 0x0020;  // CAS=2, BL=0, Sequential
 
     if (HAL_SDRAM_SendCommand(&hsdram1, &Command, 1000) != HAL_OK)
     {

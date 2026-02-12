@@ -20,7 +20,7 @@ namespace DadEffect {
 
 constexpr uint32_t TEMPLATE_MULTI_1_ID BUILD_ID('T', 'E', 'M', '1');
 
-class cTemplateMultiModeEffect1 : public cMultiModeEffect {
+class cTemplateMultiModeEffect1 : public cMultiModeEffectBase {
 public:
     // -----------------------------------------------------------------------------
     // onInitialize
@@ -69,7 +69,7 @@ protected:
 
 constexpr uint32_t TEMPLATE_MULTI_2_ID BUILD_ID('T', 'E', 'M', '2');
 
-class cTemplateMultiModeEffect2 : public cMultiModeEffect {
+class cTemplateMultiModeEffect2 : public cMultiModeEffectBase {
 public:
     // -----------------------------------------------------------------------------
     // onInitialize
@@ -131,7 +131,7 @@ protected:
     // Member Variables
     // =============================================================================
 
-    cMultiModeEffect* m_TabEffects[NB_EFFECTS];                         // Array of effect instances
+    cMultiModeEffectBase* m_TabEffects[NB_EFFECTS];                         // Array of effect instances
 };
 
 } // namespace DadEffect

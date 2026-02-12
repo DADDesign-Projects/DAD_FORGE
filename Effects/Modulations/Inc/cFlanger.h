@@ -22,7 +22,7 @@ namespace DadEffect {
 
 constexpr uint32_t FLANGER_ID BUILD_ID('F', 'L', 'A', 'N');
 
-class cFlanger : public cMultiModeEffect {
+class cFlanger : public cMultiModeEffectBase {
 public:
     // -----------------------------------------------------------------------------
     // Method: onInitialize

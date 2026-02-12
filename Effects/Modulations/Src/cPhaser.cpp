@@ -6,9 +6,9 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-
+#include "EffectsConfig.h"
+#ifdef MODULATIONS_EFFECT
 #include "cPhaser.h"
-#include "math.h"
 
 namespace DadEffect {
 
@@ -17,7 +17,7 @@ namespace DadEffect {
 // =============================================================================
 constexpr float LFO_FREQ_MAX   = 4.0f;      // Maximum LFO frequency
 constexpr float LFO_FREQ_MIN   = 0.1f;      // Minimum LFO frequency
-constexpr float LFO_FREQ_INIT  = 0.5f;      // Initial LFO frequency
+constexpr float LFO_FREQ_INIT  = 0.9f;      // Initial LFO frequency
 constexpr float LFO_OFFSET     = 1.0f;      // Right channel LFO offset factor
 constexpr float FAD_STEP       = 1.0f / 10000; // Fade step for mode switching
 
@@ -48,24 +48,24 @@ void cPhaser::onInitialize() {
     // =============================================================================
 
     // Initialize effect depth parameter
-    m_Deep.Init(PHASER_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, DeepChange,
-                (uint32_t)this, 0.5f * RT_RATE, 20);
+    m_Deep.Init(PHASER_ID, 85.0f, 0.0f, 100.0f, 5.0f, 1.0f, DeepChange,
+                (uint32_t)this, 0.5f, 60);
 
     // Initialize effect speed parameter
     m_Speed.Init(PHASER_ID, LFO_FREQ_INIT, LFO_FREQ_MIN, LFO_FREQ_MAX, 0.1f, 0.05f,
-                 SpeedChange, (uint32_t)this, 0.8f * RT_RATE, 21);
+                 SpeedChange, (uint32_t)this, 0.8f, 61);
 
     // Initialize dry/wet mix parameter
-    m_DryWetMix.Init(PHASER_ID, 38.0f, 0.0f, 100.0f, 5.0f, 1.0f, MixChange,
-                     (uint32_t)this, 3.0f * RT_RATE, 22);
+    m_DryWetMix.Init(PHASER_ID, 85.0f, 0.0f, 100.0f, 5.0f, 1.0f, MixChange,
+                     (uint32_t)this, 3.0f, 62);
 
     // Initialize feedback parameter
     m_Feedback.Init(PHASER_ID, 15.0f, -100.0f, 100.0f, 5.0f, 1.0f,
-                    nullptr, 0, 0.8f * RT_RATE, 23);
+                    nullptr, 0, 0.8f, 63);
 
     // Initialize mode selection parameter
     m_Mode.Init(PHASER_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, ModeChange,
-                (uint32_t)this, 0, 24);
+                (uint32_t)this, 0, 64);
 
     // =============================================================================
     // VIEW SETUP SECTION
@@ -74,7 +74,7 @@ void cPhaser::onInitialize() {
     // Initialize parameter views for user interface
     m_DeepView.Init(&m_Deep, "Deep", "Deep", "%", "%");
     m_SpeedView.Init(&m_Speed, "Speed", "LFO Frequency", "Hz", "Hz");
-    m_DryWetMixView.Init(&m_DryWetMix, "Dry", "Dry", "%", "%");
+    m_DryWetMixView.Init(&m_DryWetMix, "Mix", "Mix", "%", "%");
     m_FeedbackView.Init(&m_Feedback, "Feedback", "Feedback", "%", "%");
     m_ModeView.Init(&m_Mode, "Mode", "Mode");
 
@@ -305,5 +305,5 @@ void cPhaser::DeepChange(DadDSP::cParameter* pParameter, uint32_t CallbackUserDa
 }
 
 } // namespace DadEffect
-
+#endif
 //***End of file**************************************************************

@@ -6,7 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-
+#include "EffectsConfig.h"
+#ifdef MODULATIONS_EFFECT
 #include "cUniVibe.h"
 
 // Frequency constants for LFO
@@ -65,13 +66,13 @@ void cUniVibe::onInitialize() {
     // =============================================================================
 
     // Initialize effect depth parameter
-    m_Deep.Init(UNIVIBE_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.8f * RT_RATE, 30);
+    m_Deep.Init(UNIVIBE_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.8f, 50);
 
     // Initialize effect speed parameter with callback
-    m_Speed.Init(UNIVIBE_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, SpeedChange, 0, 2.0f * RT_RATE, 31);
+    m_Speed.Init(UNIVIBE_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, SpeedChange, 0, 2.0f, 51);
 
     // Initialize dry/wet mix parameter with callback
-    m_DryWetMix.Init(UNIVIBE_ID, 35.0f, 0.0f, 100.0f, 5.0f, 1.0f, MixChange, (uint32_t)this, 3.0f * RT_RATE, 32);
+    m_DryWetMix.Init(UNIVIBE_ID, 35.0f, 0.0f, 100.0f, 5.0f, 1.0f, MixChange, (uint32_t)this, 3.0f, 52);
 
     // =============================================================================
     // VIEW SETUP SECTION
@@ -189,5 +190,5 @@ void cUniVibe::SpeedChange(DadDSP::cParameter* pParameter, uint32_t CallbackUser
 }
 
 } // namespace DadEffect
-
+#endif
 //***End of file**************************************************************

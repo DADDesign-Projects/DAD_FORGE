@@ -6,7 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-
+#include "EffectsConfig.h"
+#ifdef MODULATIONS_EFFECT
 #include "cFlanger.h"
 
 // Modulator offset constants for different delay lines
@@ -83,13 +84,13 @@ void cFlanger::onInitialize() {
     // =============================================================================
 
     // Initialize effect depth parameter
-    m_Deep.Init(FLANGER_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.8f * RT_RATE, 30);
+    m_Deep.Init(FLANGER_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.8f, 40);
 
     // Initialize effect Feedback parameter
-    m_Feedback.Init(FLANGER_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.8f * RT_RATE, 30);
+    m_Feedback.Init(FLANGER_ID, 45.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.8f, 41);
 
     // Initialize dry/wet mix parameter with callback for mix changes
-    m_DryWetMix.Init(FLANGER_ID, 50.0f, 0.0f, 100.0f, 5.0f, 1.0f, MixChange, (uint32_t) this, 3.0f * RT_RATE, 32);
+    m_DryWetMix.Init(FLANGER_ID, 50.0f, 0.0f, 100.0f, 5.0f, 1.0f, MixChange, (uint32_t) this, 3.0f, 42);
 
     // =============================================================================
     // VIEW SETUP SECTION
@@ -171,5 +172,5 @@ void cFlanger::MixChange(DadDSP::cParameter *pParameter, uint32_t CallbackUserDa
 }
 
 } // namespace DadEffect
-
+#endif
 //***End of file**************************************************************

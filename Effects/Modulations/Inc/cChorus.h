@@ -23,7 +23,7 @@ namespace DadEffect {
 
 constexpr uint32_t CHORUS_ID BUILD_ID('C', 'H', 'O', 'R');
 
-class cChorus : public cMultiModeEffect {
+class cChorus : public cMultiModeEffectBase {
 public:
     // -----------------------------------------------------------------------------
     // Method: onInitialize

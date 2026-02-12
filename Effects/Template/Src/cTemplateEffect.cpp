@@ -6,7 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-
+#include "EffectsConfig.h"
+#ifdef TEMPLATE_EFFECT
 #include "cTemplateEffect.h"
 #include "GPIO.h"
 
@@ -24,16 +25,16 @@ constexpr uint32_t TEMPLATE_ID BUILD_ID('T', 'E', 'M', 'P');
 // -----------------------------------------------------------------------------
 void cTemplateEffect::onInitialize(){
     // Initialize gain parameter with DSP configuration
-    m_ParameterGain.Init(TEMPLATE_ID,              // SerializeID
-                         50.0f,                    // Initial Value
-                         0.0f,                     // Min Value
-                         100.0f,                   // Max Value
-                         5.0f,                     // Rapid Increment
-                         1.0f,                     // Slow Increment
-                         nullptr,                  // Callback
-                         0,                        // CallbackUserData
-                         0.5f*RT_RATE,             // Slope 0.5 seconds for change Min to Max
-                         20);                      // Midi CC
+    m_ParameterGain.Init(TEMPLATE_ID, // SerializeID
+                         50.0f,       // Initial Value
+                         0.0f,        // Min Value
+                         100.0f,      // Max Value
+                         5.0f,        // Rapid Increment
+                         1.0f,        // Slow Increment
+                         nullptr,     // Callback
+                         0,           // CallbackUserData
+                         0.5f,        // Slope 0.5 seconds for change Min to Max
+                         20);         // Midi CC
 
     // Initialize parameter views for GUI display
     m_ParameterGainView.Init(&m_ParameterGain,     // Parameter
@@ -65,7 +66,7 @@ uint32_t cTemplateEffect::getEffectID(){
 // Method: Process
 // Description: Audio processing function - processes one input/output audio buffer
 // -----------------------------------------------------------------------------
-ITCM void cTemplateEffect::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence){
+void cTemplateEffect::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence){
     // Retrieve current gain value from parameter system
     float gainValue = m_ParameterGain.getValue()/100;
     
@@ -75,5 +76,5 @@ ITCM void cTemplateEffect::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff
 }
 
 } // namespace DadEffect
-
+#endif
 //***End of file**************************************************************
