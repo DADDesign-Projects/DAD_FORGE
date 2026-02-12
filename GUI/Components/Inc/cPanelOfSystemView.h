@@ -10,7 +10,7 @@
 #pragma once
 
 #include "GUI_Include.h"
-#include <stdint.h>
+#include "cPanelOfParameters.h"
 
 namespace DadGUI {
 
@@ -29,9 +29,6 @@ public:
 
     // Updates the panel state and processes parameter changes
     void Update() override;
-
-    // Adds serializable objects to the serialization system
-    void addToSerializeFamily(uint32_t SerializeID);
 
     // Callback for color theme parameter changes
     static void ColorCallback(DadDSP::cParameter* pParameter, uint32_t Context);

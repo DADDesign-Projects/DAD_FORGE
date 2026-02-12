@@ -23,15 +23,16 @@ namespace DadGUI {
 // -----------------------------------------------------------------------------
 void cPanelOfSystemView::Initialize(uint32_t SerializeID) {
     // Initialize color theme parameter and view
-    m_ColorTheme.Init(SerializeID, 0, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, ColorCallback, (uint32_t) this);
+    m_ColorTheme.Init(SerializeID, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, ColorCallback, (uint32_t) this);
     m_ColorThemeView.Init(&m_ColorTheme, "Theme", "Color Theme");
     m_ColorThemeView.AddDiscreteValue("Blue", "Blue");      // Add color theme options
     m_ColorThemeView.AddDiscreteValue("Amber", "Amber");
     m_ColorThemeView.AddDiscreteValue("Yellow", "Yellow");
     m_ColorThemeView.AddDiscreteValue("Purple", "Purple");
+    m_ColorTheme.resetDrawInfoView();
 
     // Initialize MIDI channel parameter and view
-    m_MidiChannel.Init(SerializeID, 0, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, MIDICallback, (uint32_t) this);
+    m_MidiChannel.Init(SerializeID, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, MIDICallback, (uint32_t) this);
     m_MidiChannelView.Init(&m_MidiChannel, "MIDI", "MIDI Channel");
     m_MidiChannelView.AddDiscreteValue("All", "All Channels");  // Add MIDI channel options
     m_MidiChannelView.AddDiscreteValue("CH. 1", "Channel 1");
@@ -56,20 +57,10 @@ void cPanelOfSystemView::Initialize(uint32_t SerializeID) {
 }
 
 // -----------------------------------------------------------------------------
-// Adds serializable objects to the serialization family
-// -----------------------------------------------------------------------------
-void cPanelOfSystemView::addToSerializeFamily(uint32_t SerializeID) {
-    __GUI.addSerializeObject(&m_ColorTheme, SerializeID);   // Add color theme to serialization
-    __GUI.addSerializeObject(&m_MidiChannel, SerializeID);  // Add MIDI channel to serialization
-}
-
-// -----------------------------------------------------------------------------
 // Updates the panel state
 // -----------------------------------------------------------------------------
 void cPanelOfSystemView::Update() {
     if (m_isActive) {
-        m_ColorTheme.Process();         // Process color theme changes
-        m_MidiChannel.Process();        // Process MIDI channel changes
         cPanelOfParameterView::Update(); // Update base class functionality
     }
 }
@@ -78,7 +69,7 @@ void cPanelOfSystemView::Update() {
 // Callback for color theme parameter changes
 // -----------------------------------------------------------------------------
 void cPanelOfSystemView::ColorCallback(DadDSP::cParameter* pParameter, uint32_t Context) {
-    uint8_t IndexPalette = (int8_t) pParameter->getValue(); // Get selected palette index
+	uint8_t IndexPalette = (int8_t) pParameter->getValue(); // Get selected palette index
 
     // Validate index and set active palette
     if (IndexPalette < NB_PALETTE) {
@@ -99,7 +90,7 @@ void cPanelOfSystemView::MIDICallback(DadDSP::cParameter* pParameter, uint32_t C
         Channel--;      // Convert to zero-based MIDI channel
     }
 
-    __Midi.ChangeChanel(Channel); // Apply MIDI channel change
+    __Midi.ChangeChannel(Channel); // Apply MIDI channel change
 }
 
 } // namespace DadGUI

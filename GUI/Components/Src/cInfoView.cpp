@@ -8,7 +8,6 @@
 //==================================================================================
 
 #include "cInfoView.h"
-#include "GPIO.h"
 
 namespace DadGUI {
 
@@ -64,7 +63,7 @@ void cInfoView::Deactivate() {
 void cInfoView::Update() {
 	if(m_isActive == false) return;  // Skip update if not active
 
-	bool Dirty = __GUI.isParametresDirty();  // Check if parameters have been modified
+	bool Dirty = __GUI_EventManager.sendEventToActive_SerializeIsDirty();  // Check if parameters have been modified
 
 	// Check if any monitored state (slot, dirty, On/Off) has changed
 	if ((m_MemState != __MemOnOff) ||
@@ -88,12 +87,6 @@ void cInfoView::Update() {
 				m_MemState = eOnOff::On;
 				break;
 		}
-
-		// Control the physical bypass relay according to the current state
-		if (m_MemState == eOnOff::ByPass)
-			ResetPIN(ByPass);  // Disable bypass
-		else
-			SetPIN(ByPass);    // Enable bypass
 
 		// Update memory display with new state
 		m_MemDirty = Dirty;                                // Update dirty flag

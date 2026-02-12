@@ -10,6 +10,7 @@
 #pragma once
 
 #include "GUI_Include.h"
+#include "cPanelOfParameters.h"
 #include <stdint.h>
 #include "BiquadFilter.h"
 
@@ -21,7 +22,7 @@ namespace DadGUI {
 // Description: Panel for managing tone output audio (bass, mid, treble)
 //
 //**********************************************************************************
-class cPanelOfTone : public cPanelOfParameterView {
+class cPanelOfTone : public cPanelOfParameterView, public iGUI_EventListener {
 public:
     virtual ~cPanelOfTone() {};
 
@@ -35,11 +36,13 @@ public:
     // Updates the panel state and processes parameter changes
     void Update() override;
 
-    // Adds serializable objects to the serialization system
-    void addToSerializeFamily(uint32_t SerializeID);
-
     // Process audio
-    ITCM void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff);
+    void Process(AudioBuffer *pIn, AudioBuffer *pOut);
+
+    // Callback for adjusting filters based on the GUI parameter.
+    static void BassChange(DadDSP::cParameter* pParameter, uint32_t Data);
+    static void MidChange(DadDSP::cParameter* pParameter, uint32_t Data);
+    static void TrebleChange(DadDSP::cParameter* pParameter, uint32_t Data);
 
 protected:
     // =============================================================================
