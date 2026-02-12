@@ -3,14 +3,13 @@
 // File: cParameter.h
 // Description: Parameter management with smoothing, normalization and MIDI control
 // 
-// Copyright (c) 2025 Dad Design.
+// Copyright (c) 2025-2026 Dad Design.
 //==================================================================================
 //==================================================================================
 
 #pragma once
 
 #include "main.h"
-#include <functional>
 #include "sections.h"
 
 namespace DadDSP {
@@ -23,7 +22,7 @@ namespace DadDSP {
 class cParameter;
 
 // Define the callback function type
-using CallbackType = std::function<void(cParameter*, uint32_t)>;
+using CallbackType = void(*)(cParameter*, uint32_t);
 
 class cParameter {
 public:
@@ -100,11 +99,7 @@ public:
     // Set the Max value of the parameter
     inline void setMaxValue(float MaxValue) {
         m_Max = MaxValue;
-        if(m_Slope == 0){
-            m_Step = (m_Max-m_Min);
-        }else{
-            m_Step = (m_Max-m_Min)/m_Slope;
-        }
+        calcStepValue();
     }
 
     // -----------------------------------------------------------------------------
@@ -117,11 +112,7 @@ public:
     // Set the Min value of the parameter
     inline void setMinValue(float MinValue) {
         m_Min = MinValue;
-        if(m_Slope == 0){
-            m_Step = (m_Max-m_Min);
-        }else{
-            m_Step = (m_Max-m_Min)/m_Slope;
-        }
+        calcStepValue();
     }
 
     // -----------------------------------------------------------------------------
@@ -132,13 +123,25 @@ public:
 
     // -----------------------------------------------------------------------------
     // Refresh the current value smoothly according to the slope
-    ITCM void Process();
+    // Return true if the value was updated, false otherwise
+    bool Process();
 
     // -----------------------------------------------------------------------------
     // Function call when this CC is received
     static void MIDIControlChangeCallBack(uint8_t control, uint8_t value, uint32_t userData);
 
 protected:
+    // -----------------------------------------------------------------------------
+    // Function calcStepValue
+    // Calculate step size based on slope parameter
+    inline void calcStepValue(){
+        if(m_Slope == 0){
+            m_Step = std::abs(m_Max-m_Min);          // Direct step when slope is zero
+        }else{
+            m_Step = std::abs(m_Max-m_Min)/ m_Slope;   // Scaled step based on slope
+        }
+    }
+
     // =============================================================================
     // Member Variables
     // =============================================================================
@@ -154,6 +157,7 @@ protected:
     CallbackType  m_Callback;                // Callback function pointer
     uint32_t      m_CallbackUserData;        // User data for callback
     bool          m_Dirty;                   // Dirty flag for change tracking
+
 };
 
 } // namespace DadDSP

@@ -3,13 +3,14 @@
 // File: cParameter.cpp
 // Description: Parameter management with smoothing and MIDI control
 // 
-// Copyright (c) 2025 Dad Design.
+// Copyright (c) 2025-2026 Dad Design.
 //==================================================================================
 //==================================================================================
 
 #include "Serialize.h"
 #include "cParameter.h"
 #include "HardwareAndCo.h"
+#include <algorithm>  // pour std::abs, std::min, etc.
 
 namespace DadDSP {
 
@@ -30,16 +31,12 @@ void cParameter::Init(float InitValue, float Min, float Max,
     m_SlowIncrement = SlowIncrement;                // Slow adjustment step size
     m_Callback = Callback;                          // Callback function pointer
     m_CallbackUserData = CallbackUserData;          // User data for callback
+    m_Slope = Slope;                                // Smoothing slope factor
 
     // Calculate step size based on slope parameter
-    if(Slope == 0){
-        m_Step = (Max-Min);                         // Direct step when slope is zero
-    }else{
-        m_Step = (Max-Min)/ Slope;                  // Scaled step based on slope
-    }
+    calcStepValue();
 
     m_Value = m_Min;                                // Initialize value
-    m_Slope = Slope;                                // Smoothing slope factor
 
     // Register MIDI control change callback if control specified
     if(Control != 0xFF){
@@ -55,29 +52,42 @@ void cParameter::Init(float InitValue, float Min, float Max,
 // -----------------------------------------------------------------------------
 // Set the parameter value directly with boundary checks
 void cParameter::setValue(float value) {
-    // Clamp value to valid range
-    if(value > m_Max) {
-        m_TargetValue = m_Max;                      // Clamp to maximum
-    } else if(value < m_Min){
-        m_TargetValue = m_Min;                      // Clamp to minimum
+    // Clamp value to valid range (support inverted ranges)
+    if(m_Max >= m_Min) {
+        if(value > m_Max) {
+            m_TargetValue = m_Max;
+        } else if(value < m_Min){
+            m_TargetValue = m_Min;
+        } else {
+            m_TargetValue = value;
+        }
     } else {
-        m_TargetValue = value;                      // Use provided value
+        if(value > m_Min) {
+            m_TargetValue = m_Min;
+        } else if(value < m_Max){
+            m_TargetValue = m_Max;
+        } else {
+            m_TargetValue = value;
+        }
     }
 }
 
 // -----------------------------------------------------------------------------
 // Update the current value smoothly according to the slope
-ITCM void cParameter::Process() {
+// Return true if the value was updated, false otherwise
+bool cParameter::Process() {
     // Check if current value needs to approach target
     if(m_Value != m_TargetValue){
-        // Move current value toward target with smoothing
-        if (m_Value < m_TargetValue)
+        // Determine direction
+        bool increasing = (m_TargetValue > m_Value);
+
+        if (increasing)
         {
             m_Value += m_Step;                      // Increment toward target
             if (m_Value > m_TargetValue)
                 m_Value = m_TargetValue;            // Prevent overshoot
         }
-        else if (m_Value > m_TargetValue)
+        else
         {
             m_Value -= m_Step;                      // Decrement toward target
             if (m_Value < m_TargetValue)
@@ -88,7 +98,9 @@ ITCM void cParameter::Process() {
         if (m_Callback) {
             m_Callback(this, m_CallbackUserData);
         }
+        return true;
     }
+    return false;
 }
 
 // -----------------------------------------------------------------------------
@@ -96,12 +108,14 @@ ITCM void cParameter::Process() {
 void cParameter::Increment(int32_t nbStep, bool Switch) {
     float Value = m_TargetValue;
 
-    // Apply increment based on speed mode
-    if(Switch == false){
-        Value += m_RapidIncrement * nbStep;         // Use rapid increment
-    } else {
-        Value += m_SlowIncrement * nbStep;          // Use slow increment
+    float increment = Switch ? m_SlowIncrement : m_RapidIncrement;
+
+    // Reverse increment direction when range is inverted
+    if (m_Max < m_Min) {
+        increment = -increment;
     }
+
+    Value += increment * nbStep;
 
     m_Dirty = true;                                 // Mark parameter as changed
     setValue(Value);                                // Set new target value
@@ -115,7 +129,7 @@ void cParameter::MIDIControlChangeCallBack(uint8_t control, uint8_t value, uint3
     // Clamp MIDI value to valid range
     value = (value > 127) ? 127 : value;
 
-    // Convert MIDI value to parameter range
+    // Convert MIDI value to parameter range (works with inverted ranges)
     float NewVal = pThis->m_Min + (value * (pThis->m_Max - pThis->m_Min)) / 127.0f;
 
     pThis->setValue(NewVal);                        // Update parameter value
