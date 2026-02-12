@@ -12,7 +12,7 @@
 #include "main.h"
 #include "AudioManager.h"
 #include "iUIComponent.h"
-#include "iGUIProcessObject.h"
+#include "GUI_Event.h"
 #include "cVuMeter.h"
 #include "cDisplay.h"
 
@@ -22,7 +22,7 @@ namespace DadGUI {
 // Class: cUIVuMeter
 // Description: Handles graphical display of stereo VU-meters with real-time audio processing
 //**********************************************************************************
-class cUIVuMeter : public iUIComponent, public iGUIProcessObject {
+class cUIVuMeter : public iUIComponent, public iGUI_EventListener {
 public:
     virtual ~cUIVuMeter() = default;
 
@@ -48,19 +48,19 @@ public:
     // Function: Update
     // Description: Called every frame while the component is active to refresh the display
     // ---------------------------------------------------------------------------------
-    void Update() override;
+    void on_GUI_Update() override;
 
     // ---------------------------------------------------------------------------------
     // Function: GUIProcessIn
     // Description: Processes audio input buffers and updates VU-meter readings in real time
     // ---------------------------------------------------------------------------------
-    ITCM void GUIProcessIn(AudioBuffer* pIn) override;
+    void on_GUI_RT_ProcessIn(AudioBuffer* pIn) override;
 
     // ---------------------------------------------------------------------------------
     // Function: GUIProcessOut
     // Description: Processes audio ouput buffers and updates VU-meter readings in real time
     // ---------------------------------------------------------------------------------
-    ITCM void GUIProcessOut(AudioBuffer* pOut) override;
+    void on_GUI_RT_ProcessOut(AudioBuffer* pOut) override;
 
     // ---------------------------------------------------------------------------------
     // Function: Redraw

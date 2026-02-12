@@ -32,42 +32,40 @@ void cUIParameter::Init(uint32_t SerializeID,
                         float RapidIncrement, float SlowIncrement,
                         DadDSP::CallbackType Callback,
                         uint32_t CallbackUserData,
-                        float Slope,
-                        uint8_t Control)
+                        float SlopeTime,
+                        uint8_t Control, bool RTProcess)
 {
     // Initialize base parameter functionality
+	m_DrawInfoView = true;
+    m_pParentView = nullptr;
+
+	float Slope;
+	if(RTProcess){
+		Slope = SlopeTime * SAMPLING_RATE;
+	}else{
+		Slope = SlopeTime * 1000.0f / (float) GUI_FAST_UPDATE_MS;
+	}
     cParameter::Init(InitValue, Min, Max, RapidIncrement, SlowIncrement,
                      Callback, CallbackUserData, Slope, Control);
 
-    // Register parameter with GUI serialization and real-time processing systems
-    __GUI.addSerializeObject(this, SerializeID);
-    __GUI.addRtProcessObject(this, SerializeID);
-}
-
-void cUIParameter::Init(uint32_t SerializeID,
-						uint32_t RtProcessID,
-                        float InitValue, float Min, float Max,
-                        float RapidIncrement, float SlowIncrement,
-                        DadDSP::CallbackType Callback,
-                        uint32_t CallbackUserData,
-                        float Slope,
-                        uint8_t Control)
-{
-    // Initialize base parameter functionality
-    cParameter::Init(InitValue, Min, Max, RapidIncrement, SlowIncrement,
-                     Callback, CallbackUserData, Slope, Control);
+    m_MemUIParameterValue = m_TargetValue;
 
     // Register parameter with GUI serialization and real-time processing systems
-    __GUI.addSerializeObject(this, SerializeID);
-    __GUI.addRtProcessObject(this, RtProcessID);
+    __GUI_EventManager.Subscribe_AllSerializeEvents(this, SerializeID);
+    __GUI_EventManager.Subscribe_Update(this, SerializeID);
+	if(RTProcess){
+		__GUI_EventManager.Subscribe_RT_Process(this, SerializeID);
+	}else{
+		__GUI_EventManager.Subscribe_FastUpdate(this, SerializeID);
+	}
 }
+
 //***********************************************************************************
 // Method: Save
 // Description:
 // Serializes parameter target value to persistent storage
 //***********************************************************************************
-void cUIParameter::Save(DadPersistentStorage::cSerialize* pSerializer)
-{
+void cUIParameter::Save(DadPersistentStorage::cSerialize* pSerializer){
     m_Dirty = false;                    // Reset dirty flag after save
     pSerializer->Push(m_TargetValue);   // Write target value to storage
 }
@@ -77,12 +75,16 @@ void cUIParameter::Save(DadPersistentStorage::cSerialize* pSerializer)
 // Description:
 // Deserializes parameter value from storage and applies it
 //***********************************************************************************
-void cUIParameter::Restore(DadPersistentStorage::cSerialize* pSerializer)
-{
+void cUIParameter::Restore(DadPersistentStorage::cSerialize* pSerializer){
     m_Dirty = false;                    // Reset dirty flag after restore
     float Value;                        // Temporary storage for retrieved value
     pSerializer->Pull(Value);           // Read value from storage
-    setValue(Value);                    // Apply the restored value
+    if(Value != m_TargetValue){         // If value changed since last restore)
+    	setValue(Value);                // Apply the restored value
+
+    	// Save the value to prevent the parameterInfoView from displaying upon restore.
+    	m_MemUIParameterValue = m_TargetValue;
+    }
 }
 
 //***********************************************************************************
@@ -90,41 +92,43 @@ void cUIParameter::Restore(DadPersistentStorage::cSerialize* pSerializer)
 // Description:
 // Checks if parameter has been modified since last save
 //***********************************************************************************
-bool cUIParameter::isDirty()
-{
+bool cUIParameter::isDirty(){
     return m_Dirty;                     // Return modification status
 }
 
 //***********************************************************************************
-// Method: RtProcess
+// Method: on_GUI_Update
+// Description:
+// Update Parameter info view
+//***********************************************************************************
+void cUIParameter::on_GUI_Update(){
+    // Detect changes (MIDI, memory restore)
+    if ((m_MemUIParameterValue != m_TargetValue) && (m_pParentView != nullptr)) {
+        m_MemUIParameterValue = m_TargetValue;
+        // Redraw dynamic part to reflect new value
+        if(true == m_DrawInfoView){
+        	__GUI.NotifyParamChange(m_pParentView);
+        }
+    }
+
+}
+
+//***********************************************************************************
+// Method: on_GUI_FastUpdate
+// Description:
+// Performs processing including value interpolation and callback
+//***********************************************************************************
+void cUIParameter::on_GUI_FastUpdate(){
+	Process();
+}
+
+//***********************************************************************************
+// Method: on_GUI_RT_Process
 // Description:
 // Performs real-time processing including value interpolation and callback
 //***********************************************************************************
-ITCM void cUIParameter::RtProcess()
-{
-    // Check if current value differs from target
-    if (m_Value != m_TargetValue)
-    {
-        // Handle interpolation towards target value
-        if (m_Value < m_TargetValue)
-        {
-            m_Value += m_Step;          // Increment towards target
-            if (m_Value > m_TargetValue)
-                m_Value = m_TargetValue; // Clamp to prevent overshoot
-        }
-        else if (m_Value > m_TargetValue)
-        {
-            m_Value -= m_Step;          // Decrement towards target
-            if (m_Value < m_TargetValue)
-                m_Value = m_TargetValue; // Clamp to prevent overshoot
-        }
-
-        // Execute callback if value has changed
-        if (m_Callback)
-        {
-            m_Callback(this, m_CallbackUserData); // Notify listener of change
-        }
-    }
+void cUIParameter::on_GUI_RT_Process(){
+	Process();
 }
 
 } // namespace DadGUI

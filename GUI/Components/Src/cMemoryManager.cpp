@@ -3,7 +3,7 @@
 // File: cMemoryManager.cpp
 // Description: Implementation of memory management for preset slots with MIDI support
 //
-// Copyright (c) 2025 Dad Design.
+// Copyright (c) 2025-2026 Dad Design.
 //==================================================================================
 //==================================================================================
 
@@ -33,7 +33,7 @@ void cMemoryManager::Init(){
     uint32_t LoadSize = 0;
     __BlockStorageManager.Load(MEM_HEADER_ID, &m_MemoryHeader, sizeof(m_MemoryHeader), LoadSize);
 
-    // Check if stored header size matches expected size
+    // Validate loaded header size against expected size
     if (LoadSize != sizeof(m_MemoryHeader)) {
         // Initialize all slots to empty state
         for (uint8_t Index = 0; Index < MAX_SLOT; Index++) {
@@ -72,6 +72,8 @@ void cMemoryManager::MIDI_PresetDown_CallBack(uint8_t control, uint8_t value, ui
 //   MIDI callback for program change - loads specified program slot
 void cMemoryManager::MIDI_ProgramChange_CallBack(uint8_t program, uint32_t userData){
     cMemoryManager* pThis = reinterpret_cast<cMemoryManager*>(userData);
+
+    // Validate and load requested program slot
     if (pThis->isLoadable(program)){
         pThis->RestoreSlot(program);                               // Load valid program slot
     }
@@ -82,34 +84,45 @@ void cMemoryManager::MIDI_ProgramChange_CallBack(uint8_t program, uint32_t userD
 // Description:
 //   Restores GUI state from specified memory slot if data is valid
 bool cMemoryManager::RestoreSlot(uint8_t Slot){
-    uint32_t Size = __BlockStorageManager.getSize(SLOT_ID + Slot);
-    if (Size != m_MemoryHeader.m_SlotSize[Slot]) {
+    m_RestoreInProcess = true;									   // Set restore flag
+
+    // Verify slot size consistency
+	uint32_t Size = __BlockStorageManager.getSize(SLOT_ID + Slot);
+    if ((Size == 0) || (Size != m_MemoryHeader.m_SlotSize[Slot])) {
+        m_RestoreInProcess = false;
         return false;                                              // Slot size mismatch
     }
 
     // Allocate buffer for slot data
     uint8_t* pBuffer = new uint8_t[Size];                          // Temporary data buffer
     if (pBuffer == nullptr) {
+        m_RestoreInProcess = false;
         return false;                                              // Allocation failed
     }
 
     uint32_t LoadSize = 0;
     __BlockStorageManager.Load((SLOT_ID + Slot), pBuffer, Size, LoadSize);
+
+    // Validate data load completion
     if (LoadSize != Size) {
         delete[] pBuffer;
+        m_RestoreInProcess = false;
         return false;                                              // Data load incomplete
     }
 
     // Deserialize and restore GUI state
     DadPersistentStorage::cSerialize Serializer;
     Serializer.setBuffer(pBuffer, Size);                           // Set serialization buffer
-    __GUI.Restore(&Serializer, m_MemoryHeader.m_SlotID[Slot]);     // Restore GUI from data
+    __GUI_EventManager.sendEvent_SerializeRestore(m_MemoryHeader.m_SlotID[Slot], &Serializer); // Restore GUI from data
 
     // Update active slot information
     m_MemoryHeader.m_ActiveSlot = Slot;                            // Set new active slot
     __BlockStorageManager.Save(MEM_HEADER_ID, &m_MemoryHeader, sizeof(m_MemoryHeader));
 
     delete[] pBuffer;                                              // Clean up buffer
+    m_RestoreInProcess = false;
+    __GUI.NotifyEndRestore(m_MemoryHeader.m_SlotID[Slot]);
+
     return true;
 }
 
@@ -119,7 +132,9 @@ bool cMemoryManager::RestoreSlot(uint8_t Slot){
 //   Saves current GUI state to specified memory slot with given ID
 bool cMemoryManager::SaveSlot(uint8_t Slot, uint32_t SlotID){
     DadPersistentStorage::cSerialize Serializer;
-    __GUI.Save(&Serializer, SlotID);                               // Serialize GUI state
+
+    // Serialize current GUI state
+    __GUI_EventManager.sendEvent_SerializeSave(SlotID, &Serializer); // Serialize GUI state
 
     const uint8_t* pBuffer = nullptr;                              // Pointer to serialized data
     uint32_t Size = Serializer.getBuffer(&pBuffer);                // Get data size
@@ -127,6 +142,7 @@ bool cMemoryManager::SaveSlot(uint8_t Slot, uint32_t SlotID){
     // Save to persistent storage
     bool result = __BlockStorageManager.Save((SLOT_ID + Slot), pBuffer, Size);
 
+    // Update metadata on successful save
     if (result == true) {
         // Update slot metadata in header
         m_MemoryHeader.m_SlotID[Slot] = SlotID;                    // Store slot identifier
@@ -134,6 +150,7 @@ bool cMemoryManager::SaveSlot(uint8_t Slot, uint32_t SlotID){
         m_MemoryHeader.m_ActiveSlot = Slot;                        // Set as active slot
         __BlockStorageManager.Save(MEM_HEADER_ID, &m_MemoryHeader, sizeof(m_MemoryHeader));
     }
+
     return result;
 }
 
@@ -142,6 +159,7 @@ bool cMemoryManager::SaveSlot(uint8_t Slot, uint32_t SlotID){
 // Description:
 //   Erases specified slot if it's not the currently active slot
 bool cMemoryManager::ErraseSlot(uint8_t Slot){
+    // Verify slot can be erased
     if (isErasable(Slot)) {
         __BlockStorageManager.Delete(SLOT_ID + Slot);              // Remove from storage
         m_MemoryHeader.m_SlotID[Slot] = 0;                         // Clear slot ID
@@ -160,6 +178,7 @@ void cMemoryManager::IncrementSlot(int8_t Increment){
     uint8_t activeSlot = m_MemoryHeader.m_ActiveSlot;              // Current active slot
     uint8_t targetSlot = activeSlot;                               // Starting search point
 
+    // Search for next valid slot in specified direction
     do {
         // Calculate next slot with wrap-around
         targetSlot = (targetSlot + Increment) % MAX_SLOT;
@@ -169,7 +188,8 @@ void cMemoryManager::IncrementSlot(int8_t Increment){
 
         // Load slot if valid and available
         if (isLoadable(targetSlot)) {
-            RestoreSlot(targetSlot);                               // Restore found slot
+        	__GUI.NotifyStartRestore((uint32_t)targetSlot);  	   // Start restore notification
+            RestoreSlot(targetSlot);                               // Load found slot
             break;                                                 // Exit search loop
         }
     } while (targetSlot != activeSlot);                            // Prevent infinite loop

@@ -6,14 +6,14 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-
 #pragma once
 
-#include "iRtObject.h"
+#include "GUI_Event.h"
 #include "Serialize.h"
 #include "cParameter.h"
 
 namespace DadGUI {
+class cParameterView;
 
 //**********************************************************************************
 // Class: cUIParameter
@@ -22,7 +22,7 @@ namespace DadGUI {
 // deserialization, and real-time interpolation of parameter values
 //**********************************************************************************
 class cUIParameter
-    : public iRtObject,
+    : public iGUI_EventListener,
       public DadPersistentStorage::cSerializedObject,
       public DadDSP::cParameter
 {
@@ -44,20 +44,9 @@ public:
               float SlowIncrement,
               DadDSP::CallbackType Callback = nullptr,
               uint32_t CallbackUserData = 0,
-              float Slope = 0,
-              uint8_t Control = 0xFF);
-
-    void Init(uint32_t SerializeID,
-    		  uint32_t RtProcessID,
-              float InitValue,
-              float Min,
-              float Max,
-              float RapidIncrement,
-              float SlowIncrement,
-              DadDSP::CallbackType Callback = nullptr,
-              uint32_t CallbackUserData = 0,
-              float Slope = 0,
-              uint8_t Control = 0xFF);
+              float SlopeTime = 0,
+              uint8_t Control = 0xFF,
+			  bool RTProcess = false);
 
     //***********************************************************************************
     // Method: Save
@@ -81,15 +70,58 @@ public:
     bool isDirty() override;
 
     //***********************************************************************************
+    // Method: setDrawInfoView
+    // Description:
+    // set DrawInfoView flag
+    //***********************************************************************************
+    inline void setDrawInfoView(){
+    	m_DrawInfoView = true;              // reset restored flag
+    }
+
+    //***********************************************************************************
+    // Method: resetDrawInfoView
+    // Description:
+    // reset DrawInfoView flag
+    //***********************************************************************************
+    inline void resetDrawInfoView(){
+    	m_DrawInfoView = false;              // reset restored flag
+    }
+
+    //***********************************************************************************
     // Method: RtProcess
     // Description:
-    // Performs real-time value updates and smoothing between current and target values
+    // Performs fast value updates and smoothing between current and target values
     //***********************************************************************************
-    ITCM void RtProcess() override;
+    void on_GUI_FastUpdate() override;
 
-    // Note: No protected or private sections declared in this class
-    // Note: Inherits functionality from base classes cParameter, cSerializedObject, and iRtObject
+    //***********************************************************************************
+    // Method: on_GUI_RT_Process
+    // Description:
+    // Performs real-time processing including value interpolation and callback
+    //***********************************************************************************
+    void on_GUI_RT_Process() override;
 
+    //***********************************************************************************
+    // Method: on_GUI_Update
+    // Description:
+    // Update Parameter info view
+    //***********************************************************************************
+    void on_GUI_Update();
+
+    //***********************************************************************************
+    // Method: setParentView
+    // Description:
+    // Define the view that contains the UIparameter.
+    //***********************************************************************************
+    inline void setParentView(cParameterView * pParentView){
+    	m_pParentView = pParentView;
+    }
+
+protected :
+    cParameterView*  m_pParentView;	      // Parent View
+    float			 m_MemUIParameterValue;
+    bool 		  	 m_DrawInfoView;	  // Restored flag
+    bool		  	 m_IsRTProcess;		  // Process parameter in audio thread
 };
 
 } // namespace DadGUI

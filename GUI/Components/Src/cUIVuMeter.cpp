@@ -53,11 +53,15 @@ void cUIVuMeter::Init() {
     m_VuMeterOutLeft.Init(SAMPLING_RATE);
     m_VuMeterOutRight.Init(SAMPLING_RATE);
 
-    m_isActive = false;           // UI active state flag
+    m_isActive = false;           	// UI active state flag
     m_MemClippingInLeft  = false;   // Left channel clipping memory
-    m_MemClippingOutRight = false;   // Right channel clipping memory
-    m_MemClippingOutLeft  = false;   // Left channel clipping memory
-    m_MemClippingOutRight = false;   // Right channel clipping memory
+    m_MemClippingOutRight = false;  // Right channel clipping memory
+    m_MemClippingOutLeft  = false;  // Left channel clipping memory
+    m_MemClippingOutRight = false;  // Right channel clipping memory
+
+    __GUI_EventManager.Subscribe_Update(this);
+    __GUI_EventManager.Subscribe_RT_ProcessIn(this);
+    __GUI_EventManager.Subscribe_RT_ProcessOut(this);
 }
 
 // ---------------------------------------------------------------------------------
@@ -78,9 +82,6 @@ void cUIVuMeter::Activate() {
     m_VuMeterOutRight.reset();
     m_VuMeterOutRight.resetPeak();
 
-    // Register GUI process callback
-    __GUI.setGUIProcess(this);
-
     // Adjust Z-order to bring the layer forward
     m_pVuMeterLayer->changeZOrder(41);
 
@@ -96,10 +97,7 @@ void cUIVuMeter::Activate() {
 void cUIVuMeter::Deactivate() {
     m_isActive = false;  // Mark UI as inactive
 
-    // Remove GUI process
-    __GUI.setGUIProcess(nullptr);
-
-    // Reset VU-meter states
+     // Reset VU-meter states
     m_VuMeterInLeft.reset();
     m_VuMeterInLeft.resetPeak();
     m_VuMeterInRight.reset();
@@ -118,7 +116,7 @@ void cUIVuMeter::Deactivate() {
 // Function: Update
 // Description: Called every frame while the component is active to refresh visuals
 // ---------------------------------------------------------------------------------
-void cUIVuMeter::Update() {
+void cUIVuMeter::on_GUI_Update() {
     if (m_isActive) {
         drawDynPartOffLayer();
     }
@@ -271,7 +269,7 @@ void cUIVuMeter::drawDynPartOffLayer() {
 // Function: GUIProcessIn
 // Description: Processes audio input buffers and updates VU-meter readings in real time
 // ---------------------------------------------------------------------------------
-ITCM void cUIVuMeter::GUIProcessIn(AudioBuffer* pIn) {
+void cUIVuMeter::on_GUI_RT_ProcessIn(AudioBuffer* pIn) {
     if (m_isActive) {
         // Process left and right audio channels
         m_VuMeterInLeft.CalcPeakAndLevel(pIn->Left);
@@ -283,7 +281,7 @@ ITCM void cUIVuMeter::GUIProcessIn(AudioBuffer* pIn) {
 // Function: GUIProcessOut
 // Description: Processes audio output buffers and updates VU-meter readings in real time
 // ---------------------------------------------------------------------------------
-ITCM void cUIVuMeter::GUIProcessOut(AudioBuffer* pOut) {
+void cUIVuMeter::on_GUI_RT_ProcessOut(AudioBuffer* pOut) {
     if (m_isActive) {
         // Process left and right audio channels
         m_VuMeterOutLeft.CalcPeakAndLevel(pOut->Left);

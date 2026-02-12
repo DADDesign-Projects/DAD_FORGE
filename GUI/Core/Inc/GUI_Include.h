@@ -19,6 +19,7 @@
 #include "GUI_Define.h"
 #include "HardwareAndCo.h"
 #include "ID.h"
+#include "GUI_Event.h"
 #include "cInfoView.h"
 #include "ParameterViews.h"
 #include "cUIVuMeter.h"

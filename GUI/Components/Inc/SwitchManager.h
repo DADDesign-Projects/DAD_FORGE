@@ -19,7 +19,7 @@ namespace DadGUI {
 // Class: cSwitchOnOff
 // Description: Handles simple On/Off/Bypass toggle using footswitch interactions
 //**********************************************************************************
-class cSwitchOnOff : public iUIComponent {
+class cSwitchOnOff : public iGUI_EventListener {
 public:
     cSwitchOnOff() = default;
     virtual ~cSwitchOnOff() = default;
@@ -31,28 +31,10 @@ public:
     void Init(DadDrivers::cSwitch* pFootSwitch, uint32_t EffectID);
 
     //-----------------------------------------------------------------------------------
-    // Function: Update
+    // Function: on_GUI_FastUpdate(){};
     // Description: Periodically updates switch state and detects user actions
     //-----------------------------------------------------------------------------------
-    void Update() override;
-
-    //-----------------------------------------------------------------------------------
-    // Function: Activate
-    // Description: Called when component becomes active and visible
-    //-----------------------------------------------------------------------------------
-    void Activate() override {};
-
-    //-----------------------------------------------------------------------------------
-    // Function: Deactivate
-    // Description: Called when component is deactivated or hidden
-    //-----------------------------------------------------------------------------------
-    void Deactivate() override {};
-
-    //-----------------------------------------------------------------------------------
-    // Function: Redraw
-    // Description: Forces the component to redraw
-    //-----------------------------------------------------------------------------------
-    void Redraw() override {};
+    void on_GUI_FastUpdate() override;
 
 protected:
     // =============================================================================
@@ -78,7 +60,7 @@ enum class eTempoType {
 // Class: cTapTempoMemChange
 // Description: Manages tap-tempo detection and memory slot changes via footswitch
 //**********************************************************************************
-class cTapTempoMemChange : public iUIComponent {
+class cTapTempoMemChange : public iGUI_EventListener {
 public:
     cTapTempoMemChange() = default;
     virtual ~cTapTempoMemChange() = default;
@@ -96,7 +78,7 @@ public:
     // Function: Update
     // Description: Periodically updates tempo calculation and memory change logic
     //-----------------------------------------------------------------------------------
-    void Update() override;
+    void on_GUI_FastUpdate() override;
 
     //-----------------------------------------------------------------------------------
     // Function: setParameter
@@ -114,23 +96,6 @@ public:
         m_TempoType = TempoType;
     }
 
-    //-----------------------------------------------------------------------------------
-    // Function: Activate
-    // Description: Called when component becomes active and visible
-    //-----------------------------------------------------------------------------------
-    void Activate() override {};
-
-    //-----------------------------------------------------------------------------------
-    // Function: Deactivate
-    // Description: Called when component is deactivated or hidden
-    //-----------------------------------------------------------------------------------
-    void Deactivate() override {};
-
-    //-----------------------------------------------------------------------------------
-    // Function: Redraw
-    // Description: Forces the component to redraw
-    //-----------------------------------------------------------------------------------
-    void Redraw() override {};
 
 protected:
     // =============================================================================
