@@ -7,10 +7,10 @@
 //****************************************************************************
 #include "ID.h"
 #include "stdint.h"
-//#define DELAY_EFFECT
-#define MODULATIONS_EFFECT
+#define DELAY_EFFECT
+//#define MODULATIONS_EFFECT
+//#define REVERB_EFFECT
 //#define TEMPLATE_EFFECT
-//#define TEST_EFFECT
 //#define TEMPLATE_MULTI_MODE_EFFECT
 
 // Configuring the DELAY Template
@@ -23,6 +23,26 @@
 constexpr uint32_t EFFECT_BUILD =   BUILD_ID('D', 'E', 'L', '1');
 #endif
 
+// Configuring the Template multi-effect
+#ifdef MODULATIONS_EFFECT
+#include "cModulations.h"
+#define DECLARE_EFFECT DadEffect::cMainModulations __Effect
+#define EFFECT_NAME "Modulations"
+#define EFFECT_VERSION "Version 1.0"
+#define EFFECT_SPLATCH_SCREEN "Modulations.png"
+constexpr uint32_t EFFECT_BUILD = BUILD_ID('M', 'O', 'D', '1');
+#endif
+
+// Configuring the Template multi-effect
+#ifdef REVERB_EFFECT
+#include "Reverb.h"
+#define DECLARE_EFFECT DadEffect::cReverb __Effect
+#define EFFECT_NAME "Reverb"
+#define EFFECT_VERSION "Version 1.0"
+#define EFFECT_SPLATCH_SCREEN "Reverb.png"
+constexpr uint32_t EFFECT_BUILD = BUILD_ID('R', 'E', 'V', '1');
+#endif
+
 // Configuring the Template effect
 #ifdef TEMPLATE_EFFECT
 #include "cTemplateEffect.h"
@@ -33,15 +53,6 @@ constexpr uint32_t EFFECT_BUILD =   BUILD_ID('D', 'E', 'L', '1');
 constexpr uint32_t EFFECT_BUILD =   BUILD_ID('T', 'E', 'M', '1');
 #endif
 
-// Configuring the Template effect
-#ifdef TEST_EFFECT
-#include "cTestEffect.h"
-#define DECLARE_EFFECT DadEffect::cTestEffect __Effect
-#define EFFECT_NAME "Test"
-#define EFFECT_VERSION "Version 1.0"
-#define EFFECT_SPLATCH_SCREEN "Template.png"
-constexpr uint32_t EFFECT_BUILD =   BUILD_ID('T', 'S', 'T', '1');
-#endif
 // Configuring the Template multi-effect
 #ifdef TEMPLATE_MULTI_MODE_EFFECT
 #include "TemplateMultiModeEffect.h"
@@ -49,16 +60,8 @@ constexpr uint32_t EFFECT_BUILD =   BUILD_ID('T', 'S', 'T', '1');
 #define EFFECT_NAME "Template multi-mode"
 #define EFFECT_VERSION "Version 1.0"
 #define EFFECT_SPLATCH_SCREEN "Template.png"
-constexpr uint32_t EFFECT_BUILD =   BUILD_ID('T', 'P', 'M', '2');
+constexpr uint32_t EFFECT_BUILD =   BUILD_ID('T', 'P', 'M', '1');
 #endif
 
-// Configuring the Template multi-effect
-#ifdef MODULATIONS_EFFECT
-#include "cModulations.h"
-#define DECLARE_EFFECT DadEffect::cMainModulations __Effect
-#define EFFECT_NAME "Modulations"
-#define EFFECT_VERSION "Version 1.0"
-#define EFFECT_SPLATCH_SCREEN "Modulations.png"
-constexpr uint32_t EFFECT_BUILD = BUILD_ID('M', 'O', 'D', '1');
-#endif
+
 //***End of file**************************************************************
