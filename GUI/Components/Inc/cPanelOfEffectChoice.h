@@ -13,6 +13,7 @@
 #include "iUIComponent.h"
 #include "cUIParameter.h"
 #include "ParameterViews.h"
+#include "cPanelOfParameters.h"
 #include "cDisplay.h"
 
 namespace DadGUI {
@@ -21,14 +22,18 @@ namespace DadGUI {
 // Class: cPanelOfEffectChoice
 // Description: Panel for selecting effects in the user interface
 //**********************************************************************************
-class cPanelOfEffectChoice : public cPanelOfParameterView, public DadPersistentStorage::cSerializedObject {
+using EffectChangeCallback_t = void (*)(DadDSP::cParameter*, uint32_t);
+
+class cPanelOfEffectChoice :
+		public cPanelOfParameterView
+{
 public:
     virtual ~cPanelOfEffectChoice() {}
 
     // -----------------------------------------------------------------------------
     // Initializes the effect choice panel
     // -----------------------------------------------------------------------------
-    void Initialize(uint32_t SerializeID, DadDSP::CallbackType Callback, uint32_t ContextCallback);
+    void Initialize(uint32_t SerializeID, EffectChangeCallback_t Callback, uint32_t ContextCallback);
 
     // -----------------------------------------------------------------------------
     // Adds an effect to the choice list
@@ -36,9 +41,11 @@ public:
     void addEffect(const char* ShortName, const char* LongName);
 
     // -----------------------------------------------------------------------------
-    // Adds the panel to serialization family
+    // Get the current selected effect
     // -----------------------------------------------------------------------------
-    void addToSerializeFamily(uint32_t SerializeID);
+    uint8_t getEffect(){
+    	return (uint8_t) m_ParameterChoice.getTargetValue();
+    }
 
     // -----------------------------------------------------------------------------
     // Activates and displays the panel
@@ -59,21 +66,6 @@ public:
     // Forces redraw of UI component
     // -----------------------------------------------------------------------------
     void Redraw() override;
-
-    // -----------------------------------------------------------------------------
-    // Serializes the object (empty implementation)
-    // -----------------------------------------------------------------------------
-    void Save(DadPersistentStorage::cSerialize* pSerializer) override {};
-
-    // -----------------------------------------------------------------------------
-    // Deserializes the object
-    // -----------------------------------------------------------------------------
-    void Restore(DadPersistentStorage::cSerialize* pSerializer) override;
-
-    // -----------------------------------------------------------------------------
-    // Checks if the object is dirty
-    // -----------------------------------------------------------------------------
-    bool isDirty() override { return false; }
 
 protected:
     // -----------------------------------------------------------------------------
@@ -107,8 +99,7 @@ protected:
     // =============================================================================
     DadDSP::CallbackType m_Callback;         // Callback function for parameter changes
     uint32_t            m_ContextCallback;   // Context for callback function
-    bool                m_CallSending;       // Flag indicating callback is being sent
-    bool                m_NeedCallbackSend;  // Flag indicating callback needs to be sent
+
 };
 
 } // namespace DadGUI

@@ -8,7 +8,7 @@
 //==================================================================================
 
 #include "cPanelOfEffectChoice.h"
-#include "HardwareAndCo.h"
+//#include "HardwareAndCo.h"
 
 namespace DadGUI {
 
@@ -26,21 +26,19 @@ DECLARE_LAYER(EffectChoiceLayer, PARAM_WIDTH * 2, PARAM_HEIGHT);
 // Initializes the effect choice panel
 // -----------------------------------------------------------------------------
 void cPanelOfEffectChoice::Initialize(uint32_t SerializeID,
-                                      DadDSP::CallbackType Callback,
+									  EffectChangeCallback_t Callback,
                                       uint32_t ContextCallback) {
     m_isActive = false;                                 // Initially inactive
 
     // Initialize callback system
     m_Callback = Callback;
     m_ContextCallback = ContextCallback;
-    m_CallSending = false;
-    m_NeedCallbackSend = false;
 
     // Attach display layer
     m_pLayer = ADD_LAYER(__Display, EffectChoiceLayer, PARAM_WIDTH, MENU_HEIGHT, 0);
 
     // Initialize parameter choice and view
-    m_ParameterChoice.Init(SerializeID, 0, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+    m_ParameterChoice.Init(SerializeID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
     m_ParameterChoiceView.Init(&m_ParameterChoice, "Effect", "Effect");
 
     cPanelOfParameterView::Init(&m_ParameterChoiceView, nullptr, nullptr);
@@ -51,13 +49,6 @@ void cPanelOfEffectChoice::Initialize(uint32_t SerializeID,
 // -----------------------------------------------------------------------------
 void cPanelOfEffectChoice::addEffect(const char* ShortName, const char* LongName) {
     m_ParameterChoiceView.AddDiscreteValue(ShortName, LongName);
-}
-
-// -----------------------------------------------------------------------------
-// Adds the panel to serialization family
-// -----------------------------------------------------------------------------
-void cPanelOfEffectChoice::addToSerializeFamily(uint32_t SerializeID) {
-    __GUI.addSerializeObject(&m_ParameterChoice, SerializeID);
 }
 
 // -----------------------------------------------------------------------------
@@ -84,33 +75,19 @@ void cPanelOfEffectChoice::Deactivate() {
 // -----------------------------------------------------------------------------
 void cPanelOfEffectChoice::Update() {
     // Only update if active or callback needed
-    if ((m_isActive) || (m_NeedCallbackSend)) {
+    if (m_isActive){
         // Process parameter changes
-        m_ParameterChoice.Process();
         cPanelOfParameterView::Update();                // Update base class
 
         // Check for encoder switch activation
         uint8_t SwitchState = __Encoder0.getSwitchState();
-        if (((SwitchState == 1) || (m_NeedCallbackSend)) && (m_CallSending == false)) {
+        if (SwitchState == 1){
             // Trigger callback if available
             if (m_Callback) {
                 m_Callback(&m_ParameterChoice, m_ContextCallback);
             }
-            m_CallSending = true;
-            m_NeedCallbackSend = false;
-        } else {
-            m_CallSending = false;
         }
     }
-}
-
-// -----------------------------------------------------------------------------
-// Restores object state from serialization
-// -----------------------------------------------------------------------------
-void cPanelOfEffectChoice::Restore(DadPersistentStorage::cSerialize* pSerializer) {
-    m_NeedCallbackSend = true;                          // Trigger callback on restore
-    m_CallSending = false;                              // Reset sending flag
-    __GUI.setComponentNeedUpdate(this);                 // Schedule update
 }
 
 // -----------------------------------------------------------------------------
