@@ -51,7 +51,7 @@ public:
 
     // ------------------------------------------------------------------------------
     // Processes encoder and switch debouncing, updates position and state
-    ITCM void Debounce();
+    void Debounce();
 
     // ------------------------------------------------------------------------------
     // Returns current encoder increment and resets the counter

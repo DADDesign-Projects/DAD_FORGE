@@ -47,7 +47,7 @@ public:
     void setPitchVariation(float PitchVariationMin, float PitchVariationMax);
 
     // Process audio sample with pitch modulation
-    ITCM float Process(float Sample, float Depth, uint8_t Shape = 0, float Feedback = 0, bool Mode = false);
+    float Process(float Sample, float Depth, uint8_t Shape = 0, float Feedback = 0, bool Mode = false);
 
 protected:
     // =============================================================================

@@ -20,7 +20,7 @@ namespace DadDrivers {
 
 // -----------------------------------------------------------------------------
 // Timer interrupt callback function to handle SPI transmission
-ITCM void TimerCallback();
+void TimerCallback();
 
 //**********************************************************************************
 // Enumerations
@@ -68,7 +68,7 @@ public:
 
     // -----------------------------------------------------------------------------
     // Timer interrupt callback function to handle SPI transmission
-    ITCM void TimerCallback();
+    void TimerCallback();
 
     // -----------------------------------------------------------------------------
     // Starts a new SPI transmission

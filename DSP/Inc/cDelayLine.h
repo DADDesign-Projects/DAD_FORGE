@@ -39,15 +39,15 @@ public:
 
     // -----------------------------------------------------------------------------
     // Adds an element to the delay line
-    ITCM void Push(float inputSample);
+    void Push(float inputSample);
 
     // -----------------------------------------------------------------------------
     // Retrieves a sample without interpolation
-    ITCM float Pull(int32_t delay);
+    float Pull(uint32_t delay);
 
     // -----------------------------------------------------------------------------
     // Retrieves a sample with interpolation
-    ITCM float Pull(float delay);
+    float Pull(float delay);
 
 private:
     // =============================================================================

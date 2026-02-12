@@ -870,7 +870,7 @@ bool cDisplay::sendDMA() {
 // Parameters:
 //   context: Pointer to the cDisplay instance (used for accessing class members)
 //   result:  Result of the DMA operation (success/failure)
-ITCM void cDisplay::sendCASETDMAData(void* context) {
+void cDisplay::sendCASETDMAData(void* context) {
     __disable_irq();
     cDisplay *pthis = (cDisplay *)context;  // Retrieve the cDisplay instance
     // Start transferring the CASET data and set the next callback to sendRASETDMACmd
@@ -885,7 +885,7 @@ ITCM void cDisplay::sendCASETDMAData(void* context) {
 // Parameters:
 //   context: Pointer to the cDisplay instance
 //   result:  Result of the DMA operation
-ITCM void cDisplay::sendRASETDMACmd(void* context) {
+void cDisplay::sendRASETDMACmd(void* context) {
     __disable_irq();
     cDisplay *pthis = (cDisplay *)context;  // Retrieve the cDisplay instance
     // Initiate the DMA transfer of the RASET command and set the next callback to sendRASETDMAData
@@ -900,7 +900,7 @@ ITCM void cDisplay::sendRASETDMACmd(void* context) {
 // Parameters:
 //   context: Pointer to the cDisplay instance
 //   result:  Result of the DMA operation
-ITCM void cDisplay::sendRASETDMAData(void* context) {
+void cDisplay::sendRASETDMAData(void* context) {
     __disable_irq();
     cDisplay *pthis = (cDisplay *)context;  // Retrieve the cDisplay instance
     // Start transferring the RASET data and set the next callback to sendRAWWRDMACmd
@@ -915,7 +915,7 @@ ITCM void cDisplay::sendRASETDMAData(void* context) {
 // Parameters:
 //   context: Pointer to the cDisplay instance
 //   result:  Result of the DMA operation
-ITCM void cDisplay::sendRAWWRDMACmd(void* context) {
+void cDisplay::sendRAWWRDMACmd(void* context) {
     __disable_irq();
     cDisplay *pthis = (cDisplay *)context;  // Retrieve the cDisplay instance
     // Start transferring the RAWWR data and set the next callback to sendRAWWRDMAData
@@ -930,7 +930,7 @@ ITCM void cDisplay::sendRAWWRDMACmd(void* context) {
 // Parameters:
 //   context: Pointer to the cDisplay instance
 //   result:  Result of the DMA operation
-ITCM void cDisplay::sendRAWWRDMAData(void* context) {
+void cDisplay::sendRAWWRDMAData(void* context) {
     __disable_irq();
     cDisplay *pthis = (cDisplay *)context;  // Retrieve the cDisplay instance
     // Transfer the pixel data and set the next callback to endDMA
@@ -946,7 +946,7 @@ ITCM void cDisplay::sendRAWWRDMAData(void* context) {
 // Parameters:
 //   context: Pointer to the cDisplay instance
 //   result:  Result of the DMA operation
-ITCM void cDisplay::endDMA(void* context) {
+void cDisplay::endDMA(void* context) {
     __disable_irq();
     cDisplay *pthis = (cDisplay *)context;  // Retrieve the cDisplay instance
     

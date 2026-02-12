@@ -60,7 +60,7 @@ class cSwitch
     // Description: Processes switch input with debouncing and state tracking
     // Note: Must be called regularly (typically from an interrupt service routine)
     //**********************************************************************************
-    ITCM void Debounce();
+    void Debounce();
 
     // -----------------------------------------------------------------------------
     // State Access Methods

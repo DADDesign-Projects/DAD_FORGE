@@ -42,7 +42,7 @@ public:
     // -----------------------------------------------------------------------------
     // Audio processing function - processes one input/output audio buffer
     // -----------------------------------------------------------------------------
-    ITCM void onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence) override;
+    void onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence) override;
 
 protected:
     // =============================================================================
