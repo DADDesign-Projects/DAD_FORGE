@@ -1,42 +1,19 @@
 //==================================================================================
 //==================================================================================
 // File: ParameterViews.h
-// Description: GUI parameter visualization and control classes for audio interface
+// Description: GUI parameters views
 //
-// Copyright (c) 2025 Dad Design.
+// Copyright (c) 2025-2026 Dad Design.
 //==================================================================================
 //==================================================================================
-
 #pragma once
 
 #include "GUI_Include.h"
-#include "cParameter.h"
+#include "cUIParameter.h"
 #include <string>
 #include <vector>
 
 namespace DadGUI {
-
-//**********************************************************************************
-// Class: cParameterInfoView
-// Description: Handles temporary display of parameter information (name and value)
-//**********************************************************************************
-class cParameterInfoView {
-public:
-    cParameterInfoView() = default;
-    virtual ~cParameterInfoView() = default;
-
-    // ---------------------------------------------------------------------------------
-    // Function: ShowParamView
-    // Description: Display the parameter information on a given layer
-    // ---------------------------------------------------------------------------------
-    void ShowParamView(DadGFX::cLayer* pLayer, const std::string Name, const std::string Value);
-
-    // ---------------------------------------------------------------------------------
-    // Function: HideParamView
-    // Description: Hide the parameter information view (reset z-order or clear)
-    // ---------------------------------------------------------------------------------
-    void HideParamView(DadGFX::cLayer* pLayer);
-};
 
 //**********************************************************************************
 // Class: cParameterView
@@ -50,10 +27,10 @@ public:
     // Function: Init
     // Description: Initialize parameter with given attributes
     // ---------------------------------------------------------------------------------
-    void Init(DadDSP::cParameter* pParameter, const std::string& ShortName, const std::string& LongName);
+    void Init(cUIParameter* pParameter, const std::string& ShortName, const std::string& LongName);
 
-    // Return associated parameter pointer
-    DadDSP::cParameter* getParameter() { return m_pParameter; }
+    // Return associated parameter pointer for external access
+    cUIParameter* getParameter() { return m_pParameter; }
 
     // ---------------------------------------------------------------------------------
     // Function: Draw
@@ -78,10 +55,10 @@ protected:
     virtual void DrawDynView(uint8_t NumParameterArea, DadGFX::cLayer* pLayer) = 0;
 
     // Member variables
-    std::string            m_ShortName;           // Short parameter name (compact label)
-    std::string            m_LongName;            // Long parameter name (info banner)
-    DadDSP::cParameter*    m_pParameter = nullptr; // Pointer to the associated parameter
-    float                  m_MemParameterValue = 0.0f; // Cached last value for change detection
+    std::string            	m_ShortName;           			// Short parameter name (compact label)
+    std::string            	m_LongName;            			// Long parameter name (info banner)
+    cUIParameter*   		m_pParameter = nullptr; 		// Pointer to the associated parameter
+    float                  	m_MemParameterValue = 0.0f; 	// Cached last value for change detection
 };
 
 //**********************************************************************************
@@ -94,7 +71,7 @@ public:
     // Function: Init
     // Description: Initialize numeric parameter attributes (names, units, precision)
     // ---------------------------------------------------------------------------------
-    void Init(DadDSP::cParameter* pParameter, const std::string& ShortName, const std::string& LongName,
+    void Init(cUIParameter* pParameter, const std::string& ShortName, const std::string& LongName,
               const std::string& ShortUnit, const std::string& LongUnit, uint8_t StringPrecision = 3);
 
     // Return formatted value for temporary info banner
@@ -164,59 +141,6 @@ protected:
 
     // Member variables
     std::vector<sDiscretValues> m_TabDiscretValues;  // List of discrete values
-};
-
-//**********************************************************************************
-// Class: cPanelOfParameterView
-// Description: Manages a panel composed of three parameter views and their rendering layers
-//**********************************************************************************
-class cPanelOfParameterView : public iUIComponent {
-public:
-    virtual ~cPanelOfParameterView() {}
-
-    // ---------------------------------------------------------------------------------
-    // Function: Init
-    // Description: Initialize the three parameter views and allocate their layers
-    // ---------------------------------------------------------------------------------
-    void Init(cParameterView* pParameter1, cParameterView* pParameter2, cParameterView* pParameter3);
-
-    // Called when the component becomes active
-    void Activate() override;
-
-    // Called when the component becomes inactive
-    void Deactivate() override;
-
-    // Called periodically to refresh the panel
-    void Update() override;
-
-    // Force to redraw UI component
-    void Redraw() override;
-
-protected:
-    // Parameter view pointers
-    cParameterView*     m_pParameter1 = nullptr;
-    cParameterView*     m_pParameter2 = nullptr;
-    cParameterView*     m_pParameter3 = nullptr;
-
-    // Info view for displaying current parameter name/value
-    cParameterInfoView  m_ParameterInfoView;
-
-    // Layers for each parameter (static and dynamic)
-    DadGFX::cLayer*     m_pParameter1LayerDyn = nullptr;
-    DadGFX::cLayer*     m_pParameter1LayerStat = nullptr;
-    DadGFX::cLayer*     m_pParameter2LayerDyn = nullptr;
-    DadGFX::cLayer*     m_pParameter2LayerStat = nullptr;
-    DadGFX::cLayer*     m_pParameter3LayerDyn = nullptr;
-    DadGFX::cLayer*     m_pParameter3LayerStat = nullptr;
-
-    // Info layer for temporary display
-    DadGFX::cLayer*     m_pParamInfoLayer = nullptr;
-
-    // Internal counter for info view timing
-    uint16_t            m_InfoViewCounter = 0;
-
-    // Memorize active state
-    bool                m_isActive = false;
 };
 
 } // namespace DadGUI

@@ -1,6 +1,6 @@
 //==================================================================================
 //==================================================================================
-// File: ParameterViews.cpp
+// File: ParameterInfoViews.cpp
 // Description: Implementation of graphical parameter view system for audio interface
 //
 // Copyright (c) 2025 Dad Design.
@@ -36,13 +36,18 @@ constexpr float Deg2Rad(float a) { return a * PI / 180.0f; }
 // Function: Init
 // Description: Initialize the parameter view with parameter pointer and names
 // ---------------------------------------------------------------------------------
-void cParameterView::Init(DadDSP::cParameter* pParameter, const std::string& ShortName, const std::string& LongName) {
+void cParameterView::Init(cUIParameter* pParameter, const std::string& ShortName, const std::string& LongName) {
     m_pParameter = pParameter;     // Backend parameter object
     m_ShortName = ShortName;       // Short display name
     m_LongName  = LongName;        // Long descriptive name
 
+    if(!pParameter){
+    	Error_Handler();
+    }
+
     // Cache initial target value for change detection
     m_MemParameterValue = m_pParameter->getTargetValue();
+    pParameter->setParentView(this);
 }
 
 // ---------------------------------------------------------------------------------
@@ -63,17 +68,12 @@ bool cParameterView::Update(uint8_t NumParameterArea, DadGFX::cLayer* pDynamicLa
         m_pParameter->Increment(Increment, SwitchState);
     }
 
-    // Detect external changes (e.g., MIDI) or local change
-    if (m_MemParameterValue != m_pParameter->getTargetValue()) {
-        m_MemParameterValue = m_pParameter->getTargetValue();
-
+    // Detect external changes (MIDI, memory restore),  or local change
+    float TargetValue = m_pParameter->getTargetValue();
+    if (m_MemParameterValue != TargetValue) {
+        m_MemParameterValue = TargetValue;
         // Redraw dynamic part to reflect new value
         DrawDynView(NumParameterArea, pDynamicLayer);
-
-        // If GUI restore is in progress, do not notify as changed
-        if (__GUI.IsRestoreInProcess()) {
-            return false;
-        }
         return true; // Parameter value changed
     }
 
@@ -88,7 +88,7 @@ bool cParameterView::Update(uint8_t NumParameterArea, DadGFX::cLayer* pDynamicLa
 // Function: Init
 // Description: Initialize numeric parameter attributes (names, units, precision)
 // ---------------------------------------------------------------------------------
-void cParameterNumView::Init(DadDSP::cParameter* pParameter, const std::string& ShortName, const std::string& LongName,
+void cParameterNumView::Init(cUIParameter* pParameter, const std::string& ShortName, const std::string& LongName,
                              const std::string& ShortUnit, const std::string& LongUnit, uint8_t StringPrecision) {
     cParameterView::Init(pParameter, ShortName, LongName);
     m_ShortUnit = ShortUnit;        // Short unit display
@@ -480,213 +480,6 @@ const std::string cParameterDiscretView::getInfoValue() {
     return m_TabDiscretValues[static_cast<uint8_t>(m_pParameter->getTargetValue())].m_LongValue;
 }
 
-//**********************************************************************************
-// cParameterInfoView implementation
-//**********************************************************************************
-
-// ---------------------------------------------------------------------------------
-// Function: ShowParamView
-// Description: Show a temporary banner with parameter name and value
-// ---------------------------------------------------------------------------------
-#define NAME_OFFSET 1
-void cParameterInfoView::ShowParamView(DadGFX::cLayer* pLayer, const std::string Name, const std::string Value) {
-    const uint16_t xCenterView = pLayer->getWith() / 2;
-
-    pLayer->changeZOrder(41); // Bring to foreground
-    pLayer->eraseLayer(__pActivePalette->ParamInfoBack);
-
-    // Parameter name (small font)
-    pLayer->setFont(FONTL);
-    uint16_t NameWidth = pLayer->getTextWidth(Name.c_str());
-    pLayer->setCursor(xCenterView - (NameWidth / 2), NAME_OFFSET);
-    pLayer->setTextFrontColor(__pActivePalette->ParamInfoName);
-    pLayer->drawText(Name.c_str());
-
-    // Parameter value (large font)
-    uint16_t NameHeight = pLayer->getTextHeight() + NAME_OFFSET;
-    pLayer->setFont(FONTXL);
-    uint16_t ValueWidth = pLayer->getTextWidth(Value.c_str());
-    pLayer->setCursor(xCenterView - (ValueWidth / 2), NameHeight + 1);
-    pLayer->setTextFrontColor(__pActivePalette->ParamInfoValue);
-    pLayer->drawText(Value.c_str());
-}
-
-// ---------------------------------------------------------------------------------
-// Function: HideParamView
-// Description: Hide the temporary info banner (reset z-order)
-// ---------------------------------------------------------------------------------
-void cParameterInfoView::HideParamView(DadGFX::cLayer* pLayer) {
-    pLayer->changeZOrder(0); // Send to background
-}
-
-//**********************************************************************************
-// cPanelOfParameterView implementation
-//**********************************************************************************
-
-// Layers declaration (SDRAM allocation)
-DECLARE_LAYER(Parameter1LayerDyn, PARAM_WIDTH, PARAM_HEIGHT);
-DECLARE_LAYER(Parameter1LayerStat, PARAM_WIDTH, PARAM_HEIGHT);
-DECLARE_LAYER(Parameter2LayerDyn, PARAM_WIDTH, PARAM_HEIGHT);
-DECLARE_LAYER(Parameter2LayerStat, PARAM_WIDTH, PARAM_HEIGHT);
-DECLARE_LAYER(Parameter3LayerDyn, PARAM_WIDTH, PARAM_HEIGHT);
-DECLARE_LAYER(Parameter3LayerStat, PARAM_WIDTH, PARAM_HEIGHT);
-DECLARE_LAYER(ParamInfoLayer, SCREEN_WIDTH, INFO_HEIGHT);
-
-// Time to show information of the parameter currently being edited (ms)
-#define PARAM_INFO_TIME_MS 2000
-
-// ---------------------------------------------------------------------------------
-// Function: Init
-// Description: Initialize the three parameter views and allocate their layers
-// ---------------------------------------------------------------------------------
-void cPanelOfParameterView::Init(cParameterView* pParameter1, cParameterView* pParameter2, cParameterView* pParameter3) {
-    // Initialize internal state
-    m_isActive = false;
-
-    // Parameter view pointers
-    m_pParameter1 = pParameter1;
-    m_pParameter2 = pParameter2;
-    m_pParameter3 = pParameter3;
-
-    // Allocate and initialize parameter layers
-    m_pParameter1LayerDyn  = ADD_LAYER(__Display, Parameter1LayerDyn, 0, MENU_HEIGHT, 0);
-    m_pParameter1LayerDyn->changeZOrder(0);
-    m_pParameter1LayerDyn->eraseLayer();
-    m_pParameter1LayerStat = ADD_LAYER(__Display, Parameter1LayerStat, 0, MENU_HEIGHT, 0);
-    m_pParameter1LayerStat->changeZOrder(0);
-    m_pParameter1LayerStat->eraseLayer();
-
-    m_pParameter2LayerDyn  = ADD_LAYER(__Display, Parameter2LayerDyn, PARAM_WIDTH, MENU_HEIGHT, 0);
-    m_pParameter2LayerDyn->changeZOrder(0);
-    m_pParameter2LayerDyn->eraseLayer();
-    m_pParameter2LayerStat = ADD_LAYER(__Display, Parameter2LayerStat, PARAM_WIDTH, MENU_HEIGHT, 0);
-    m_pParameter2LayerStat->changeZOrder(0);
-    m_pParameter2LayerStat->eraseLayer();
-
-    m_pParameter3LayerDyn  = ADD_LAYER(__Display, Parameter3LayerDyn, PARAM_WIDTH * 2, MENU_HEIGHT, 0);
-    m_pParameter3LayerDyn->changeZOrder(0);
-    m_pParameter3LayerDyn->eraseLayer();
-    m_pParameter3LayerStat = ADD_LAYER(__Display, Parameter3LayerStat, PARAM_WIDTH * 2, MENU_HEIGHT, 0);
-    m_pParameter3LayerStat->changeZOrder(0);
-    m_pParameter3LayerStat->eraseLayer();
-
-    // Info layer for temporary parameter display
-    m_pParamInfoLayer  = ADD_LAYER(__Display, ParamInfoLayer, 0, MENU_HEIGHT + PARAM_HEIGHT, 0);
-    m_pParamInfoLayer->changeZOrder(0);
-    m_pParamInfoLayer->eraseLayer();
-}
-
-// ---------------------------------------------------------------------------------
-// Function: Activate
-// Description: Called when the panel component becomes active
-// ---------------------------------------------------------------------------------
-void cPanelOfParameterView::Activate() {
-    m_isActive = true;
-    m_InfoViewCounter = (PARAM_INFO_TIME_MS / GUI_UPDATE_MS) + 1;
-    m_ParameterInfoView.HideParamView(m_pParamInfoLayer);
-
-    // Draw parameter 1 if exists
-    if (m_pParameter1) {
-        m_pParameter1->Draw(1, m_pParameter1LayerStat, m_pParameter1LayerDyn);
-    } else {
-        m_pParameter1LayerStat->eraseLayer(__pActivePalette->ParameterBack);
-        m_pParameter1LayerStat->changeZOrder(0);
-    }
-
-    // Draw parameter 2 if exists
-    if (m_pParameter2) {
-        m_pParameter2->Draw(2, m_pParameter2LayerStat, m_pParameter2LayerDyn);
-    } else {
-        m_pParameter2LayerStat->eraseLayer(__pActivePalette->ParameterBack);
-        m_pParameter2LayerStat->changeZOrder(0);
-    }
-
-    // Draw parameter 3 if exists
-    if (m_pParameter3) {
-        m_pParameter3->Draw(3, m_pParameter3LayerStat, m_pParameter3LayerDyn);
-    } else {
-        m_pParameter3LayerStat->eraseLayer(__pActivePalette->ParameterBack);
-        m_pParameter3LayerStat->changeZOrder(0);
-    }
-}
-
-// ---------------------------------------------------------------------------------
-// Function: Deactivate
-// Description: Called when the component becomes inactive
-// ---------------------------------------------------------------------------------
-void cPanelOfParameterView::Deactivate() {
-    m_isActive = false;
-    m_InfoViewCounter = (PARAM_INFO_TIME_MS / GUI_UPDATE_MS) + 1;
-    m_ParameterInfoView.HideParamView(m_pParamInfoLayer);
-}
-
-// ---------------------------------------------------------------------------------
-// Function: Update
-// Description: Periodic update; checks parameter updates and shows info banner
-// ---------------------------------------------------------------------------------
-void cPanelOfParameterView::Update() {
-    if (!m_isActive) return;
-
-    // Update parameter 1 and show info if changed
-    if (m_pParameter1) {
-        if (true == m_pParameter1->Update(1, m_pParameter1LayerDyn)) {
-            m_InfoViewCounter = 0;
-            m_ParameterInfoView.ShowParamView(m_pParamInfoLayer, m_pParameter1->getInfoName(), m_pParameter1->getInfoValue());
-        }
-    }
-
-    // Update parameter 2 and show info if changed
-    if (m_pParameter2) {
-        if (true == m_pParameter2->Update(2, m_pParameter2LayerDyn)) {
-            m_InfoViewCounter = 0;
-            m_ParameterInfoView.ShowParamView(m_pParamInfoLayer, m_pParameter2->getInfoName(), m_pParameter2->getInfoValue());
-        }
-    }
-
-    // Update parameter 3 and show info if changed
-    if (m_pParameter3) {
-        if (true == m_pParameter3->Update(3, m_pParameter3LayerDyn)) {
-            m_InfoViewCounter = 0;
-            m_ParameterInfoView.ShowParamView(m_pParamInfoLayer, m_pParameter3->getInfoName(), m_pParameter3->getInfoValue());
-        }
-    }
-
-    // Manage info view timeout counter
-    if (m_InfoViewCounter < (PARAM_INFO_TIME_MS / GUI_UPDATE_MS)) {
-        m_InfoViewCounter++;
-    }
-
-    // Hide info view when timeout reached
-    if (m_InfoViewCounter == (PARAM_INFO_TIME_MS / GUI_UPDATE_MS)) {
-        m_ParameterInfoView.HideParamView(m_pParamInfoLayer);
-    }
-
-    // Reset restore flag if set
-    if (__GUI.IsRestoreInProcess()) {
-        __GUI.resetRestoreInProcess();
-    }
-}
-
-// ---------------------------------------------------------------------------------
-// Function: Redraw
-// Description: Force redraw of all parameter views (static+dynamic)
-// ---------------------------------------------------------------------------------
-void cPanelOfParameterView::Redraw() {
-    if (!m_isActive) return;
-
-    m_ParameterInfoView.HideParamView(m_pParamInfoLayer);
-
-    // Redraw all parameters
-    if (m_pParameter1) {
-        m_pParameter1->Draw(1, m_pParameter1LayerStat, m_pParameter1LayerDyn);
-    }
-    if (m_pParameter2) {
-        m_pParameter2->Draw(2, m_pParameter2LayerStat, m_pParameter2LayerDyn);
-    }
-    if (m_pParameter3) {
-        m_pParameter3->Draw(3, m_pParameter3LayerStat, m_pParameter3LayerDyn);
-    }
-}
 
 } // namespace DadGUI
 //***End of file**************************************************************
