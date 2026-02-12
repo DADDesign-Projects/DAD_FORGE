@@ -20,7 +20,7 @@ namespace DadDSP {
 // Initializes the delay line with external buffer
 void cDelayLine::Initialize(float* buffer, uint32_t bufferSize) {
     m_Buffer       = buffer;           // Pointer to external buffer
-    m_NumElements  = bufferSize-5; 	   // Buffer size with safety offset
+    m_NumElements  = bufferSize; 	   // Buffer size with safety offset
     m_CurrentIndex = 0;                // Initialize current position
 }
 
@@ -32,7 +32,7 @@ void cDelayLine::Clear() {
 
 // -----------------------------------------------------------------------------
 // Adds a new sample to the delay line
-ITCM void cDelayLine::Push(float inputSample) {
+void cDelayLine::Push(float inputSample) {
     if (m_Buffer) {
         // Increment current index with circular buffer wrapping
         m_CurrentIndex++;
@@ -45,7 +45,7 @@ ITCM void cDelayLine::Push(float inputSample) {
 
 // -----------------------------------------------------------------------------
 // Retrieves a delayed sample without interpolation
-ITCM float cDelayLine::Pull(int32_t delay) {
+float cDelayLine::Pull(uint32_t delay) {
     //assert(delay < m_NumElements);
     if (m_Buffer) {
         // Calculate output index with circular buffer wrapping
@@ -60,19 +60,21 @@ ITCM float cDelayLine::Pull(int32_t delay) {
 
 // -----------------------------------------------------------------------------
 // Retrieves a delayed sample with linear interpolation
-ITCM float cDelayLine::Pull(float delay) {
+float cDelayLine::Pull(float delay) {
     //assert(delay < m_NumElements);
 
     if (m_Buffer) {
-        // Calculate interpolation factor (fractional part of delay)
-        float interpFactor = delay - floor(delay);
+        // Calculate integer part and fractional part manually
+        int32_t delayInt = static_cast<int32_t>(delay);
+        float interpFactor = delay - delayInt;
 
         // Return exact sample if no interpolation needed
-        if (interpFactor == 0)
-            return Pull((int32_t)delay);
+        if (interpFactor == 0.0f)
+            return Pull(static_cast<uint32_t>(delay));
 
         // Calculate indices for the two adjacent samples
-        int32_t index1 = m_CurrentIndex - static_cast<int32_t>(ceil(delay));
+        // Instead of ceil(delay), we use delayInt + 1 when delay is not an integer
+        int32_t index1 = m_CurrentIndex - delayInt - 1;
         if (index1 < 0)
             index1 += m_NumElements; // Wrap around if negative
 
@@ -87,11 +89,10 @@ ITCM float cDelayLine::Pull(float delay) {
         // Perform linear interpolation between samples
         float interpolatedValue = sample2 + ((sample1 - sample2) * interpFactor);
 
-        return interpolatedValue;
+        return interpolatedValue; // Return interpolated value
     }
     else return 0.0f; // Return zero if buffer not initialized
 }
-
 } // namespace DadDSP
 
 //***End of file**************************************************************

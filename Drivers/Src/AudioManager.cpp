@@ -1,90 +1,96 @@
 //==================================================================================
-//==================================================================================
 // File: AudioManager.cpp
 // Description: Audio hardware management implementation for STM32H MPU
-//
-// Copyright (c) 22025 Dad Design.
+// Optimized for Speed using ARM DSP Extensions and Hardware Intrinsics
 //==================================================================================
-//==================================================================================
-
-//**********************************************************************************
-// Audio Hardware Management on STM32H MPU
-//**********************************************************************************
-
+#include "AudioManager.h"
 #include "HardwareAndCo.h"
+#include "arm_math.h" // Nécessaire pour les intrinsics ARM et CMSIS-DSP
 
 // =============================================================================
 // Constants and Definitions
 // =============================================================================
 
-#define SAI_HALF_BUFFER_SIZE  (AUDIO_BUFFER_SIZE * 2)  // Stereo buffer size
+#define ALIGN_8 __attribute__((aligned(8)))
+#define SAI_HALF_BUFFER_SIZE  (AUDIO_BUFFER_SIZE * 2)  // Stereo buffer size (int32 elements)
 #define SAI_BUFFER_SIZE       (AUDIO_BUFFER_SIZE * 4)  // Full buffer size
+
+// Facteurs de conversion pré-calculés (constexpr pour optimisation compile-time)
+static constexpr float kIntToFloatScale = 1.0f / 8388608.0f;
+static constexpr float kFloatToIntScale = 8388608.0f;
 
 // =============================================================================
 // Global Variables
 // =============================================================================
 
 // Audio buffers in non-cached RAM
-NO_CACHE_RAM AudioBuffer In[AUDIO_BUFFER_SIZE];        // Input audio buffer
-NO_CACHE_RAM AudioBuffer Out1[AUDIO_BUFFER_SIZE];      // First output buffer
-NO_CACHE_RAM AudioBuffer Out2[AUDIO_BUFFER_SIZE];      // Second output buffer
+ALIGN_8 NO_CACHE_RAM AudioBuffer In[AUDIO_BUFFER_SIZE];
+ALIGN_8 NO_CACHE_RAM AudioBuffer Out1[AUDIO_BUFFER_SIZE];
+ALIGN_8 NO_CACHE_RAM AudioBuffer Out2[AUDIO_BUFFER_SIZE];
 
-NO_CACHE_RAM AudioBuffer* pOut;                        // Current output buffer pointer
-NO_CACHE_RAM int32_t rxBuffer[SAI_BUFFER_SIZE];        // Receive buffer for SAI
-NO_CACHE_RAM int32_t txBuffer[SAI_BUFFER_SIZE];        // Transmit buffer for SAI
+// Volatile est important car modifié en interruption et lu ailleurs
+volatile NO_CACHE_RAM AudioBuffer* pOut;
+
+ALIGN_8 NO_CACHE_RAM int32_t rxBuffer[SAI_BUFFER_SIZE];
+ALIGN_8 NO_CACHE_RAM int32_t txBuffer[SAI_BUFFER_SIZE];
+
+SAI_HandleTypeDef *__phSaiTx = nullptr;
+SAI_HandleTypeDef *__phSaiRx = nullptr;
 
 // =============================================================================
-// Conversion Functions
+// Optimized Conversion Functions
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// Convert int32_t to float with 24-bit signed audio format
+// Convert int32_t buffer to float AudioBuffer (Optimized)
 // -----------------------------------------------------------------------------
-inline float int32ToFloat(int32_t sample) {
-    // Handle sign extension for 24-bit audio data
-    if (sample & 0x00800000) {
-        sample |= 0xFF000000;  // Extend sign bit for negative values
-    } else {
-        sample &= 0x00FFFFFF;  // Mask to 24 bits for positive values
-    }
-    // Normalize to floating point range [-1.0, 1.0]
-    return static_cast<float>(sample) / 8388608.0f;
-}
+void ConvertToAudioBuffer(const int32_t* __restrict intBuf, AudioBuffer* __restrict floatBuf) {
 
-// -----------------------------------------------------------------------------
-// Convert int32_t buffer to float AudioBuffer
-// -----------------------------------------------------------------------------
-ITCM void ConvertToAudioBuffer(int32_t* intBuf, AudioBuffer* floatBuf) {
-    // Process each stereo sample in the buffer
+    // Pointers for iteration
+    const int32_t* pSrc = intBuf;
+    AudioBuffer* pDst = floatBuf;
+
+    // Loop unrolling hints could be added here, but compiler usually handles this well
     for (size_t i = 0; i < AUDIO_BUFFER_SIZE; i++) {
-        floatBuf[i].Left = int32ToFloat(intBuf[i * 2]);        // Convert left channel
-        floatBuf[i].Right = int32ToFloat(intBuf[i * 2 + 1]);   // Convert right channel
+        int32_t leftRaw = (*pSrc++) << 8;
+        int32_t rightRaw = (*pSrc++) << 8;
+
+        // Conversion rapide multiplication
+        pDst->Left  = (float)(leftRaw >> 8) * kIntToFloatScale;
+        pDst->Right = (float)(rightRaw >> 8) * kIntToFloatScale;
+
+        pDst++;
     }
 }
 
 // -----------------------------------------------------------------------------
-// Convert float to int32_t with 24-bit signed audio format
+// Convert float AudioBuffer to int32_t buffer (Optimized)
 // -----------------------------------------------------------------------------
-inline int32_t floatToInt32(float sample) {
-    // Clamp input to valid audio range
-    if (sample > 1.0f) sample = 1.0f;
-    if (sample < -1.0f) sample = -1.0f;
+void ConvertFromAudioBuffer(const AudioBuffer* __restrict floatBuf, int32_t* __restrict intBuf) {
 
-    // Scale to 24-bit integer range
-    int32_t intSample = static_cast<int32_t>(sample * 8388608.0f);
+    const AudioBuffer* pSrc = floatBuf;
+    int32_t* pDst = intBuf;
 
-    // Ensure 24-bit format
-    return intSample & 0xFFFFFF;
-}
-
-// -----------------------------------------------------------------------------
-// Convert float AudioBuffer to int32_t buffer
-// -----------------------------------------------------------------------------
-ITCM void ConvertFromAudioBuffer(AudioBuffer* floatBuf, int32_t* intBuf) {
-    // Process each stereo sample in the buffer
     for (size_t i = 0; i < AUDIO_BUFFER_SIZE; i++) {
-        intBuf[i * 2] = floatToInt32(floatBuf[i].Left);        // Convert left channel
-        intBuf[i * 2 + 1] = floatToInt32(floatBuf[i].Right);   // Convert right channel
+        // Conversion avec saturation matérielle
+        // 1. Multiplication par le facteur d'échelle
+        float fLeft = pSrc->Left * kFloatToIntScale;
+        float fRight = pSrc->Right * kFloatToIntScale;
+
+        // 2. Casting et Saturation via Intrinsic ARM (__SSAT)
+        // __SSAT sature la valeur à 24 bits. C'est beaucoup plus rapide que les if/else.
+        // Note: On cast en int32_t avant saturation.
+
+        int32_t iLeft = (int32_t)fLeft;
+        int32_t iRight = (int32_t)fRight;
+
+        // Sature à 24 bits (-8388608 à 8388607)
+        // Le masque 0xFFFFFF n'est techniquement pas requis si le SAI ignore les bits hauts,
+        // mais __SSAT gère proprement les dépassements.
+        *pDst++ = __SSAT(iLeft, 24);
+        *pDst++ = __SSAT(iRight, 24);
+
+        pSrc++;
     }
 }
 
@@ -92,108 +98,76 @@ ITCM void ConvertFromAudioBuffer(AudioBuffer* floatBuf, int32_t* intBuf) {
 // SAI Callback Functions
 // =============================================================================
 
-// Global SAI handle pointers
-SAI_HandleTypeDef *__phSaiTx = nullptr;  // Transmit SAI handle
-SAI_HandleTypeDef *__phSaiRx = nullptr;  // Receive SAI handle
-
 // -----------------------------------------------------------------------------
-// Callback for transmission complete
+// Helper inline pour éviter la duplication de code Tx
 // -----------------------------------------------------------------------------
-ITCM void HAL_SAI_TxCpltCallback(SAI_HandleTypeDef *hsai) {
+inline void ProcessTxCallback(SAI_HandleTypeDef *hsai, int32_t* targetBuffer) {
     if (__phSaiTx == hsai) {
-        __disable_irq();
-        // Convert second half of output buffer for transmission
-        ConvertFromAudioBuffer(pOut, &txBuffer[SAI_HALF_BUFFER_SIZE]);
-        __enable_irq();
+        // Pas besoin de __disable_irq ici si pOut est lu atomiquement ou stable
+        // Nous lisons le pointeur courant pOut
+        ConvertFromAudioBuffer((AudioBuffer*)pOut, targetBuffer);
     }
 }
 
-// -----------------------------------------------------------------------------
-// Callback for half transmission complete
-// -----------------------------------------------------------------------------
-ITCM void HAL_SAI_TxHalfCpltCallback(SAI_HandleTypeDef *hsai) {
-    if (__phSaiTx == hsai) {
-        __disable_irq();
-        // Convert first half of output buffer for transmission
-        ConvertFromAudioBuffer(pOut, txBuffer);
-        __enable_irq();
-    }
+void HAL_SAI_TxCpltCallback(SAI_HandleTypeDef *hsai) {
+    ProcessTxCallback(hsai, &txBuffer[SAI_HALF_BUFFER_SIZE]);
+}
+
+void HAL_SAI_TxHalfCpltCallback(SAI_HandleTypeDef *hsai) {
+    ProcessTxCallback(hsai, txBuffer);
 }
 
 // -----------------------------------------------------------------------------
-// Callback for reception complete
+// Helper inline pour éviter la duplication de code Rx
 // -----------------------------------------------------------------------------
-ITCM void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai) {
+inline void ProcessRxCallback(SAI_HandleTypeDef *hsai, int32_t* sourceBuffer, AudioBuffer* targetFloatBuf) {
     if (__phSaiRx == hsai) {
-        // Convert second half of received buffer to float format
-        ConvertToAudioBuffer(&rxBuffer[SAI_HALF_BUFFER_SIZE], In);
+        // 1. Conversion Entrée
+        ConvertToAudioBuffer(sourceBuffer, In);
 
-        // Process audio data through application callback
-        AudioCallback(In, Out2);
+        // 2. Traitement Audio (Callback Utilisateur)
+        // Note: Si ce callback est long, il devrait être fait hors interruption
+        // (via un flag dans le main loop)
+        AudioCallback(In, targetFloatBuf);
 
-        __disable_irq();
-        pOut = Out2;  // Switch to second output buffer
-        __enable_irq();
+        // 3. Swap Buffer Output
+        // L'assignation d'un pointeur 32 bits est atomique sur ARM Cortex-M.
+        // __disable_irq() n'est pas nécessaire et ajoute de la latence.
+        pOut = targetFloatBuf;
     }
 }
 
-// -----------------------------------------------------------------------------
-// Callback for half reception complete
-// -----------------------------------------------------------------------------
-ITCM void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai) {
-    if (__phSaiRx == hsai) {
-        // Convert first half of received buffer to float format
-        ConvertToAudioBuffer(rxBuffer, In);
+void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai) {
+    ProcessRxCallback(hsai, &rxBuffer[SAI_HALF_BUFFER_SIZE], Out2);
+}
 
-        // Process audio data through application callback
-        AudioCallback(In, Out1);
-
-        __disable_irq();
-        pOut = Out1;  // Switch to first output buffer
-        __enable_irq();
-    }
+void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai) {
+    ProcessRxCallback(hsai, rxBuffer, Out1);
 }
 
 // =============================================================================
 // Audio Management Functions
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Initialize and start audio processing
-// -----------------------------------------------------------------------------
 HAL_StatusTypeDef StartAudio(SAI_HandleTypeDef *phSaiTx, SAI_HandleTypeDef *phSaiRx) {
     HAL_StatusTypeDef Result;
 
     // Initialize buffers and pointers
     pOut = Out1;
 
-    // Clear all audio buffers
-    for (uint16_t Index = 0; Index < AUDIO_BUFFER_SIZE; Index++) {
-        In[Index].Left = 0.0f;
-        In[Index].Right = 0.0f;
-        Out1[Index].Left = 0.0f;
-        Out1[Index].Right = 0.0f;
-        Out2[Index].Left = 0.0f;
-        Out2[Index].Right = 0.0f;
-    }
+    // Utilisation de memset (souvent optimisé par la lib C) au lieu de boucles manuelles
+    memset((void*)In, 0, sizeof(In));
+    memset((void*)Out1, 0, sizeof(Out1));
+    memset((void*)Out2, 0, sizeof(Out2));
+    memset((void*)rxBuffer, 0, sizeof(rxBuffer));
+    memset((void*)txBuffer, 0, sizeof(txBuffer));
 
-    // Clear SAI buffers
-    for (uint16_t Index = 0; Index < SAI_BUFFER_SIZE; Index++) {
-        rxBuffer[Index] = 0;
-        txBuffer[Index] = 0;
-    }
-
-    // Store SAI handles for callback identification
     __phSaiRx = phSaiRx;
     __phSaiTx = phSaiTx;
 
-    // Start receiving audio data via DMA
     if (HAL_OK != (Result = HAL_SAI_Receive_DMA(phSaiRx, (uint8_t*)rxBuffer, SAI_BUFFER_SIZE))) {
         return Result;
     }
 
-    // Start transmitting audio data via DMA
     return HAL_SAI_Transmit_DMA(phSaiTx, (uint8_t*)txBuffer, SAI_BUFFER_SIZE);
 }
-
-//***End of file**************************************************************

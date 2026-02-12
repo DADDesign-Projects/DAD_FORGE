@@ -11,6 +11,9 @@
 
 namespace DadDrivers {
 
+#define GPIO_READ_PIN(GPIOx, PIN_MASK) \
+    ((GPIOx->IDR & (PIN_MASK)) != 0)
+
 //**********************************************************************************
 // class cEncoder
 //**********************************************************************************
@@ -54,7 +57,7 @@ void cEncoder::Init(GPIO_TypeDef* pAPort, uint16_t APIn,
 // ------------------------------------------------------------------------------
 // Handles debouncing for rotary encoder and switch, updates encoder position
 // and switch state based on elapsed time since last update
-ITCM void cEncoder::Debounce()
+void cEncoder::Debounce()
 {
     // Process encoder position reading
     m_ctEncoderPeriod++;                       // Increment encoder period counter
@@ -64,8 +67,8 @@ ITCM void cEncoder::Debounce()
         m_ctEncoderPeriod = 0;                 // Reset encoder period counter
 
         // Update encoder channel states with debouncing
-        m_A = ((m_A << 1) | (uint8_t)HAL_GPIO_ReadPin(m_pGPIO_APort, m_GPIO_APin)) & 0x03;
-        m_B = ((m_B << 1) | (uint8_t)HAL_GPIO_ReadPin(m_pGPIO_BPort, m_GPIO_BPin)) & 0x03;
+        m_A = ((m_A << 1) | (uint8_t)GPIO_READ_PIN(m_pGPIO_APort, m_GPIO_APin)) & 0x03;
+        m_B = ((m_B << 1) | (uint8_t)GPIO_READ_PIN(m_pGPIO_BPort, m_GPIO_BPin)) & 0x03;
 
         // Detect encoder rotation direction and update increment
         if ((m_A == 0x02) && (m_B == 0x00)) {
@@ -85,7 +88,7 @@ ITCM void cEncoder::Debounce()
         m_ctSwitchPeriod = 0;                  // Reset switch period counter
 
         // Integrate switch signal over time for stable reading
-        if (HAL_GPIO_ReadPin(m_pGPIO_SWPort, m_GPIO_SWPin) == GPIO_PIN_SET) {
+        if (GPIO_READ_PIN(m_pGPIO_SWPort, m_GPIO_SWPin) == GPIO_PIN_SET) {
             m_ctSwitchIntegrate++;             // Increment integration counter for released state
             if (m_ctSwitchIntegrate > INTEGRATION_FACTOR) {
                 m_ctSwitchIntegrate = INTEGRATION_FACTOR; // Clamp to maximum

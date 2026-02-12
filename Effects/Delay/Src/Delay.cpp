@@ -6,9 +6,9 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-
-#include <Delay.h>
-#include "GPIO.h"
+#include "EffectsConfig.h"
+#ifdef DELAY_EFFECT
+#include "Delay.h"
 
 constexpr float DELAY_MAX_TIME = 1.5f;  // Maximum delay time in seconds
 constexpr float DELAY_MIN_TIME = 0.1f;  // Minimum delay time in seconds
@@ -17,6 +17,9 @@ constexpr float DELAY_MIN_TIME = 0.1f;  // Minimum delay time in seconds
 constexpr uint32_t ceil_to_uint(float value) {
     return static_cast<uint32_t>(value + 0.999f);
 }
+
+
+constexpr float SMOOTH_COEFF = 0.00008f;
 
 // Calculate buffer size based on sampling rate and max delay time
 constexpr uint32_t DELAY_BUFFER_SIZE = ceil_to_uint(SAMPLING_RATE * DELAY_MAX_TIME);
@@ -28,8 +31,6 @@ SDRAM_SECTION float __Delay2BufferLeft[DELAY_BUFFER_SIZE + 100];  // Left channe
 SDRAM_SECTION float __Delay2BufferRight[DELAY_BUFFER_SIZE + 100]; // Right channel delay buffer 2
 
 namespace DadEffect {
-
-constexpr uint32_t DELAY_ID BUILD_ID('D', 'E', 'L', 'A');
 
 //**********************************************************************************
 // cDelay
@@ -44,12 +45,16 @@ constexpr uint32_t DELAY_ID BUILD_ID('D', 'E', 'L', 'A');
 // Function: Initialize
 // Description: Initializes parameters, UI, filters, buffers, and LFO
 // -----------------------------------------------------------------------------
-void cDelay::Initialize() {
-    // Initialize tone control filters
-    m_BassFilter1.Initialize(SAMPLING_RATE, 100, 0.0f, 1.8f, DadDSP::FilterType::HPF);  // High-pass filter for bass control
-    m_TrebleFilter1.Initialize(SAMPLING_RATE, 1000, 0.0f, 1.8f, DadDSP::FilterType::LPF); // Low-pass filter for treble control
-    m_BassFilter2.Initialize(SAMPLING_RATE, 100, 0.0f, 1.8f, DadDSP::FilterType::HPF);  // Second high-pass filter
-    m_TrebleFilter2.Initialize(SAMPLING_RATE, 1000, 0.0f, 1.8f, DadDSP::FilterType::LPF); // Second low-pass filter
+void cDelay::onInitialize() {
+    // =============================================================================
+    // Initialize DSP Components
+
+    // -----------------------------------------------------------------------------
+    // Initialize tone filters - STEREO
+    m_BassFilter1.Initialize(SAMPLING_RATE, 400.0f, 0.0f, 1.0f, DadDSP::FilterType::LSH);
+    m_BassFilter2.Initialize(SAMPLING_RATE, 400.0f, 0.0f, 1.0f, DadDSP::FilterType::LSH);
+    m_TrebleFilter1.Initialize(SAMPLING_RATE, 1000.0f, 0.0f, 1.0f, DadDSP::FilterType::HSH);
+    m_TrebleFilter2.Initialize(SAMPLING_RATE, 1000.0f, 0.0f, 1.0f, DadDSP::FilterType::HSH);
 
     // Initialize delay lines
     m_Delay1LineRight.Initialize(__DelayBufferRight, DELAY_BUFFER_SIZE);  // Right channel delay line 1
@@ -62,31 +67,39 @@ void cDelay::Initialize() {
     m_Delay2LineLeft.Initialize(__Delay2BufferLeft, DELAY_BUFFER_SIZE);   // Left channel delay line 2
     m_Delay2LineLeft.Clear();   // Clear buffer
 
-    m_LFO.Initialize(SAMPLING_RATE, 0.5, 1, 10, 0.5f);  // Initialize LFO for modulation
+    m_SatDrive = 1.0f;
+    m_PrevTime = 0.0f;
+    m_PrevSubDelayR = 0.0f;
+    m_PrevSubDelayL = 0.0f;
 
-    // GUI Parameter Initialization
+    // LFO and Filters Initialization
+    m_LFO.Initialize(SAMPLING_RATE, 0.5, 1, 10, 0.5f);  // Reinitialize LFO
+
+    // =============================================================================
+    // Initialize UI Parameters
     // Delay 1 parameters
-    m_Time.Init(DELAY_ID, 0.450f, DELAY_MIN_TIME, DELAY_MAX_TIME, 0.05f, 0.01f, nullptr, 0, 5.0f * RT_RATE, 20);  // Delay time parameter
-    m_Repeat.Init(DELAY_ID, 30.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.2f * RT_RATE, 21);  // Feedback parameter
-    m_Mix.Init(DELAY_ID, 10.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.8f * RT_RATE, 22);  // delay mix parameter
+    m_Time.Init(DELAY_ID, 0.450f, DELAY_MIN_TIME, DELAY_MAX_TIME, 0.05f, 0.01f, nullptr, 0, 1.0f, 20);  		// Delay time parameter
+    m_Repeat.Init(DELAY_ID, 30.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 1.0f, 21);  							// Feedback parameter
+    m_Mix.Init(DELAY_ID, 10.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 1.0f, 22);  								// delay mix parameter
 
     // Delay 2 parameters
-    m_SubDelay.Init(DELAY_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0, 0.0f, 23);  // Subdivision parameter
-    m_RepeatDelay2.Init(DELAY_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.2f * RT_RATE, 24);  // Delay 2 feedback
-    m_BlendD1D2.Init(DELAY_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 1.0f * RT_RATE, 25);  // Blend between delays
+    m_SubDelay.Init(DELAY_ID, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, nullptr, 0, 0.0f, 23);  							// Subdivision parameter
+    m_RepeatDelay2.Init(DELAY_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 0.8f, 24);  						// Delay 2 feedback
+    m_BlendD1D2.Init(DELAY_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 1.0f, 25);  							// Blend between delays
 
     // Tone control parameters
-    m_Bass.Init(DELAY_ID, 50.0f, 0.0f, 100.0f, 5.0f, 1.0f, BassChange, (uint32_t)this, 0.2f * RT_RATE, 26);  // Bass control
-    m_Treble.Init(DELAY_ID, 50.0f, 0.0f, 100.0f, 5.0f, 1.0f, TrebleChange, (uint32_t)this, 0.2f * RT_RATE, 27);  // Treble control
+    m_Bass.Init(  DELAY_ID, 0.0f, 0.0f, -24.0f, 1.0f, 0.5f, BassChange,   (uint32_t)this, 0.0f, 26);  				// Bass control
+    m_Treble.Init(DELAY_ID, 0.0f, 0.0f, -24.0f, 1.0f, 0.5f, TrebleChange, (uint32_t)this, 0.0f, 27);  			// Treble control
+    m_Saturation.Init(DELAY_ID, 0.0f, 0.0f, 100.0f, 5.0f, 1.5f, SatChange, (uint32_t)this, 0.5f, 28);  			// Treble control
 
     // Modulation parameters
-    m_ModulationDeep.Init(DELAY_ID, 10.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 1.0f * RT_RATE, 28);  // Modulation depth
-    m_ModulationSpeed.Init(DELAY_ID, 1.5f, 0.5f, 10.0f, 0.5f, 0.05f, SpeedChange, (uint32_t)this, 0.5f * RT_RATE, 29);  // Modulation speed
+    m_ModulationDeep.Init(DELAY_ID, 10.0f, 0.0f, 100.0f, 5.0f, 1.0f, nullptr, 0, 1.0f, 29);  					// Modulation depth
+    m_ModulationSpeed.Init(DELAY_ID, 1.5f, 0.25f, 8.0f, 0.5f, 0.05f, SpeedChange, (uint32_t)this, 0.5f, 30);  	// Modulation speed
 
     // Parameter Views Setup
-    m_TimeView.Init(&m_Time, "Time", "Time", "s", "second");  // Time parameter view
-    m_RepeatView.Init(&m_Repeat, "Rep.", "Repeat", "%", "%");  // Repeat parameter view
-    m_MixView.Init(&m_Mix, "Mix", "Mix", "%", "%");  // Mix parameter view
+    m_TimeView.Init(&m_Time, "Time", "Time", "s", "second");  		// Time parameter view
+    m_RepeatView.Init(&m_Repeat, "Rep.", "Repeat", "%", "%");  		// Repeat parameter view
+    m_MixView.Init(&m_Mix, "Wet Mix", "Wet Mix", "%", "%");  				// Mix parameter view
 
     // Discrete values for musical subdivisions
     m_SubDelayView.Init(&m_SubDelay, "Sub", "Sub Delay");  // Subdivision parameter view
@@ -101,69 +114,53 @@ void cDelay::Initialize() {
     m_SubDelayView.AddDiscreteValue("5/6", "5/6");  // Five sixths
     m_SubDelayView.AddDiscreteValue("7/8", "7/8");  // Seven eighths
 
-    m_RepeatDelay2View.Init(&m_RepeatDelay2, "Rep.", "Repeat", "%", "%");  // Delay 2 repeat view
-    m_BlendD1D2View.Init(&m_BlendD1D2, "Blend", "Blend D1/D2", "%", "%");  // Blend view
+    m_RepeatDelay2View.Init(&m_RepeatDelay2, "Rep.", "Repeat", "%", "%");  			// Delay 2 repeat view
+    m_BlendD1D2View.Init(&m_BlendD1D2, "Blend", "Blend D1/D2", "%", "%");  			// Blend view
 
-    m_BassView.Init(&m_Bass, "Bass", "Bass", "%", "%");  // Bass view
-    m_TrebleView.Init(&m_Treble, "Treble", "Treble", "%", "%");  // Treble view
+    m_BassView.Init(&m_Bass, "Bass", "Bass", "dB", "dB");  							// Bass view
+    m_TrebleView.Init(&m_Treble, "Treble", "Treble", "dB", "dB");  					// Treble view
+    m_SaturationView.Init(&m_Saturation, "Sat", "Saturation", "%", "%");  			// Treble view
 
-    m_ModulationDeepView.Init(&m_ModulationDeep, "Deep", "Mod. Deep", "%", "%");  // Modulation depth view
-    m_ModulationSpeedView.Init(&m_ModulationSpeed, "Speed", "Mod. Speed", "Hz", "Hz");  // Modulation speed view
+    m_ModulationDeepView.Init(&m_ModulationDeep, "Deep", "Mod. Deep", "%", "%");  	// Modulation depth view
+    m_ModulationSpeedView.Init(&m_ModulationSpeed, "Speed", "Mod. Speed", "Hz", "Hz"); // Modulation speed view
 
     // Organize parameters into menu groups
-    m_ItemDelay1Menu.Init(&m_TimeView, &m_RepeatView, &m_MixView);  // Delay 1 menu
-    m_ItemDelay2Menu.Init(&m_SubDelayView, &m_RepeatDelay2View, &m_BlendD1D2View);  // Delay 2 menu
-    m_ItemToneMenu.Init(&m_BassView, nullptr, &m_TrebleView);  // Tone menu
-    m_ItemLFOMenu.Init(&m_ModulationDeepView, nullptr, &m_ModulationSpeedView);  // LFO menu
-
-    m_ItemMenuMemory.Init(DELAY_ID);  // Memory menu
-    m_UIVuMeter.Init();  // VU meter
-    m_PanelOfSystemView.Initialize(DELAY_ID);  // System panel
-    m_InfoView.Init();  // Info view
+    m_PanelDelay1.Init(&m_TimeView, &m_RepeatView, &m_MixView);  					// Delay 1 menu
+    m_PanelDelay2.Init(&m_SubDelayView, &m_RepeatDelay2View, &m_BlendD1D2View);  	// Delay 2 menu
+    m_PanelTone.Init(&m_BassView, &m_TrebleView, &m_SaturationView);  				// Tone menu
+    m_PanelLFO.Init(&m_ModulationDeepView, nullptr, &m_ModulationSpeedView);  		// LFO menu
 
     // Build Main Menu
     m_Menu.Init();  // Initialize main menu
-    m_Menu.addMenuItem(&m_ItemDelay1Menu, "Delay1");  	// Add delay 1 menu item
-    m_Menu.addMenuItem(&m_ItemDelay2Menu, "Delay2");  	// Add delay 2 menu item
-    m_Menu.addMenuItem(&m_ItemToneMenu, "Tone");  		// Add tone menu item
-    m_Menu.addMenuItem(&m_ItemLFOMenu, "LFO");  		// Add LFO menu item
-    m_Menu.addMenuItem(&m_ItemMenuMemory, "Memory"); 	// Add memory menu item
-    m_Menu.addMenuItem(&m_UIVuMeter, "Vu-Metter");  	// Add VU meter menu item
-    m_Menu.addMenuItem(&m_PanelOfSystemView, "System"); // Add system menu item
+    m_Menu.addMenuItem(&m_PanelDelay1, "Delay1");  	// Add delay 1 menu item
+    m_Menu.addMenuItem(&m_PanelDelay2, "Delay2");  	// Add delay 2 menu item
+    m_Menu.addMenuItem(&m_PanelTone, "Tone");  		// Add tone menu item
+    m_Menu.addMenuItem(&m_PanelLFO, "LFO");  		// Add LFO menu item
 
-    m_SwitchOnOff.Init(&__Switch1, DELAY_ID);  			// Initialize on/off switch
-    m_SwitchTempoMem.Init(&__Switch2, &m_Time, DELAY_ID, DadGUI::eTempoType::period);  // Initialize tempo/memory switch
-
-    __GUI.activeMainComponent(&m_Menu);  				// Set main component
-    __GUI.activeBackComponent(&m_InfoView);  			// Set back component
-    __GUI.setUpdateID(DELAY_ID);  						// Set update ID
-    __GUI.setSerializeID(DELAY_ID);  					// Set serialize ID
-    __GUI.setRtProcessID(DELAY_ID);  					// Set real-time process ID
-
-    // LFO and Filters Initialization
-    m_LFO.Initialize(SAMPLING_RATE, 0.5, 1, 10, 0.5f);  // Reinitialize LFO
-
-    // Volume Initialization
-    __DryWet.setMix(0);
-    SetPIN(AUDIO_MUTE);  // Set audio mute pin
+    // Initialize Tap tempo
+    m_pTapTempoParameter = &m_Time;
+    m_TempoType = DadGUI::eTempoType::period;
 }
 
 // -----------------------------------------------------------------------------
 // Function: Process
 // Description: Main audio processing function
 // -----------------------------------------------------------------------------
-ITCM void cDelay::Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence) {
+void cDelay::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence) {
 
 	// Update LFO and dry/wet processing
     m_LFO.Step();  // Advance LFO
-    __DryWet.Process(OnOff == eOnOff::On);  // Process dry/wet mix
 
     // Compute modulated delay time using LFO
     float LFO1 = m_LFO.getTriangleValue();  // Get LFO value for left channel
     float LFO2 = m_LFO.getTriangleValuePhased(0.25f);  // Get phase-shifted LFO for right channel
-    float Delay = m_Time * SAMPLING_RATE;  // Convert delay time to samples
+
+    m_PrevTime += SMOOTH_COEFF * (m_Time - m_PrevTime);
+
+    float Delay = m_PrevTime * SAMPLING_RATE;  // Convert delay time to samples
+
     float DelayL = Delay - (LFO1 * m_ModulationDeep * 0.8);  // Modulated left delay
-    float DelayR = Delay - (LFO2 * m_ModulationDeep * 0.8);  // Modulated right delay
+    float DelayR = Delay - (LFO2 * m_ModulationDeep * 0.78);  // Modulated right delay
 
     // Compute musical subdivision for delay 2
     float SubDelayL;  // Left channel subdivision delay
@@ -221,6 +218,10 @@ ITCM void cDelay::Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, boo
     float OutRight = m_Delay1LineRight.Pull(DelayR);  // Get delayed right signal
     float OutLeft = m_Delay1LineLeft.Pull(DelayL);    // Get delayed left signal
 
+    // Apply Saturation
+    OutRight = std::tanh(OutRight * m_SatDrive) / m_SatDrive;
+    OutLeft = std::tanh(OutLeft * m_SatDrive) / m_SatDrive;
+
     // Apply tone shaping filters to delay 1
     OutRight = m_BassFilter1.Process(OutRight, DadDSP::eChannel::Right);  // Apply bass filter
     OutLeft = m_BassFilter1.Process(OutLeft, DadDSP::eChannel::Left);     // Apply bass filter
@@ -243,15 +244,22 @@ ITCM void cDelay::Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, boo
     float Out2Right;  // Delay 2 right output
     float Out2Left;   // Delay 2 left output
 
+    m_PrevSubDelayR += SMOOTH_COEFF * (SubDelayR - m_PrevSubDelayR);
+    m_PrevSubDelayL += SMOOTH_COEFF * (SubDelayL - m_PrevSubDelayL);
+
     if (m_RepeatDelay2 == 0) {
         // Use delay line 1 as source for delay 2
-        Out2Right = m_Delay1LineRight.Pull(SubDelayR);  // Read from delay 1
-        Out2Left = m_Delay1LineLeft.Pull(SubDelayL);    // Read from delay 1
+        Out2Right = m_Delay1LineRight.Pull(m_PrevSubDelayR);  // Read from delay 1
+        Out2Left = m_Delay1LineLeft.Pull(m_PrevSubDelayL);    // Read from delay 1
     } else {
         // Use dedicated delay line 2
-        Out2Right = m_Delay2LineRight.Pull(SubDelayR);  // Read from delay 2
-        Out2Left = m_Delay2LineLeft.Pull(SubDelayL);    // Read from delay 2
+        Out2Right = m_Delay2LineRight.Pull(m_PrevSubDelayR);  // Read from delay 2
+        Out2Left = m_Delay2LineLeft.Pull(m_PrevSubDelayL);    // Read from delay 2
     }
+
+    // Apply Saturation
+    Out2Right = std::tanh(Out2Right * m_SatDrive) / m_SatDrive;
+    Out2Left = std::tanh(Out2Left * m_SatDrive) / m_SatDrive;
 
     // Apply tone shaping to delay 2
     Out2Right = m_BassFilter2.Process(Out2Right, DadDSP::eChannel::Right);  // Apply bass filter
@@ -261,11 +269,11 @@ ITCM void cDelay::Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, boo
     Out2Left = m_TrebleFilter2.Process(Out2Left, DadDSP::eChannel::Left);     // Apply treble filter
 
     // Feedback path for delay 2
-    m_Delay2LineRight.Push((pIn->Right + Out2Right) * m_RepeatDelay2 / 100);  // Push to delay line 2
-    m_Delay2LineLeft.Push((pIn->Left + Out2Left) * m_RepeatDelay2 / 100);     // Push to delay line 2
+    m_Delay2LineRight.Push((pIn->Right + Out2Right) * m_RepeatDelay2 * 0.01f);  // Push to delay line 2
+    m_Delay2LineLeft.Push((pIn->Left + Out2Left) * m_RepeatDelay2 * 0.01f);     // Push to delay line 2
 
     // --- Delay1 and Delay2 Blending ---
-    float mix = m_BlendD1D2 / 100.0f;  // Normalize blend parameter
+    float mix = m_BlendD1D2 * 0.01f;  // Normalize blend parameter
     float gain1 = cosf(mix * M_PI_2);  // Crossfade gain for delay 1
     float gain2 = sinf(mix * M_PI_2);  // Crossfade gain for delay 2
 
@@ -292,45 +300,44 @@ void cDelay::SpeedChange(DadDSP::cParameter *pParameter, uint32_t CallbackUserDa
 // Function: BassChange
 // Description: Bass control callback - sets high-pass filter frequency
 // -----------------------------------------------------------------------------
-#define MIN_BASS_FREQ 30   // Minimum bass frequency
-#define MAX_BASS_FREQ 600  // Maximum bass frequency
 void cDelay::BassChange(DadDSP::cParameter *pParameter, uint32_t CallbackUserData) {
     cDelay *pthis = (cDelay *)CallbackUserData;  // Get class instance
+    float gain = pParameter->getValue();
+
     // Calculate frequency from normalized parameter value using logarithmic scale
-    float Freq = pthis->getLogFrequency(1.0f - pParameter->getNormalizedValue(), MIN_BASS_FREQ, MAX_BASS_FREQ);
-    pthis->m_BassFilter1.setCutoffFreq(Freq);  		// Set filter 1 cutoff
-    pthis->m_BassFilter1.CalculateParameters();  	// Recalculate filter coefficients
-    pthis->m_BassFilter2.setCutoffFreq(Freq);  		// Set filter 2 cutoff
-    pthis->m_BassFilter2.CalculateParameters();  	// Recalculate filter coefficients
+    pthis->m_BassFilter1.setGainDb(gain);
+    pthis->m_BassFilter1.CalculateParameters();
+
+    pthis->m_BassFilter2.setGainDb(gain);
+    pthis->m_BassFilter2.CalculateParameters();
 }
 
 // -----------------------------------------------------------------------------
 // Function: TrebleChange
 // Description: Treble control callback - sets low-pass filter frequency
 // -----------------------------------------------------------------------------
-#define MIN_TREBLE_FREQ 600    // Minimum treble frequency
-#define MAX_TREBLE_FREQ 12000  // Maximum treble frequency
 void cDelay::TrebleChange(DadDSP::cParameter *pParameter, uint32_t CallbackUserData) {
     cDelay *pthis = (cDelay *)CallbackUserData;  // Get class instance
-    // Calculate frequency from normalized parameter value using logarithmic scale
-    float Freq = pthis->getLogFrequency(pParameter->getNormalizedValue(), MIN_TREBLE_FREQ, MAX_TREBLE_FREQ);
-    pthis->m_TrebleFilter1.setCutoffFreq(Freq);  	// Set filter 1 cutoff
-    pthis->m_TrebleFilter1.CalculateParameters();  	// Recalculate filter coefficients
-    pthis->m_TrebleFilter2.setCutoffFreq(Freq);  	// Set filter 2 cutoff
-    pthis->m_TrebleFilter2.CalculateParameters();  	// Recalculate filter coefficients
+    float gain = pParameter->getValue();
+
+    pthis->m_TrebleFilter1.setGainDb(gain);
+    pthis->m_TrebleFilter1.CalculateParameters();
+
+    pthis->m_TrebleFilter2.setGainDb(gain);
+    pthis->m_TrebleFilter2.CalculateParameters();
 }
 
 // -----------------------------------------------------------------------------
-// Function: getLogFrequency
-// Description: Returns a frequency from a normalized value using a logarithmic scale
+// Function: SatChange
+// Description: Saturation control callback
 // -----------------------------------------------------------------------------
-float cDelay::getLogFrequency(float normValue, float freqMin, float freqMax) const {
-    float logMin = std::log(freqMin);  // Natural log of minimum frequency
-    float logMax = std::log(freqMax);  // Natural log of maximum frequency
-    float logFreq = logMin + normValue * (logMax - logMin);  // Interpolate in log space
-    return std::exp(logFreq);  // Convert back to linear frequency
+void cDelay::SatChange(DadDSP::cParameter *pParameter, uint32_t CallbackUserData) {
+    cDelay *pthis = (cDelay *)CallbackUserData;  // Get class instance
+    float gain = pParameter->getValue() * 0.01;
+    pthis->m_SatDrive = 1.0f + gain * 10.0f;
 }
+
 
 }  // namespace DadEffect
-
+#endif
 //***End of file**************************************************************

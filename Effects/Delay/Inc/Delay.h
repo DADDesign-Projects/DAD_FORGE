@@ -10,12 +10,14 @@
 #pragma once
 
 #include "GUI_Include.h"
+#include "cEffectBase.h"
 #include "cPanelOfSystemView.h"
 #include "cDCO.h"
 #include "BiquadFilter.h"
 #include "cDelayLine.h"
 
 namespace DadEffect {
+constexpr uint32_t DELAY_ID BUILD_ID('D', 'E', 'L', 'A');
 
 //**********************************************************************************
 // cDelay
@@ -25,7 +27,7 @@ namespace DadEffect {
 // tone shaping using high-pass and low-pass filters, and comprehensive UI control.
 //**********************************************************************************
 
-class cDelay {
+class cDelay : public cEffectBase{
 public:
     // -----------------------------------------------------------------------------
     // Constructor
@@ -37,17 +39,24 @@ public:
     // Function: Initialize
     // Description: Initializes DSP components, UI parameters, and links interface elements
     // -----------------------------------------------------------------------------
-    void Initialize();
+    void onInitialize();
 
     // -----------------------------------------------------------------------------
-    // Function: Process
+    // Returns the unique effect identifier
+    // -----------------------------------------------------------------------------
+    uint32_t getEffectID() override{
+    	return DELAY_ID;
+    }
+
+    // -----------------------------------------------------------------------------
+    // Function: onProcess
     // Description: Processes a stereo audio buffer through the delay effect
     // Parameters:
     //   pIn - Pointer to input audio buffer
     //   pOut - Pointer to output audio buffer
     //   OnOff - Effect state (bypassed or active)
     // -----------------------------------------------------------------------------
-    ITCM void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence);
+    void onProcess(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence);
 
     // -----------------------------------------------------------------------------
     // Static callbacks (UI parameter change handlers)
@@ -55,14 +64,9 @@ public:
     static void SpeedChange(DadDSP::cParameter* pParameter, uint32_t CallbackUserData);   // LFO speed change callback
     static void BassChange(DadDSP::cParameter* pParameter, uint32_t CallbackUserData);    // Bass control callback
     static void TrebleChange(DadDSP::cParameter* pParameter, uint32_t CallbackUserData);  // Treble control callback
+    static void SatChange(DadDSP::cParameter* pParameter, uint32_t CallbackUserData);     // Saturation control callback
 
 protected:
-    // -----------------------------------------------------------------------------
-    // Function: getLogFrequency
-    // Description: Maps a normalized value [0.0, 1.0] to a logarithmic frequency range
-    // Used to provide natural scaling for tone controls
-    // -----------------------------------------------------------------------------
-    float getLogFrequency(float normValue, float freqMin, float freqMax) const;
 
     // =============================================================================
     // User Interface Components
@@ -81,6 +85,7 @@ protected:
     // Tone control parameters
     DadGUI::cUIParameter                 m_Bass;              // Bass tone control parameter
     DadGUI::cUIParameter                 m_Treble;            // Treble tone control parameter
+    DadGUI::cUIParameter                 m_Saturation;		  // Saturation control parameter
 
     // Modulation parameters
     DadGUI::cUIParameter                 m_ModulationDeep;    // LFO modulation depth parameter
@@ -93,23 +98,17 @@ protected:
     DadGUI::cParameterDiscretView        m_SubDelayView;      // Subdivision parameter view
     DadGUI::cParameterNumNormalView      m_RepeatDelay2View;  // Delay 2 repeat view
     DadGUI::cParameterNumNormalView      m_BlendD1D2View;     // Blend parameter view
-    DadGUI::cParameterNumNormalView      m_BassView;          // Bass parameter view
+    DadGUI::cParameterNumNormalView		 m_BassView;          // Bass parameter view
     DadGUI::cParameterNumNormalView      m_TrebleView;        // Treble parameter view
+    DadGUI::cParameterNumNormalView      m_SaturationView;    // Saturation parameter view
     DadGUI::cParameterNumNormalView      m_ModulationDeepView; // Modulation depth view
     DadGUI::cParameterNumNormalView      m_ModulationSpeedView; // Modulation speed view
 
     // UI panels and interface elements
-    DadGUI::cPanelOfParameterView        m_ItemDelay1Menu;    // Delay 1 parameter menu
-    DadGUI::cPanelOfParameterView        m_ItemDelay2Menu;    // Delay 2 parameter menu
-    DadGUI::cPanelOfParameterView        m_ItemToneMenu;      // Tone EQ menu
-    DadGUI::cPanelOfParameterView        m_ItemLFOMenu;       // LFO modulation menu
-    DadGUI::cUIMemory                    m_ItemMenuMemory;    // UI persistent memory
-    DadGUI::cUIVuMeter                   m_UIVuMeter;         // Visual VU Meter
-    DadGUI::cPanelOfSystemView           m_PanelOfSystemView; // System-level view container
-    DadGUI::cInfoView                    m_InfoView;          // Information/Help display
-    DadGUI::cSwitchOnOff                 m_SwitchOnOff;       // On/Off switch
-    DadGUI::cTapTempoMemChange           m_SwitchTempoMem;    // Tap tempo / memory switch
-    DadGUI::cUIMenu                      m_Menu;              // Main user interface menu
+    DadGUI::cPanelOfParameterView        m_PanelDelay1;    	  // Delay 1 Panel
+    DadGUI::cPanelOfParameterView        m_PanelDelay2;       // Delay 2 Panel
+    DadGUI::cPanelOfParameterView        m_PanelTone;         // Tone Panel
+    DadGUI::cPanelOfParameterView        m_PanelLFO;          // LFO Panel
 
     // =============================================================================
     // DSP Components
@@ -117,10 +116,12 @@ protected:
 
     // Modulation and filtering
     DadDSP::cDCO                         m_LFO;               // LFO generator for delay modulation
-    DadDSP::cBiQuad                      m_BassFilter1;       // High-pass filter for left delay
-    DadDSP::cBiQuad                      m_TrebleFilter1;     // Low-pass filter for left delay
-    DadDSP::cBiQuad                      m_BassFilter2;       // High-pass filter for right delay
-    DadDSP::cBiQuad                      m_TrebleFilter2;     // Low-pass filter for right delay
+
+    // Stereo BiQuad filter
+    DadDSP::cBiQuad                      m_BassFilter1;       // High-pass filter for delay 1
+    DadDSP::cBiQuad                      m_TrebleFilter1;     // Low-pass filter for delay 1
+    DadDSP::cBiQuad                      m_BassFilter2;       // High-pass filter for delay 2
+    DadDSP::cBiQuad                      m_TrebleFilter2;     // Low-pass filter for delay 2
 
     // Stereo delay lines
     DadDSP::cDelayLine                   m_Delay1LineRight;   // Delay line 1 - Right channel
@@ -128,6 +129,13 @@ protected:
     DadDSP::cDelayLine                   m_Delay2LineRight;   // Delay line 2 - Right channel
     DadDSP::cDelayLine                   m_Delay2LineLeft;    // Delay line 2 - Left channel
 
+    //
+    float m_SatDrive;
+
+    // Smoothed Time values
+    float 								m_PrevTime;
+    float 								m_PrevSubDelayR;
+    float 								m_PrevSubDelayL;
 };
 
 }  // namespace DadEffect

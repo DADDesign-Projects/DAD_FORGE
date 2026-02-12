@@ -6,6 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
+#include "EffectsConfig.h"
+#ifdef MODULATIONS_EFFECT
 #include "cModulations.h"
 #include "cTremoloVibrato.h"
 #include "cChorus.h"
@@ -32,11 +34,11 @@ alignas(cPhaser) uint8_t PhaserBuffer[sizeof(cPhaser)];
 // ---------------------------------------------------------------------------------
 void cMainModulations::Initialize(){
 	// Create effect instances using placement new in pre-allocated buffers
-	m_TabEffects[0] = new (PhaserBuffer) cPhaser();
-	m_TabEffects[1] = new (TremoloVibratoBuffer) cTremoloVibrato();
-	m_TabEffects[2] = new (ChorusBuffer) cChorus();
-	m_TabEffects[3] = new (FlangerBuffer) cFlanger();
-	m_TabEffects[4] = new (UniVibeBuffer) cUniVibe();
+	m_TabEffects[0] = new (TremoloVibratoBuffer) cTremoloVibrato();
+	m_TabEffects[1] = new (ChorusBuffer) cChorus();
+	m_TabEffects[2] = new (FlangerBuffer) cFlanger();
+	m_TabEffects[3] = new (UniVibeBuffer) cUniVibe();
+	m_TabEffects[4] = new (PhaserBuffer) cPhaser();
 
 	// Configure multi-mode effect system
 	m_NbEffects = NB_EFFECTS;                              // Set number of available effects
@@ -49,4 +51,5 @@ void cMainModulations::Initialize(){
 
 
 }// DadEffect
+#endif
 //***End of file**************************************************************

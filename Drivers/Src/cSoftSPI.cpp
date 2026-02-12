@@ -8,11 +8,16 @@
 //==================================================================================
 
 #include "cSoftSPI.h"
-
+#include "GPIO.h"
 // Pin manipulation macros
-#define SetPIN(PIN) HAL_GPIO_WritePin(m_Port_##PIN, m_Pin_##PIN, GPIO_PIN_SET)
-#define ResetPIN(PIN) HAL_GPIO_WritePin(m_Port_##PIN, m_Pin_##PIN, GPIO_PIN_RESET)
-#define TogglePIN(PIN) HAL_GPIO_TogglePin(m_Port_##PIN, m_Pin_##PIN)
+#define setMOSI()   m_Port_MOSI->BSRR = (m_Pin_MOSI)
+#define resetMOSI() m_Port_MOSI->BSRR = ((uint32_t)(m_Pin_MOSI) << 16U)
+
+#define setCS()     m_Port_CS->BSRR = (m_Pin_CS)
+#define resetCS()   m_Port_CS->BSRR = ((uint32_t)(m_Pin_CS) << 16U)
+
+#define setCLK()    m_Port_CLK->BSRR = (m_Pin_CLK)
+#define resetCLK()  m_Port_CLK->BSRR = ((uint32_t)(m_Pin_CLK) << 16U)
 
 namespace DadDrivers {
 
@@ -50,9 +55,9 @@ void cSoftSPI::Initialize(GPIO_TypeDef *MOSI_GPIO, uint16_t MOSI_Pin,
     m_ValidNextData = 0;        // Flag indicating valid next data
 
     // Set initial pin states
-    SetPIN(CS);                 // Chip select high (inactive)
-    ResetPIN(CLK);              // Clock low (idle state)
-    ResetPIN(MOSI);             // MOSI low (idle state)
+    setCS();                 // Chip select high (inactive)
+    resetCLK();              // Clock low (idle state)
+    resetMOSI();             // MOSI low (idle state)
 }
 
 // -----------------------------------------------------------------------------
@@ -80,7 +85,7 @@ void cSoftSPI::Transmit(uint32_t Data) {
 
 // -----------------------------------------------------------------------------
 // Timer interrupt callback function to handle SPI transmission state machine
-ITCM void cSoftSPI::TimerCallback() {
+void cSoftSPI::TimerCallback() {
     switch (m_TransState) {
     case eTransState::Stop:
         // Transmission stopped - no action required
@@ -95,17 +100,17 @@ ITCM void cSoftSPI::TimerCallback() {
 
     case eTransState::Cs_Down:
         // Activate chip select and prepare for data transmission
-        ResetPIN(CS);                   // Lower chip select (activate)
-        m_DataBit = m_MSBmask;          // Initialize bit mask to MSB
+        resetCS();                   // Lower chip select (activate)
+        m_DataBit = m_MSBmask;       // Initialize bit mask to MSB
         m_TransState = eTransState::Data_Change; // Move to data output state
         break;
 
     case eTransState::Data_Change:
         // Output current data bit to MOSI line
         if ((m_DataBit & m_Data) == 0) {
-            ResetPIN(MOSI);             // Set MOSI low for '0' bit
+            resetMOSI();             // Set MOSI low for '0' bit
         } else {
-            SetPIN(MOSI);               // Set MOSI high for '1' bit
+            setMOSI();               // Set MOSI high for '1' bit
         }
         m_DataBit >>= 1;                // Shift to next bit position
         m_TransState = eTransState::Clk_Up; // Move to clock rising edge
@@ -113,7 +118,7 @@ ITCM void cSoftSPI::TimerCallback() {
 
     case eTransState::Clk_Up:
         // Generate clock rising edge
-        SetPIN(CLK);                    // Raise clock signal
+        setCLK();                    // Raise clock signal
         m_TransState = eTransState::Nop; // Insert small delay
         break;
 
@@ -124,7 +129,7 @@ ITCM void cSoftSPI::TimerCallback() {
 
     case eTransState::Clk_Down:
         // Generate clock falling edge and check transmission completion
-        ResetPIN(CLK);                  // Lower clock signal
+        resetCLK();                  // Lower clock signal
         if (m_DataBit == 0) {
             m_TransState = eTransState::Cs_Up; // All bits transmitted
         } else {
@@ -134,7 +139,7 @@ ITCM void cSoftSPI::TimerCallback() {
 
     case eTransState::Cs_Up:
         // Deactivate chip select and handle transmission completion
-        SetPIN(CS);                     // Raise chip select (deactivate)
+        setCS();                     // Raise chip select (deactivate)
         if(m_ValidNextData == 1) {
             // Load next data and continue transmission
             m_Data = m_NextData;        // Load queued data

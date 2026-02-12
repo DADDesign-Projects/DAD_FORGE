@@ -10,6 +10,8 @@
 #include "cSwitch.h"
 
 namespace DadDrivers {
+#define GPIO_READ_PIN(GPIOx, PIN_MASK) \
+    ((GPIOx->IDR & (PIN_MASK)) != 0)
 
 //**********************************************************************************
 // cSwitch Class Implementation
@@ -71,7 +73,7 @@ void cSwitch::Init(GPIO_TypeDef* pPort, uint16_t Pin,
 // - Exponential Moving Average (EMA) period calculation
 // - Automatic timeout handling
 //**********************************************************************************
-ITCM void cSwitch::Debounce()
+void cSwitch::Debounce()
 {
     // Step 1: Increment timing counters
     m_CurrentPeriod++;  // Increment period between presses
@@ -87,7 +89,7 @@ ITCM void cSwitch::Debounce()
     }
 
     // Step 3: Read physical switch state (active low configuration)
-    bool isSwitchPressed = (HAL_GPIO_ReadPin(m_GPIO_Port, m_GPIO_Pin) == GPIO_PIN_RESET);
+    bool isSwitchPressed = (GPIO_READ_PIN(m_GPIO_Port, m_GPIO_Pin) == GPIO_PIN_RESET);
 
     if (isSwitchPressed) {
         // Step 4: Detect new press events
