@@ -37,6 +37,7 @@ The framework is **now mature** and fully operational: it already includes a **d
 
 Development is actively ongoing to add new features, introduce new audio effects, and bring FORGE to additional hardware platforms.
 
+**Follow all the latest updates, project progress, and demos on my [Facebook page](https://www.facebook.com/people/DADDesign-Projects/61583645957068/)! 🎛️🎶**
 # 📁 Project Structure
 The repository is organized as follows:
    * **DSP/**: DSP components (audio processing, filters, oscillators, etc.)
