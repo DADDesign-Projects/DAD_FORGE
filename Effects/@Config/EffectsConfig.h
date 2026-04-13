@@ -7,11 +7,28 @@
 //****************************************************************************
 #include "ID.h"
 #include "stdint.h"
-#define DELAY_EFFECT
+
+// ======================= EFFECT CONFIGURATION ===========================
+#ifdef DEBUG_RELEASE_EFFECT
+//#define DELAY_EFFECT
 //#define MODULATIONS_EFFECT
 //#define REVERB_EFFECT
-//#define TEMPLATE_EFFECT
+#define TEMPLATE_EFFECT
 //#define TEMPLATE_MULTI_MODE_EFFECT
+#endif
+
+// ====================== EFFECT CONFIGURATION CHECK ======================
+// Ensures exactly one effect is selected during compilation.
+//
+
+#if defined(DELAY_EFFECT) + defined(MODULATIONS_EFFECT) + defined(REVERB_EFFECT) + defined(TEMPLATE_EFFECT) + defined(TEMPLATE_MULTI_MODE_EFFECT)> 1
+#error "ERROR: Multiple effects are defined at the same time! Only one effect must be active."
+#endif
+
+#if !defined(DELAY_EFFECT) && !defined(MODULATIONS_EFFECT) && !defined(REVERB_EFFECT) && !defined(TEMPLATE_EFFECT) && !defined(TEMPLATE_MULTI_MODE_EFFECT)
+#error "ERROR: No effect is defined! Please define exactly one of: DELAY_EFFECT, MODULATIONS_EFFECT or REVERB_EFFECT."
+#endif
+
 
 // Configuring the DELAY Template
 #ifdef DELAY_EFFECT
