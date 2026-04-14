@@ -269,8 +269,13 @@ void cDelay::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool S
     Out2Left = m_TrebleFilter2.Process(Out2Left, DadDSP::eChannel::Left);     // Apply treble filter
 
     // Feedback path for delay 2
-    m_Delay2LineRight.Push((pIn->Right + Out2Right) * m_RepeatDelay2 * 0.01f);  // Push to delay line 2
-    m_Delay2LineLeft.Push((pIn->Left + Out2Left) * m_RepeatDelay2 * 0.01f);     // Push to delay line 2
+    if (OnOff == eOnOff::On) {
+        m_Delay2LineRight.Push((pIn->Right + Out2Right) * m_RepeatDelay2 * 0.01f);  // Push to delay line 2
+        m_Delay2LineLeft.Push((pIn->Left + Out2Left) * m_RepeatDelay2 * 0.01f);     // Push to delay line 2
+    }else{
+        m_Delay2LineRight.Push(Out2Right * m_RepeatDelay2 * 0.01f);  // Push to delay line 2
+        m_Delay2LineLeft.Push(Out2Left * m_RepeatDelay2 * 0.01f);     // Push to delay line 2
+    }
 
     // --- Delay1 and Delay2 Blending ---
     float mix = m_BlendD1D2 * 0.01f;  // Normalize blend parameter
