@@ -63,8 +63,8 @@ public:
 
     // -----------------------------------------------------------------------------
     // Constructor - initializes the storage manager with block array
-    cBlockStorageManager(sSaveBlock *pTabSaveBlock) {
-        m_pTabSaveBlock = pTabSaveBlock;
+    cBlockStorageManager(uint8_t* pTabSaveBlock) {
+        m_pTabSaveBlock = (sSaveBlock*) pTabSaveBlock;
     }
 
     // -----------------------------------------------------------------------------
