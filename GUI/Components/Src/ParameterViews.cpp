@@ -284,7 +284,7 @@ void cParameterNumNormalView::DrawDynView(uint8_t NumParameterArea, DadGFX::cLay
     // Render the parameter's current value as text
     char Buffer[30];
     snprintf(Buffer, sizeof(Buffer), "%s %s", ValueToString().c_str(), m_ShortUnit.c_str());
-    pLayer->setFont(__GUI.GetFontSB());
+    pLayer->setFont(__GUI.GetFontS());
     uint16_t TextWidth = pLayer->getTextWidth(Buffer);
     pLayer->setCursor(xCenterView - (TextWidth / 2),
                       pLayer->getHeight() - ((PARAM_VAL_HEIGHT + pLayer->getTextHeight()) / 2));
