@@ -18,14 +18,22 @@ namespace DadGUI {
 
 // Array of color palettes available in the system
 const sColorPalette __ColorPalette[NB_PALETTE] = {
-#include "Blue.hpp"
-,
-#include "Ambre.hpp"
-,
-#include "Yellow.hpp"
-,
-#include "Purple.hpp"
-};
+	#include "MixBlue.hpp"
+	,
+	#include "BlueGreen.hpp"
+	,
+	#include "Ambre2.hpp"
+	,
+	#include "Blue.hpp"
+	,
+	#include "Ambre.hpp"
+	,
+	#include "Yellow.hpp"
+	,
+	#include "Purple.hpp"
+	,
+	#include "PaleBlue.hpp"
+	};
 
 const sColorPalette* __pActivePalette = &__ColorPalette[0];      // Currently active palette
 const sColorPalette* __MempActivePalette = __pActivePalette;     // Previous active palette for change detection

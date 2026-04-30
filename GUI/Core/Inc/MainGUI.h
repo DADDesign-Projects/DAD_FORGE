@@ -65,7 +65,7 @@ namespace DadGUI {
 // Color Palette Definition
 // =============================================================================
 
-#define NB_PALETTE 4  // Number of available color palette
+#define NB_PALETTE 8  // Number of available color palette
 
 // Structure defining a complete color palette for the GUI
 struct sColorPalette {

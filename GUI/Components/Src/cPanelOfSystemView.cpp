@@ -25,10 +25,14 @@ void cPanelOfSystemView::Initialize(uint32_t SerializeID) {
     // Initialize color theme parameter and view
     m_ColorTheme.Init(SerializeID, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, ColorCallback, (uint32_t) this);
     m_ColorThemeView.Init(&m_ColorTheme, "Theme", "Color Theme");
+    m_ColorThemeView.AddDiscreteValue("MixBlue", "MixBlue");
+    m_ColorThemeView.AddDiscreteValue("BlueGr", "BlueGreen");
+    m_ColorThemeView.AddDiscreteValue("Amber2", "Amber2");
     m_ColorThemeView.AddDiscreteValue("Blue", "Blue");      // Add color theme options
     m_ColorThemeView.AddDiscreteValue("Amber", "Amber");
     m_ColorThemeView.AddDiscreteValue("Yellow", "Yellow");
     m_ColorThemeView.AddDiscreteValue("Purple", "Purple");
+    m_ColorThemeView.AddDiscreteValue("PaleBlue", "PaleBlue");
     m_ColorTheme.resetDrawInfoView();
 
     // Initialize MIDI channel parameter and view
