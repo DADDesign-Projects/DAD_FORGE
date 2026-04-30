@@ -8,6 +8,8 @@
 //==================================================================================
 
 #include "cInfoView.h"
+#include "cDisplay.h"
+#include "cFlasherStorage.h"
 
 namespace DadGUI {
 
@@ -33,6 +35,20 @@ void cInfoView::Init() {
 	m_MemDirty    = false;                                                              // Initialize dirty flag
 	m_MemState    = eOnOff::ByPass;                                                     // Initialize memory state
 	m_isActive	  = false;                                                              // Initialize active state
+	m_NumImageInfoLayer = -1;
+	for(uint8_t Index=0; Index < MAX_IMAGE_LAYER; Index++){
+		char str[20];  																	// Temporary string buffer
+		snprintf(str, sizeof(str),"MainInfoBack%02d.png", Index);
+		uint8_t		*pBitmap;
+		uint8_t		NbFrame;
+		uint16_t	Width;
+		uint16_t	Height;
+		if(true == __FlasherStorage.GetImgInformation(str, pBitmap, NbFrame, Width, Height)){
+			m_pImageInfoLayer[Index] = __Display.addLayer(pBitmap, MENU_HEIGHT + PARAM_HEIGHT, 0, Width, Height, 0, NbFrame);
+		}else{
+			m_pImageInfoLayer[Index] = nullptr;
+		}
+	}
 }
 
 // -----------------------------------------------------------------------------
@@ -55,6 +71,10 @@ void cInfoView::Activate() {
 void cInfoView::Deactivate() {
 	m_isActive	  = false;                    // Clear active flag
 	m_pInfoLayer->changeZOrder(0);            // Send to background
+	if((m_NumImageInfoLayer >= 0) && (m_NumImageInfoLayer < MAX_IMAGE_LAYER) && m_pImageInfoLayer[m_NumImageInfoLayer]){
+		m_pImageInfoLayer[m_NumImageInfoLayer]->changeZOrder(0);
+	}
+	m_NumImageInfoLayer = -1;
 }
 
 //==================================================================================
@@ -133,10 +153,25 @@ void cInfoView::Redraw(){
 //==================================================================================
 void cInfoView::ShowView(bool isDirty, uint8_t MemSlot, const std::string State) {
 	const uint16_t yCenterView = m_pInfoLayer->getHeight() / 2;  // Calculate vertical center
+	m_pInfoLayer->changeZOrder(40); // Ensure proper z-order
 
-	m_pInfoLayer->changeZOrder(40);                                     // Ensure proper z-order
-	m_pInfoLayer->eraseLayer(__pActivePalette->MainInfoBack);           // Clear background
-
+	if( (__pActivePalette->MainInfoBack.getR() == 1) &&
+		(__pActivePalette->MainInfoBack.getG() < MAX_IMAGE_LAYER) &&
+		(__pActivePalette->MainInfoBack.getB() < MAX_IMAGE_LAYER) &&
+		(__pActivePalette->MainInfoBack.getG() == __pActivePalette->MainInfoBack.getB())
+	  ){
+		if((m_NumImageInfoLayer >= 0) && (m_NumImageInfoLayer < MAX_IMAGE_LAYER) && m_pImageInfoLayer[m_NumImageInfoLayer]){
+			m_pImageInfoLayer[m_NumImageInfoLayer]->changeZOrder(0);
+		}
+		m_NumImageInfoLayer = __pActivePalette->MainInfoBack.getG();
+		if(m_pImageInfoLayer[m_NumImageInfoLayer] != nullptr){			m_pInfoLayer->eraseLayer();                    						// Clear background with black
+			m_pImageInfoLayer[m_NumImageInfoLayer]->changeZOrder(35);
+		}else{
+			m_pInfoLayer->eraseLayer(__pActivePalette->MainInfoBack);           // Clear background
+		}
+	}else{
+		m_pInfoLayer->eraseLayer(__pActivePalette->MainInfoBack);           // Clear background
+	}
 	//------------------------
 	// Memory label
 	//------------------------
@@ -188,7 +223,7 @@ void cInfoView::ShowView(bool isDirty, uint8_t MemSlot, const std::string State)
 	m_pInfoLayer->setCursor(CENTER_STATE - (StateWidth / 2), yCenterView - (StateHeight / 2));  // Center position
 	m_pInfoLayer->setTextFrontColor(__pActivePalette->MainInfoState);   // Set state color
 	m_pInfoLayer->drawText(State.c_str());                              // Draw state text
-}
+	}
 
 } // namespace DadGUI
 

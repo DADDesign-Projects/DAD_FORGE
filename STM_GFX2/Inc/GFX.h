@@ -79,6 +79,30 @@ struct sColor {
     inline operator uint32_t() const {
         return m_ARGB;
     }
+
+    // --------------------------------------------------------------------------
+    // Read Alpha component of the color
+    inline uint8_t getA() const{
+    	return m_A;
+    }
+
+    // --------------------------------------------------------------------------
+    // Read Red component of the color
+    inline uint8_t getR() const{
+    	return m_R;
+    }
+
+    // --------------------------------------------------------------------------
+    // Read Green component of the color
+    inline uint8_t getG() const{
+    	return m_G;
+    }
+
+    // --------------------------------------------------------------------------
+    // Read Blue component of the color
+    inline uint8_t getB() const{
+    	return m_B;
+    }
 };
 
 //***********************************************************************************

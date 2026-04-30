@@ -12,6 +12,8 @@
 #include "GUI_Include.h"
 #include <string>
 
+#define MAX_IMAGE_LAYER 10
+
 namespace DadGUI {
 
 //**********************************************************************************
@@ -62,11 +64,13 @@ protected:
     // Protected members section
     // -----------------------------------------------------------------------------
 
-    bool            m_isActive;               // Component activation state
-    DadGFX::cLayer* m_pInfoLayer;             // Pointer to the dedicated display layer
-    eOnOff          m_MemState;               // Cached ON/OFF/BYPASS state
-    uint8_t         m_MemSlot;                // Cached memory slot index
-    bool            m_MemDirty;               // Cached dirty flag
+    bool            	 m_isActive;         // Component activation state
+    DadGFX::cLayer* 	 m_pInfoLayer;       // Pointer to the dedicated display layer
+    DadGFX::cImageLayer* m_pImageInfoLayer[MAX_IMAGE_LAYER]; // Pointer to the image layer for Info Layer background
+    int8_t				 m_NumImageInfoLayer;
+    eOnOff          	 m_MemState;         // Cached ON/OFF/BYPASS state
+    uint8_t         	 m_MemSlot;          // Cached memory slot index
+    bool            	 m_MemDirty;         // Cached dirty flag
 };
 
 } // namespace DadGUI
