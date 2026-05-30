@@ -22,6 +22,7 @@ void cDelayLine::Initialize(float* buffer, uint32_t bufferSize) {
     m_Buffer       = buffer;           // Pointer to external buffer
     m_NumElements  = bufferSize; 	   // Buffer size with safety offset
     m_CurrentIndex = 0;                // Initialize current position
+    Clear();						   // Initialize buffer
 }
 
 // -----------------------------------------------------------------------------
