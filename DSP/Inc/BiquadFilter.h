@@ -89,6 +89,16 @@ public:
     void Initialize(float sampleRate, float cutoffFreq, float gainDb, float bandwidth, FilterType type);
 
     // -----------------------------------------------------------------------------
+    // Clear filter state
+    // -----------------------------------------------------------------------------
+    void ClearFilterState(){
+    	m_FilterState[0].Reset();
+    	m_FilterState[1].Reset();
+    	m_FilterState[2].Reset();
+    	m_FilterState[3].Reset();
+    }
+
+    // -----------------------------------------------------------------------------
     // Coefficient calculation
     // -----------------------------------------------------------------------------
     void CalculateParameters();
@@ -104,6 +114,14 @@ public:
     inline void ProcessFlast12dbStereo(AudioBuffer* pIn, AudioBuffer* pOut) {
     	pOut->Left = Process(pIn->Left, m_FilterState[0]);
     	pOut->Right = Process(pIn->Right, m_FilterState[2]);
+    }
+
+    // -----------------------------------------------------------------------------
+    // Fast Signal processing - to stereo channel processing filters 24dB
+    // -----------------------------------------------------------------------------
+    inline void ProcessFlast24dbStereo(AudioBuffer* pIn, AudioBuffer* pOut) {
+    	pOut->Left = Process(Process(pIn->Left, m_FilterState[0]), m_FilterState[1]);
+    	pOut->Right = Process(Process(pIn->Right, m_FilterState[2]), m_FilterState[3]);
     }
 
     // -----------------------------------------------------------------------------
