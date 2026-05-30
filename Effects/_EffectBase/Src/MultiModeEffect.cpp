@@ -97,7 +97,7 @@ namespace DadEffect {
         __GUI.activeMainComponent(m_pActiveEffect->getMenu()); // Set effect menu as main component
 
         // Initialize audio processing settings
-        __DryWet.setMix(0);                                 // Set initial dry/wet mix to 0%
+        __DryWet.setMix(100);                                 // Set initial dry/wet mix to 100%
 
         // Register memory restore event listeners
         __GUI.RegisterStartRestoreListener(StartRestoreEvent, (uint32_t) this);

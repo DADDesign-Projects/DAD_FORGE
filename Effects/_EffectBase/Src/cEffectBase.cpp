@@ -45,7 +45,7 @@ void cEffectBase::Initialize()
     __GUI.activeMainComponent(&m_Menu);
 
     // Initialize audio processing settings
-    __DryWet.setMix(0);
+    __DryWet.setMix(100);
 
     m_cParameterInfoView.Init();
 
