@@ -11,7 +11,6 @@
 #include "Reverb.h"
 #include "HardwareAndCo.h"
 #include <cmath>
-#include "cFastSinLUT.h"
 
 namespace DadEffect {
 
