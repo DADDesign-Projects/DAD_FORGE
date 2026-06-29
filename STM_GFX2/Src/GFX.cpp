@@ -10,12 +10,13 @@
 //   - Adafruit-GFX-Library: https://github.com/adafruit/Adafruit-GFX-Library
 //   - eSPI: https://github.com/Bodmer/TFT_eSPI
 //
-// Copyright (c) 2025 Dad Design. All rights reserved.
+// Copyright (c) 2025-2026 DadDesign-Project. All rights reserved.
 //
 //====================================================================================
 #include "GFX.h"
 
 #include <cmath>
+#include <algorithm>
 
 namespace DadGFX {
 
@@ -300,6 +301,193 @@ void cGFX::drawArc(uint16_t centerX, uint16_t centerY, uint16_t radius, uint16_t
         }
         x++;
         m += 8 * x + 4;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Draw a filled arc (pie sector)
+// This function fills a circular sector (pie slice) using a brute-force
+// approach: it iterates over all pixels in the bounding box and checks
+// both circle membership and angular sector membership for each pixel.
+void cGFX::drawFillArc(uint16_t centerX, uint16_t centerY, uint16_t radius,
+                       uint16_t alphaStart, uint16_t alphaEnd, const sColor& Color) {
+
+    // Normalize angles to [0, 360) range
+    alphaStart %= 360;
+    alphaEnd %= 360;
+
+    // Special case: if start and end angles are the same, draw a full circle instead
+    if (alphaStart == alphaEnd) {
+     drawFillCircle(centerX, centerY, radius, Color);
+     return;
+    }
+
+    int32_t r_outer = (int32_t)radius;
+    int32_t r_outer2 = r_outer * r_outer;  // Precompute squared radius (avoids sqrt in distance checks)
+
+    // Convert start and end angles from degrees to radians for trigonometric functions
+    float radS = alphaStart * (float)M_PI / 180.0f;
+    float radE = alphaEnd * (float)M_PI / 180.0f;
+
+    constexpr int SCALE = 32767;  // Large scaling factor to convert float sin/cos to integer vectors
+                                  // (provides good precision while staying within int32_t range)
+
+    // Direction vectors (unit vectors scaled) for the start and end radii of the arc.
+    // Used later with cross-product tests to determine which side of each radius a point lies on.
+    int32_t vx1 = (int32_t)(sinf(radS) * SCALE);
+    int32_t vy1 = (int32_t)(-cosf(radS) * SCALE);
+
+    int32_t vx2 = (int32_t)(sinf(radE) * SCALE);
+    int32_t vy2 = (int32_t)(-cosf(radE) * SCALE);;
+
+    // Calculate the angular span (in degrees) and detect if the arc is greater than 180°
+    uint16_t delta = (alphaEnd + 360 - alphaStart) % 360;
+    bool isLargeAngle = delta > 180;
+
+    const int16_t SCREEN_W = (int16_t)getScreentWidth();
+    const int16_t SCREEN_H = (int16_t)getScreenHeight();
+
+    // Compute the bounding box of the circle, clipped to screen boundaries
+    // This avoids unnecessary iterations outside the visible area
+    int16_t yMin = (int16_t)std::max((int32_t)(centerY - r_outer), (int32_t)0);
+    int16_t yMax = (int16_t)std::min((int32_t)(centerY + r_outer), (int32_t)(SCREEN_H - 1));
+    int16_t xMin = (int16_t)std::max((int32_t)(centerX - r_outer), (int32_t)0);
+    int16_t xMax = (int16_t)std::min((int32_t)(centerX + r_outer), (int32_t)(SCREEN_W - 1));
+
+    // Iterate over every row (Y) in the bounding box
+    for (int16_t py = yMin; py <= yMax; py++) {
+        int32_t dy = py - centerY;
+        int32_t dy2 = dy * dy;
+
+        if (dy2 > r_outer2) continue;  // This row is completely outside the circle
+
+        int32_t dx_max2 = r_outer2 - dy2;
+        int32_t dx_max = (int32_t)sqrtf((float)dx_max2);  // Maximum X distance for this Y row
+
+        // Limit X range for this row to the intersection of bounding box and circle
+        int16_t pxMin = (int16_t)std::max((int32_t)xMin, (int32_t)(centerX - dx_max));
+        int16_t pxMax = (int16_t)std::min((int32_t)xMax, (int32_t)(centerX + dx_max));
+
+        // Iterate over every pixel (X) in the current row
+        for (int16_t px = pxMin; px <= pxMax; px++) {
+            int32_t dx = px - centerX;
+            int32_t dist2 = dx * dx + dy2;  // Squared distance from center
+
+            if (dist2 > r_outer2) {
+                continue;  // Point is outside the outer circle
+            }
+
+            // Angular sector test using cross products
+            // cp1 >= 0 means point is on the "left" side of the start radius (depending on orientation)
+            // cp2 >= 0 means point is on the "left" side of the end radius
+            int32_t cp1 = vx1 * dy - vy1 * dx;
+            int32_t cp2 = dx * vy2 - dy * vx2;
+
+            bool inSector;
+            if (!isLargeAngle) {
+                // Small arc (<= 180°): point must be inside both half-planes
+                inSector = (cp1 >= 0 && cp2 >= 0);
+            } else {
+                // Large arc (> 180°): point must be inside at least one of the half-planes
+                inSector = (cp1 >= 0 || cp2 >= 0);
+            }
+
+            if (inSector) {
+                setPixel(px, py, Color);
+            }
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// Draw a filled ring arc (arc with thickness)
+// This function draws a thick arc (ring/annulus sector) by defining both
+// an outer and inner radius. Very similar logic to drawFillArc but with
+// an additional inner radius check.
+void cGFX::drawFillRingArc(uint16_t centerX, uint16_t centerY, uint16_t radius,
+                       uint16_t thickness, uint16_t alphaStart, uint16_t alphaEnd, const sColor& Color) {
+
+    // Normalize angles to [0, 360) range
+    alphaStart %= 360;
+    alphaEnd %= 360;
+
+    bool isFullCircle = (alphaStart == alphaEnd);
+    if (isFullCircle) {
+        alphaEnd += 360;  // Convert full circle case into a complete 360° span
+    }
+
+    int32_t r_outer = (int32_t)radius;
+    int32_t r_inner = (int32_t)std::max((int32_t)0, (int32_t)radius - (int32_t)thickness);
+
+    int32_t r_outer2 = r_outer * r_outer;      // Squared outer radius
+    int32_t r_inner2 = r_inner * r_inner;      // Squared inner radius
+
+    // Convert start and end angles from degrees to radians
+    float radS = alphaStart * (float)M_PI / 180.0f;
+    float radE = alphaEnd * (float)M_PI / 180.0f;
+
+    constexpr int SCALE = 32767;  // Scaling factor for fixed-point direction vectors
+
+    // Direction vectors for start and end angles (same logic as in drawFillArc)
+    int32_t vx1 = (int32_t)(sinf(radS) * SCALE);
+    int32_t vy1 = (int32_t)(-cosf(radS) * SCALE);
+    int32_t vx2 = (int32_t)(sinf(radE) * SCALE);
+    int32_t vy2 = (int32_t)(-cosf(radE) * SCALE);
+
+    // Calculate angular span and determine if it's a large arc (> 180°)
+    uint16_t delta = (alphaEnd + 360 - alphaStart) % 360;
+    bool isLargeAngle = delta > 180;
+
+
+    const int16_t SCREEN_W = (int16_t)getScreentWidth();
+    const int16_t SCREEN_H = (int16_t)getScreenHeight();
+
+    // Compute bounding box clipped to screen (based on outer radius)
+    int16_t yMin = (int16_t)std::max((int32_t)(centerY - r_outer), (int32_t)0);
+    int16_t yMax = (int16_t)std::min((int32_t)(centerY + r_outer), (int32_t)(SCREEN_H - 1));
+    int16_t xMin = (int16_t)std::max((int32_t)(centerX - r_outer), (int32_t)0);
+    int16_t xMax = (int16_t)std::min((int32_t)(centerX + r_outer), (int32_t)(SCREEN_W - 1));
+
+    // Iterate over every row (Y) in the bounding box
+    for (int16_t py = yMin; py <= yMax; py++) {
+        int32_t dy = py - centerY;
+        int32_t dy2 = dy * dy;
+
+        if (dy2 > r_outer2) continue;  // Row completely outside outer circle
+
+        int32_t dx_max2 = r_outer2 - dy2;
+        int32_t dx_max = (int32_t)sqrtf((float)dx_max2);
+
+        int16_t pxMin = (int16_t)std::max((int32_t)xMin, (int32_t)(centerX - dx_max));
+        int16_t pxMax = (int16_t)std::min((int32_t)xMax, (int32_t)(centerX + dx_max));
+
+        // Iterate over every pixel (X) in the current row
+        for (int16_t px = pxMin; px <= pxMax; px++) {
+            int32_t dx = px - centerX;
+            int32_t dist2 = dx * dx + dy2;  // Squared distance from center
+
+            // Check if the point is inside the ring (between inner and outer radius)
+            if (dist2 < r_inner2 || dist2 > r_outer2) {
+                continue;
+            }
+
+            // Angular sector test using cross products (identical logic to drawFillArc)
+            int32_t cp1 = vx1 * dy - vy1 * dx;
+            int32_t cp2 = dx * vy2 - dy * vx2;
+
+            bool inSector;
+            if (!isLargeAngle) {
+                // Small arc: must be on correct side of both radii
+                inSector = (cp1 >= 0 && cp2 >= 0);
+            } else {
+                // Large arc: must be on correct side of at least one radius
+                inSector = (cp1 >= 0 || cp2 >= 0);
+            }
+
+            if (inSector) {
+                setPixel(px, py, Color);
+            }
+        }
     }
 }
 

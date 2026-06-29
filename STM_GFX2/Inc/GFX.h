@@ -11,7 +11,7 @@
 //   - Adafruit-GFX-Library: https://github.com/adafruit/Adafruit-GFX-Library
 //   - eSPI: https://github.com/Bodmer/TFT_eSPI
 //
-// Copyright (c) 2025 Dad Design. All rights reserved.
+// Copyright (c) 2025-2026 DadDesign-Project. All rights reserved.
 //
 //====================================================================================
 #include "main.h"
@@ -234,6 +234,20 @@ public:
     // Draw an arc
     void drawArc(uint16_t centerX, uint16_t centerY, uint16_t radius, uint16_t AlphaIn, uint16_t AlphaOut, const sColor& Color);
 
+    // --------------------------------------------------------------------------
+    // Draw a filled arc (pie sector)
+    // This function fills a circular sector (pie slice) using a brute-force
+    // approach: it iterates over all pixels in the bounding box and checks
+    // both circle membership and angular sector membership for each pixel.
+    void drawFillArc(uint16_t centerX, uint16_t centerY, uint16_t radius, uint16_t AlphaIn, uint16_t AlphaOut, const sColor& Color);
+
+    // --------------------------------------------------------------------------
+    // Draw a filled ring arc (arc with thickness)
+    // This function draws a thick arc (ring/annulus sector) by defining both
+    // an outer and inner radius. Very similar logic to drawFillArc but with
+    // an additional inner radius check.
+    void drawFillRingArc(uint16_t centerX, uint16_t centerY, uint16_t radius, uint16_t strokeWidth, uint16_t AlphaIn, uint16_t AlphaOut, const sColor& Color);
+
     // ==========================================================================
     // Draw text
     // ==========================================================================
@@ -324,6 +338,14 @@ public:
     // ==========================================================================
     // Virtual methods implemented in cLayer
     // ==========================================================================
+    // --------------------------------------------------------------------------
+    // Get the width of the Display
+    virtual uint16_t getScreentWidth()=0;
+
+    // --------------------------------------------------------------------------
+    // Get the height of the Display
+   virtual uint16_t getScreenHeight()=0;
+
 
     // Set a pixel at a specific position with a given color
     virtual DAD_GFX_ERROR setPixel(uint16_t x, uint16_t y, const sColor& Color) = 0;
