@@ -5,7 +5,12 @@
 // Copyright(c) 2024 Dad Design.
 //------------------------------------------------------------------------
 #include "main.h"
-#include "DisplayConfig.h"
+#if __has_include("DisplayConfig.h")
+    #include "DisplayConfig.h"
+#else
+	#define DUMMY_INCLUDE_DISPLAY
+    #include "DisplayConfig_Default.h"
+#endif
 
 // TFT Generic commands
 #define TFT_NOP     0x00    // No operation
