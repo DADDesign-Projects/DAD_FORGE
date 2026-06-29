@@ -11,7 +11,15 @@
 #include <stdint.h>             // Standard integer types
 #include <cstring>
 #include <vector>               // STL vector for dynamic arrays
-#include "Sections.h"
+
+#if __has_include("Sections.h")
+    #include "Sections.h"
+#else
+	#define DUMMY_INCLUDE_DISPLAY
+	#define NO_CACHE_RAM
+	#define SDRAM_SECTION
+	#define ERR_SECTION
+#endif
 
 #include "GFX.h"                // GFX library
 #include "TFT_SPI.h"            // SPI driver for the TFT display
@@ -164,20 +172,30 @@ class cImageLayer;
 //  Display Manager Class
 //***********************************************************************************
 class cDisplay : protected TFT_SPI {
+
 public:
 friend class cLayer;
 friend class cLayerBase;
 friend class cImageLayer;
-    // --------------------------------------------------------------------------
-    // Constructor
-    // Initializes the display manager, clears layers, and resets layer change flag
-    cDisplay();
+
+// --------------------------------------------------------------------------
+// Constructor
+// Initializes the display manager, clears layers, and resets layer change flag
+#ifdef DUMMY_INCLUDE_DISPLAY
+	cDisplay() =  delete; // Need Section.h or DisplayConfig.h
+#else
+	cDisplay(){
+		m_TabLayers.clear();   // Clear the vector of layers
+	    m_LayersChange = 0;    // Reset layer change flag
+	}
+#endif
     
-    // Destructor
+	// --------------------------------------------------------------------------
+	// Destructor
     // Cleans up resources, disables DMA2D, and deletes allocated layers
     ~cDisplay();
     
-    // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
     // Initialize the display manager
     // Configures layers, screen size, dirty blocks, and initializes hardware
     void init(SPI_HandleTypeDef* phspi, sFIFO_Data *pFIFO_Data, sColor* pDitryBlocFrame);
@@ -220,6 +238,7 @@ friend class cImageLayer;
         return m_Height;
     }
 
+
 protected :
     // -----------------------------------------------------------------------------
     // Blends two rectangular blocks of pixels using alpha compositing.
@@ -257,6 +276,7 @@ protected :
     inline void invalidatePoint(uint16_t x0, uint16_t y0) {
         m_DirtyBlocks[x0 / m_DitryBlocWidth][y0 / m_DitryBlocHeight] = 1;
     }
+
 private :
     // --------------------------------------------------------------------------
     // Mark all blocks as dirty (require refresh)
@@ -458,7 +478,20 @@ protected :
     // Fill a rectangle with either a foreground or background color based on a bitmap
     virtual DAD_GFX_ERROR fillRectWithBitmap(uint16_t x0, uint16_t y0, const uint8_t* pBitmap, uint16_t BitmapWidth, uint16_t BitmapBmpHeight,
                                              const sColor& ForegroundColor, const sColor& BackgroundColor);
-                                             protected :
+
+    // --------------------------------------------------------------------------
+    // Get the width of the Display
+    uint16_t getScreentWidth() override{
+        return m_Width;
+    }
+
+    // --------------------------------------------------------------------------
+    // Get the height of the Display
+   uint16_t getScreenHeight() override{
+        return m_Height;
+    }
+
+protected :
     // -----------------------------------------------------------------------------
     // Data
     DRAW_MODE   m_Mode = DRAW_MODE::Blend;

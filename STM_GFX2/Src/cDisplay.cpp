@@ -413,14 +413,6 @@ DAD_GFX_ERROR cLayerBase::moveLayer(uint16_t x, uint16_t y){
 //  Display Manager Class
 //***********************************************************************************
 
-// --------------------------------------------------------------------------
-// Constructor
-// Initializes the display manager, clears layers, and resets layer change flag
-cDisplay::cDisplay() {
-    m_TabLayers.clear();   // Clear the vector of layers
-    m_LayersChange = 0;    // Reset layer change flag
-}
-
 // Destructor
 // Cleans up resources, disables DMA2D, and deletes allocated layers
 cDisplay::~cDisplay() {
