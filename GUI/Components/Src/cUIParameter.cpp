@@ -7,9 +7,9 @@
 //==================================================================================
 //==================================================================================
 
+#include "GUI_Defines.h"
 #include "cUIParameter.h"
 #include "HardwareAndCo.h"
-#include "GUI_Define.h"
 
 namespace DadGUI {
 

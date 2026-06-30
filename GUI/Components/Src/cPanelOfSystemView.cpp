@@ -77,7 +77,7 @@ void cPanelOfSystemView::ColorCallback(DadDSP::cParameter* pParameter, uint32_t 
 
     // Validate index and set active palette
     if (IndexPalette < NB_PALETTE) {
-        __pActivePalette = &__ColorPalette[IndexPalette]; // Update global palette reference
+    	__ThemesManager.setActivePalette(IndexPalette); // Update global palette reference
     }
 }
 

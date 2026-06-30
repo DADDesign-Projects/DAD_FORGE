@@ -118,11 +118,11 @@ void cPanelOfEffectChoice::Draw() {
     constexpr const char*  Text4       = "the selected effect";
 
     // Clear layer with background color
-    m_pLayer->eraseLayer(__pActivePalette->ParameterBack);
+    m_pLayer->eraseLayer(__ThemesManager->ParameterBack);
 
     // Configure text rendering
     m_pLayer->setFont(FONTS);
-    m_pLayer->setTextFrontColor(__pActivePalette->ParamInfoName);
+    m_pLayer->setTextFrontColor(__ThemesManager->ParamInfoName);
 
     // Calculate text dimensions for centering
     uint16_t TextHeight    = m_pLayer->getTextHeight();

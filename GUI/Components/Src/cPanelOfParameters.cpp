@@ -71,7 +71,7 @@ void cPanelOfParameterView::Activate() {
     if (m_pParameter1) {
         m_pParameter1->Draw(1, m_pParameter1LayerStat, m_pParameter1LayerDyn);
     } else {
-        m_pParameter1LayerStat->eraseLayer(__pActivePalette->ParameterBack);
+        m_pParameter1LayerStat->eraseLayer(__ThemesManager->ParameterBack);
         m_pParameter1LayerStat->changeZOrder(0);
     }
 
@@ -79,7 +79,7 @@ void cPanelOfParameterView::Activate() {
     if (m_pParameter2) {
         m_pParameter2->Draw(2, m_pParameter2LayerStat, m_pParameter2LayerDyn);
     } else {
-        m_pParameter2LayerStat->eraseLayer(__pActivePalette->ParameterBack);
+        m_pParameter2LayerStat->eraseLayer(__ThemesManager->ParameterBack);
         m_pParameter2LayerStat->changeZOrder(0);
     }
 
@@ -87,7 +87,7 @@ void cPanelOfParameterView::Activate() {
     if (m_pParameter3) {
         m_pParameter3->Draw(3, m_pParameter3LayerStat, m_pParameter3LayerDyn);
     } else {
-        m_pParameter3LayerStat->eraseLayer(__pActivePalette->ParameterBack);
+        m_pParameter3LayerStat->eraseLayer(__ThemesManager->ParameterBack);
         m_pParameter3LayerStat->changeZOrder(0);
     }
 }

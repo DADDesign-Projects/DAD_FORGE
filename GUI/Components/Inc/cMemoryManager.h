@@ -10,8 +10,8 @@
 #pragma once
 
 #include "main.h"
-#include "GUI_Define.h"
 #include "cCallBackIterator.h"
+#include "GUI_Defines.h"
 
 namespace DadGUI {
 

@@ -43,13 +43,13 @@ void cParameterInfoView::ShowParamView(const std::string Name, const std::string
     const uint16_t xCenterView = m_pParamInfoLayer->getWith() / 2;
 
     m_pParamInfoLayer->changeZOrder(41); // Bring to foreground
-    m_pParamInfoLayer->eraseLayer(__pActivePalette->ParamInfoBack);
+    m_pParamInfoLayer->eraseLayer(__ThemesManager->ParamInfoBack);
 
     // Parameter name (small font)
     m_pParamInfoLayer->setFont(FONTL);
     uint16_t NameWidth = m_pParamInfoLayer->getTextWidth(Name.c_str());
     m_pParamInfoLayer->setCursor(xCenterView - (NameWidth / 2), NAME_OFFSET);
-    m_pParamInfoLayer->setTextFrontColor(__pActivePalette->ParamInfoName);
+    m_pParamInfoLayer->setTextFrontColor(__ThemesManager->ParamInfoName);
     m_pParamInfoLayer->drawText(Name.c_str());
 
     // Parameter value (large font)
@@ -57,7 +57,7 @@ void cParameterInfoView::ShowParamView(const std::string Name, const std::string
     m_pParamInfoLayer->setFont(FONTXL);
     uint16_t ValueWidth = m_pParamInfoLayer->getTextWidth(Value.c_str());
     m_pParamInfoLayer->setCursor(xCenterView - (ValueWidth / 2), NameHeight + 1);
-    m_pParamInfoLayer->setTextFrontColor(__pActivePalette->ParamInfoValue);
+    m_pParamInfoLayer->setTextFrontColor(__ThemesManager->ParamInfoValue);
     m_pParamInfoLayer->drawText(Value.c_str());
 
     m_InfoViewTimeCounter = PARAMETER_INFO_VIEW_DISPLAY_TIME_MS; // Set counter to display time (ms)

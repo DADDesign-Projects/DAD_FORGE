@@ -8,26 +8,16 @@
 // follows the format "ColorName=#RRGGBB", and the class updates the
 // corresponding fields of a GUI color palette structure in real time.
 //
-// Copyright (c) 2025 Dad Design.
+// Copyright (c) 2025-2026 DadDesign-Projects.
 //****************************************************************************
-#ifdef PALETTE_BUILDER
 #include "main.h"
 #include "cBuff.h"
-#include "MainGUI.h"
+#include "GUI_Defines.h"
 #include <cstring>
 #include <cctype>
-#define PALETTE_BUILDER
 
-//-----------------------------------------------------------------------------------
-// Function: UsbCallback
-// Description:
-// External C linkage function triggered when USB serial data arrives.
-// The received data is stored into a circular FIFO buffer for later parsing
-// by cPaletteBuilder.
-//-----------------------------------------------------------------------------------
-extern "C" void UsbCallback(uint8_t* buf, uint32_t* len);
+namespace DadGUI {
 
-namespace DadUtilities {
 
 //***********************************************************************************
 // Class: cPaletteBuilder
@@ -56,9 +46,7 @@ public:
     // Description:
     // Initializes the parser and resets all buffers and state flags.
     //-----------------------------------------------------------------------------------
-    cPaletteBuilder()
-        : m_State(State::WAITING_NAME)
-    {
+    cPaletteBuilder() : m_State(State::WAITING_NAME) {
         Clear();
         m_ChangedPalette = false;
     }
@@ -166,10 +154,7 @@ private:
     bool                  m_ChangedPalette;       // True if palette was modified
 };
 
-} // namespace DadUtilities
+} // namespace DadGUI
 
-// Global instance used by the system to update GUI palette
-extern DadUtilities::cPaletteBuilder __cPaletteBuilder;
-#endif
 
 //***End of file**************************************************************

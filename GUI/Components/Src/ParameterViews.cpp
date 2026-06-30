@@ -218,19 +218,19 @@ void cParameterNumNormalView::Draw(uint8_t NumParameterArea, DadGFX::cLayer* pSt
     pStaticLayer->setFont(__GUI.GetFontS());
     uint16_t NameWidth = pStaticLayer->getTextWidth(m_ShortName.c_str());
     pStaticLayer->setCursor(xCenterView - (NameWidth / 2), (PARAM_NAME_HEIGHT - pStaticLayer->getTextHeight()) / 2);
-    pStaticLayer->setTextFrontColor(__pActivePalette->ParameterName);
+    pStaticLayer->setTextFrontColor(__ThemesManager->ParameterName);
     pStaticLayer->drawText(m_ShortName.c_str());
 
     // Draw the static arcs representing the potentiometer boundaries
     pStaticLayer->drawArc(xCenterView, yCenterView,
                           PARAM_POT_RADIUS + 1,
                           PARAM_POT_RADIUS + 1 + 180, (PARAM_POT_ALPHA_MAX + 180) % 360,
-                          __pActivePalette->ParameterLines);
+						  __ThemesManager->ParameterLines);
 
     pStaticLayer->drawArc(xCenterView, yCenterView,
                           PARAM_POT_RADIUS - 9,
                           PARAM_POT_ALPHA_MIN + 180, (PARAM_POT_ALPHA_MAX + 180) % 360,
-                          __pActivePalette->ParameterLines);
+						  __ThemesManager->ParameterLines);
 
     // Draw parameter area number (center)
     char Buffer[30];
@@ -238,7 +238,7 @@ void cParameterNumNormalView::Draw(uint8_t NumParameterArea, DadGFX::cLayer* pSt
     pStaticLayer->setFont(__GUI.GetFontXSB());
     uint16_t NumberWidth = pStaticLayer->getTextWidth(Buffer);
     pStaticLayer->setCursor(xCenterView - (NumberWidth / 2), yCenterView - (pStaticLayer->getTextHeight() / 2));
-    pStaticLayer->setTextFrontColor(__pActivePalette->ParameterNum);
+    pStaticLayer->setTextFrontColor(__ThemesManager->ParameterNum);
     pStaticLayer->drawText(Buffer);
 
     // Pre-calc trig values to draw boundary lines
@@ -256,12 +256,12 @@ void cParameterNumNormalView::Draw(uint8_t NumParameterArea, DadGFX::cLayer* pSt
     uint16_t y0 = yCenterView + static_cast<uint16_t>(DeltaY0);
     uint16_t x1 = xCenterView + static_cast<uint16_t>(DeltaX1);
     uint16_t y1 = yCenterView + static_cast<uint16_t>(DeltaY1);
-    pStaticLayer->drawLine(x0, y0, x1, y1, __pActivePalette->ParameterLines);
+    pStaticLayer->drawLine(x0, y0, x1, y1, __ThemesManager->ParameterLines);
 
     // Right boundary (mirrored horizontally)
     x0 = xCenterView - static_cast<uint16_t>(DeltaX0);
     x1 = xCenterView - static_cast<uint16_t>(DeltaX1);
-    pStaticLayer->drawLine(x0, y0, x1, y1, __pActivePalette->ParameterLines);
+    pStaticLayer->drawLine(x0, y0, x1, y1, __ThemesManager->ParameterLines);
 
     // Draw dynamic part (value)
     DrawDynView(NumParameterArea, pDynamicLayer);
@@ -279,7 +279,7 @@ void cParameterNumNormalView::DrawDynView(uint8_t NumParameterArea, DadGFX::cLay
 
     // Initialize layer for dynamic drawing
     pLayer->changeZOrder(20);
-    pLayer->eraseLayer(__pActivePalette->ParameterBack);
+    pLayer->eraseLayer(__ThemesManager->ParameterBack);
 
     // Render the parameter's current value as text
     char Buffer[30];
@@ -288,7 +288,7 @@ void cParameterNumNormalView::DrawDynView(uint8_t NumParameterArea, DadGFX::cLay
     uint16_t TextWidth = pLayer->getTextWidth(Buffer);
     pLayer->setCursor(xCenterView - (TextWidth / 2),
                       pLayer->getHeight() - ((PARAM_VAL_HEIGHT + pLayer->getTextHeight()) / 2));
-    pLayer->setTextFrontColor(__pActivePalette->ParameterValue);
+    pLayer->setTextFrontColor(__ThemesManager->ParameterValue);
     pLayer->drawText(Buffer);
 
     // Calculate angle extent for the pot cursor based on normalized value
@@ -302,7 +302,7 @@ void cParameterNumNormalView::DrawDynView(uint8_t NumParameterArea, DadGFX::cLay
                         PARAM_POT_RADIUS - i + 1,
                         PARAM_POT_ALPHA_MIN + 180,
                         AlphaMax,
-                        __pActivePalette->ParameterCursor);
+						__ThemesManager->ParameterCursor);
     }
 }
 
@@ -322,7 +322,7 @@ void cParameterNumLeftRightView::DrawDynView(uint8_t NumParameterArea, DadGFX::c
 
     // Initialize layer
     pLayer->changeZOrder(20);
-    pLayer->eraseLayer(__pActivePalette->ParameterBack);
+    pLayer->eraseLayer(__ThemesManager->ParameterBack);
 
     // Render value text
     char Buffer[30];
@@ -331,7 +331,7 @@ void cParameterNumLeftRightView::DrawDynView(uint8_t NumParameterArea, DadGFX::c
     uint16_t TextWidth = pLayer->getTextWidth(Buffer);
     pLayer->setCursor(xCenterView - (TextWidth / 2),
                       pLayer->getHeight() - ((PARAM_VAL_HEIGHT + pLayer->getTextHeight()) / 2));
-    pLayer->setTextFrontColor(__pActivePalette->ParameterValue);
+    pLayer->setTextFrontColor(__ThemesManager->ParameterValue);
     pLayer->drawText(Buffer);
 
     // Compute angle and draw arcs with special-case for <180 / >=180
@@ -346,14 +346,14 @@ void cParameterNumLeftRightView::DrawDynView(uint8_t NumParameterArea, DadGFX::c
                             PARAM_POT_RADIUS - i + 1,
                             0,
                             AlphaMax,
-                            __pActivePalette->ParameterCursor);
+							__ThemesManager->ParameterCursor);
         } else {
             pLayer->drawArc(xCenterView,
                             yCenterView,
                             PARAM_POT_RADIUS - i + 1,
                             AlphaMax,
                             0,
-                            __pActivePalette->ParameterCursor);
+							__ThemesManager->ParameterCursor);
         }
     }
 }
@@ -396,14 +396,14 @@ void cParameterDiscretView::Draw(uint8_t NumParameterArea, DadGFX::cLayer* pStat
     pStaticLayer->setFont(__GUI.GetFontS());
     uint16_t NameWidth = pStaticLayer->getTextWidth(m_ShortName.c_str());
     pStaticLayer->setCursor(xCenterView - (NameWidth / 2), (PARAM_NAME_HEIGHT - pStaticLayer->getTextHeight()) / 2);
-    pStaticLayer->setTextFrontColor(__pActivePalette->ParameterName);
+    pStaticLayer->setTextFrontColor(__ThemesManager->ParameterName);
     pStaticLayer->drawText(m_ShortName.c_str());
 
     // Draw static pot point and surrounding arc
     pStaticLayer->drawArc(xCenterView, yCenterView,
                           PARAM_DISCRET_POT_RADIUS,
                           PARAM_DISCRET_POT_RADIUS + 4 + 180, (PARAM_POT_ALPHA_MAX + 180) % 360,
-                          __pActivePalette->ParameterLines);
+						  __ThemesManager->ParameterLines);
 
     // Draw discrete markers around the pot
     uint8_t NbDiscretValues = static_cast<uint8_t>(m_TabDiscretValues.size());
@@ -417,7 +417,7 @@ void cParameterDiscretView::Draw(uint8_t NumParameterArea, DadGFX::cLayer* pStat
             pStaticLayer->setMode(DadGFX::DRAW_MODE::Overwrite);
             pStaticLayer->drawFillCircle(xCenterView + X, yCenterView - Y, PARAM_DISCRET_RADIUS + 1, DadGFX::sColor(0, 0, 0, 0));
             pStaticLayer->setMode(DadGFX::DRAW_MODE::Blend);
-            pStaticLayer->drawCircle(xCenterView + X, yCenterView - Y, PARAM_DISCRET_RADIUS + 1, __pActivePalette->ParameterLines);
+            pStaticLayer->drawCircle(xCenterView + X, yCenterView - Y, PARAM_DISCRET_RADIUS + 1, __ThemesManager->ParameterLines);
             Alpha -= IncAlpha;
         }
     }
@@ -428,7 +428,7 @@ void cParameterDiscretView::Draw(uint8_t NumParameterArea, DadGFX::cLayer* pStat
     pStaticLayer->setFont(__GUI.GetFontXSB());
     uint16_t NumberWidth = pStaticLayer->getTextWidth(Buffer);
     pStaticLayer->setCursor(xCenterView - (NumberWidth / 2), yCenterView - (pStaticLayer->getTextHeight() / 2));
-    pStaticLayer->setTextFrontColor(__pActivePalette->ParameterNum);
+    pStaticLayer->setTextFrontColor(__ThemesManager->ParameterNum);
     pStaticLayer->drawText(Buffer);
 
     // Draw dynamic part
@@ -450,14 +450,14 @@ void cParameterDiscretView::DrawDynView(uint8_t NumParameterArea, DadGFX::cLayer
 
     // Initialize layer
     pLayer->changeZOrder(20);
-    pLayer->eraseLayer(__pActivePalette->ParameterBack);
+    pLayer->eraseLayer(__ThemesManager->ParameterBack);
 
     // Render selected value short label
     uint8_t NumValue = static_cast<uint8_t>(m_pParameter->getTargetValue());
     pLayer->setFont(__GUI.GetFontSB());
     uint16_t TextWidth = pLayer->getTextWidth(m_TabDiscretValues[NumValue].m_ShortValue.c_str());
     pLayer->setCursor(xCenterView - (TextWidth / 2), pLayer->getHeight() - ((PARAM_VAL_HEIGHT + pLayer->getTextHeight()) / 2));
-    pLayer->setTextFrontColor(__pActivePalette->ParameterValue);
+    pLayer->setTextFrontColor(__ThemesManager->ParameterValue);
     pLayer->drawText(m_TabDiscretValues[NumValue].m_ShortValue.c_str());
 
     // Render discrete points and highlight the selected one
@@ -467,7 +467,7 @@ void cParameterDiscretView::DrawDynView(uint8_t NumParameterArea, DadGFX::cLayer
         float X = static_cast<float>(PARAM_DISCRET_POT_RADIUS) * std::cos(Alpha);
         float Y = static_cast<float>(PARAM_DISCRET_POT_RADIUS) * std::sin(Alpha);
         pLayer->drawFillCircle(xCenterView + X, yCenterView - Y, PARAM_DISCRET_RADIUS + 1,
-                               (NumValue == i) ? __pActivePalette->ParameterCursor : __pActivePalette->ParameterBack);
+                               (NumValue == i) ? __ThemesManager->ParameterCursor : __ThemesManager->ParameterBack);
         Alpha -= IncAlpha;
     }
 }

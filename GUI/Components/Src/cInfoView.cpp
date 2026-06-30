@@ -155,22 +155,22 @@ void cInfoView::ShowView(bool isDirty, uint8_t MemSlot, const std::string State)
 	const uint16_t yCenterView = m_pInfoLayer->getHeight() / 2;  // Calculate vertical center
 	m_pInfoLayer->changeZOrder(40); // Ensure proper z-order
 
-	if( (__pActivePalette->MainInfoBack.getR() == 1) &&
-		(__pActivePalette->MainInfoBack.getG() < MAX_IMAGE_LAYER) &&
-		(__pActivePalette->MainInfoBack.getB() < MAX_IMAGE_LAYER) &&
-		(__pActivePalette->MainInfoBack.getG() == __pActivePalette->MainInfoBack.getB())
+	if( (__ThemesManager->MainInfoBack.getR() == 1) &&
+		(__ThemesManager->MainInfoBack.getG() < MAX_IMAGE_LAYER) &&
+		(__ThemesManager->MainInfoBack.getB() < MAX_IMAGE_LAYER) &&
+		(__ThemesManager->MainInfoBack.getG() == __ThemesManager->MainInfoBack.getB())
 	  ){
 		if((m_NumImageInfoLayer >= 0) && (m_NumImageInfoLayer < MAX_IMAGE_LAYER) && m_pImageInfoLayer[m_NumImageInfoLayer]){
 			m_pImageInfoLayer[m_NumImageInfoLayer]->changeZOrder(0);
 		}
-		m_NumImageInfoLayer = __pActivePalette->MainInfoBack.getG();
+		m_NumImageInfoLayer = __ThemesManager->MainInfoBack.getG();
 		if(m_pImageInfoLayer[m_NumImageInfoLayer] != nullptr){			m_pInfoLayer->eraseLayer();                    						// Clear background with black
 			m_pImageInfoLayer[m_NumImageInfoLayer]->changeZOrder(35);
 		}else{
-			m_pInfoLayer->eraseLayer(__pActivePalette->MainInfoBack);           // Clear background
+			m_pInfoLayer->eraseLayer(__ThemesManager->MainInfoBack);           // Clear background
 		}
 	}else{
-		m_pInfoLayer->eraseLayer(__pActivePalette->MainInfoBack);           // Clear background
+		m_pInfoLayer->eraseLayer(__ThemesManager->MainInfoBack);           // Clear background
 	}
 	//------------------------
 	// Memory label
@@ -178,7 +178,7 @@ void cInfoView::ShowView(bool isDirty, uint8_t MemSlot, const std::string State)
 	m_pInfoLayer->setFont(FONTXSB);                                      // Set font for label
 	uint16_t MemWidth = m_pInfoLayer->getTextWidth("Memory");           // Calculate text width
 	m_pInfoLayer->setCursor(CENTER_MEM - (MemWidth / 2) + 2, MEM_OFFSET);   // Position cursor
-	m_pInfoLayer->setTextFrontColor(__pActivePalette->MainInfoMem);     // Set text color
+	m_pInfoLayer->setTextFrontColor(__ThemesManager->MainInfoMem);     // Set text color
 	m_pInfoLayer->drawText("Memory");                                   // Draw memory label
 
 	//------------------------
@@ -189,7 +189,7 @@ void cInfoView::ShowView(bool isDirty, uint8_t MemSlot, const std::string State)
 	uint16_t MemHeight = m_pInfoLayer->getTextHeight();                 // Get text height
 	uint16_t NumWidth = m_pInfoLayer->getTextWidth(NumMem.c_str());     // Calculate number width
 	m_pInfoLayer->setCursor(CENTER_MEM - (NumWidth / 2), yCenterView - (MemHeight/2) - NUM_OFFSET);  // Position cursor
-	m_pInfoLayer->setTextFrontColor(__pActivePalette->MainInfoMem);     // Set text color
+	m_pInfoLayer->setTextFrontColor(__ThemesManager->MainInfoMem);     // Set text color
 	m_pInfoLayer->drawText(NumMem.c_str());                             // Draw memory number
 
 	//------------------------
@@ -199,7 +199,7 @@ void cInfoView::ShowView(bool isDirty, uint8_t MemSlot, const std::string State)
 		std::string Dirty = "Dirty";                                    // Dirty indicator text
 		m_pInfoLayer->setFont(FONTXXSB);                                // Set small font
 		m_pInfoLayer->setCursorOffset(6, 4);                            // Position offset
-		m_pInfoLayer->setTextFrontColor(__pActivePalette->MainInfoDirty); // Set dirty color
+		m_pInfoLayer->setTextFrontColor(__ThemesManager->MainInfoDirty); // Set dirty color
 		m_pInfoLayer->drawText(Dirty.c_str());                          // Draw dirty indicator
 	}
 
@@ -221,7 +221,7 @@ void cInfoView::ShowView(bool isDirty, uint8_t MemSlot, const std::string State)
 
 	uint16_t StateHeight = m_pInfoLayer->getTextHeight();               // Get state text height
 	m_pInfoLayer->setCursor(CENTER_STATE - (StateWidth / 2), yCenterView - (StateHeight / 2));  // Center position
-	m_pInfoLayer->setTextFrontColor(__pActivePalette->MainInfoState);   // Set state color
+	m_pInfoLayer->setTextFrontColor(__ThemesManager->MainInfoState);   // Set state color
 	m_pInfoLayer->drawText(State.c_str());                              // Draw state text
 	}
 

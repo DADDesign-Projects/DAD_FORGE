@@ -9,16 +9,16 @@
 // This parser is lightweight and incremental: data can arrive byte by byte,
 // and the parser maintains internal state across calls.
 //
-// Copyright (c) 2025 Dad Design.
+// Copyright (c) 2025-2026 DadDesign-project.
 //****************************************************************************
 #include "main.h"
-#ifndef PALETTE_BUILDER
-extern "C" void UsbCallback(uint8_t* buf, uint32_t* len){
-}
-#else
 #include "cPaletteBuilder.h"
 
+#ifdef PALETTE_BUILDER
 #define FIFO_SIZE 2000
+#else
+#define FIFO_SIZE 10
+#endif
 
 //***********************************************************************************
 // Global FIFO for USB serial input data
@@ -26,24 +26,26 @@ extern "C" void UsbCallback(uint8_t* buf, uint32_t* len){
 //***********************************************************************************
 DadUtilities::cBuff __DataBuff(FIFO_SIZE);
 
-//-----------------------------------------------------------------------------------
-// Function: UsbCallback
-// Description:
-// Called by the USB driver when new data arrives over the virtual COM port.
-// The function pushes each received byte into the global FIFO buffer, making
-// it available for the palette parser during the next update cycle.
-//-----------------------------------------------------------------------------------
-void UsbCallback(uint8_t* buf, uint32_t* len) {
-    uint8_t* pBuff = buf;
-    for (uint32_t Index = *len; Index != 0; Index--) {
-        __DataBuff.addData(*pBuff++); // Push byte into FIFO
-    }
+#ifdef PALETTE_BUILDER
+extern "C" {
+	//-----------------------------------------------------------------------------------
+	// Function: UsbCallback
+	// Description:
+	// Called by the USB driver when new data arrives over the virtual COM port.
+	// The function pushes each received byte into the global FIFO buffer, making
+	// it available for the palette parser during the next update cycle.
+	//-----------------------------------------------------------------------------------
+	void UsbCallback(uint8_t* buf, uint32_t* len) {
+		uint8_t* pBuff = buf;
+		for (uint32_t Index = *len; Index != 0; Index--) {
+			__DataBuff.addData(*pBuff++); // Push byte into FIFO
+		}
+	}
+
 }
+#endif
 
-// Global parser instance accessible project-wide
-DadUtilities::cPaletteBuilder __cPaletteBuilder;
-
-namespace DadUtilities {
+namespace DadGUI {
 
 //-----------------------------------------------------------------------------------
 // Function: Init
@@ -264,6 +266,6 @@ bool cPaletteBuilder::StoreColor() {
     return true;
 }
 
-} // namespace DadUtilities
-#endif
+} // namespace DadGUI
+
 //***End of file**************************************************************

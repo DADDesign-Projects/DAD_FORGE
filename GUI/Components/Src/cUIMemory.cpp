@@ -177,7 +177,7 @@ void cUIMemory::drawStatLayer() {
 
 	// Configure text properties
 	m_pStatMemoryLayer->setFont(FONTL);
-	m_pStatMemoryLayer->setTextFrontColor(__pActivePalette->MemViewText);
+	m_pStatMemoryLayer->setTextFrontColor(__ThemesManager->MemViewText);
 
 	// Calculate button dimensions
 	uint16_t YesNoHeight   = m_pStatMemoryLayer->getTextHeight();
@@ -191,7 +191,7 @@ void cUIMemory::drawStatLayer() {
 		MidYYexNo - YesNoYOffset - YesNoHeight - TotalMargin,
 		YesWidth + TotalMargin,
 		YesNoHeight + TotalMargin,
-		2, __pActivePalette->MemViewLine);
+		2, __ThemesManager->MemViewLine);
 
 	// Draw "Yes" text
 	m_pStatMemoryLayer->setCursor(
@@ -205,7 +205,7 @@ void cUIMemory::drawStatLayer() {
 		MidYYexNo + YesNoYOffset,
 		YesWidth + TotalMargin,
 		YesNoHeight + TotalMargin,
-		2, __pActivePalette->MemViewLine);
+		2, __ThemesManager->MemViewLine);
 
 	// Draw "No" text
 	m_pStatMemoryLayer->setCursor(
@@ -220,8 +220,8 @@ void cUIMemory::drawStatLayer() {
 // =============================================================================
 void cUIMemory::drawDynLayer() {
 	// Clear layer with background color
-	m_pDynMemoryLayer->eraseLayer(__pActivePalette->MemViewBack);
-	m_pDynMemoryLayer->setTextFrontColor(__pActivePalette->MemViewText);
+	m_pDynMemoryLayer->eraseLayer(__ThemesManager->MemViewBack);
+	m_pDynMemoryLayer->setTextFrontColor(__ThemesManager->MemViewText);
 
 	// -----------------------------------------------------------------------------
 	// Display function label (Save / Delete / Load)
@@ -265,7 +265,7 @@ void cUIMemory::drawDynLayer() {
 			MidYYexNo - YesNoYOffset - YesNoHeight - TotalMargin,
 			YesWidth + TotalMargin,
 			YesNoHeight + TotalMargin,
-			__pActivePalette->MemViewActive);
+			__ThemesManager->MemViewActive);
 	}
 	// Highlight No button if selected
 	else if (m_MemChoice == eMemChoice::No) {
@@ -274,7 +274,7 @@ void cUIMemory::drawDynLayer() {
 			MidYYexNo + YesNoYOffset,
 			YesWidth + TotalMargin,
 			YesNoHeight + TotalMargin,
-			__pActivePalette->MemViewActive);
+			__ThemesManager->MemViewActive);
 	}
 
 	// -----------------------------------------------------------------------------

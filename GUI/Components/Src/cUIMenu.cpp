@@ -153,7 +153,7 @@ void cUIMenu::Redraw() {
 // Description: Draws the visible portion of the menu, highlighting the active item
 // -----------------------------------------------------------------------------
 void cUIMenu::drawTab() {
-    m_pDynMenuLayer->eraseLayer(__pActivePalette->MenuBack);  // Clear layer
+    m_pDynMenuLayer->eraseLayer(__ThemesManager->MenuBack);  // Clear layer
 
     uint8_t  LastTab = m_MenuShift + NB_MENU_ITEM;            // Last visible item index
     uint16_t xTab    = MENU_EDGE;                             // Initial X position
@@ -163,7 +163,7 @@ void cUIMenu::drawTab() {
         if (Index == m_ActiveItem) {
             // Highlight the active tab
             m_pDynMenuLayer->drawFillRect(
-                xTab, 0, MENU_ITEM_WIDTH, MENU_HEIGHT, __pActivePalette->MenuActive);
+                xTab, 0, MENU_ITEM_WIDTH, MENU_HEIGHT, __ThemesManager->MenuActive);
         }
 
         // Draw text label if within item list
@@ -173,9 +173,9 @@ void cUIMenu::drawTab() {
             m_pDynMenuLayer->setCursor(xTab + (MENU_ITEM_WIDTH - TextWidth) / 2, 2);
 
             if (Index == m_ActiveItem)
-                m_pDynMenuLayer->setTextFrontColor(__pActivePalette->MenuActiveText);
+                m_pDynMenuLayer->setTextFrontColor(__ThemesManager->MenuActiveText);
             else
-                m_pDynMenuLayer->setTextFrontColor(__pActivePalette->MenuText);
+                m_pDynMenuLayer->setTextFrontColor(__ThemesManager->MenuText);
 
             m_pDynMenuLayer->drawText(m_TabMenuItem[Index].Name.c_str());
             xTab += MENU_ITEM_WIDTH;  // Advance to next tab position
@@ -204,7 +204,7 @@ void cUIMenu::drawArrowIndicator(bool isLeft) {
     for (uint16_t Index = 0; Index < MENU_EDGE; Index++) {
         m_pDynMenuLayer->drawLine(
             XStart + Index * XOffset, YMin, XStart + Index * XOffset, YMax,
-            __pActivePalette->MenuArrow);
+			__ThemesManager->MenuArrow);
 
         YMin--;  // Expand vertically
         YMax++;

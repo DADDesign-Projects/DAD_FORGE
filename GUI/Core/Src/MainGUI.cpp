@@ -12,35 +12,16 @@
 
 namespace DadGUI {
 
-//**********************************************************************************
-// Color Palette Definitions
-//**********************************************************************************
+// =============================================================================
+// Global variables
+// =============================================================================
 
-// Array of color palettes available in the system
-const sColorPalette __ColorPalette[NB_PALETTE] = {
-	#include "MixBlue.hpp"
-	,
-	#include "BlueGreen.hpp"
-	,
-	#include "Ambre2.hpp"
-	,
-	#include "Blue.hpp"
-	,
-	#include "Ambre.hpp"
-	,
-	#include "Yellow.hpp"
-	,
-	#include "Purple.hpp"
-	,
-	#include "PaleBlue.hpp"
-	};
-
-const sColorPalette* __pActivePalette = &__ColorPalette[0];      // Currently active palette
-const sColorPalette* __MempActivePalette = __pActivePalette;     // Previous active palette for change detection
+// -----------------------------------------------------------------------------
+// Themes manager
+cThemesManager __ThemesManager;
 
 // -----------------------------------------------------------------------------
 // Slot Memory Manager
-// -----------------------------------------------------------------------------
 cMemoryManager __MemoryManager;  // Global memory manager instance
 
 //**********************************************************************************
@@ -88,10 +69,9 @@ void cMainGUI::Initialize() {
     __GUI_EventManager.Clear();
     __GUI_EventManager.Subscribe_Update(this);
 
-#ifdef PALETTE_BUILDER
-    // Initialize palette builder if enabled
-    __cPaletteBuilder.InitPalette(&__ColorPalette[0]);
-#endif
+    __ThemesManager.Initialize();
+    __ThemesManager.RegisterThemeChangeListener(ThemeChange_CallBack, (uint32_t) this);
+
 }
 
 // -----------------------------------------------------------------------------
@@ -127,22 +107,6 @@ void cMainGUI::on_GUI_Update() {
     // Update main UI components
     if (m_pBackComponent) m_pBackComponent->Update();
     if (m_pMainComponent) m_pMainComponent->Update();
-
-#ifdef PALETTE_BUILDER
-    // Handle dynamic palette changes if palette builder is enabled
-    __cPaletteBuilder.ParseBuffer();
-    if (__cPaletteBuilder.IsChangedPalette()) {
-        __pActivePalette = __cPaletteBuilder.getPalette();
-        __MempActivePalette = nullptr;
-    }
-#endif
-
-    // Detect palette changes and trigger redraws
-    if (__MempActivePalette != __pActivePalette) {
-        __MempActivePalette = __pActivePalette;
-        if (m_pBackComponent) m_pBackComponent->Redraw();
-        if (m_pMainComponent) m_pMainComponent->Redraw();
-    }
 }
 
 // =============================================================================
@@ -181,6 +145,17 @@ void cMainGUI::activeBackComponent(iUIComponent* pBackComponent) {
         m_pBackComponent = pBackComponent;
         m_pBackComponent->Activate();
     }
+}
+
+// -----------------------------------------------------------------------------
+// ThemeChange_CallBack
+//
+// Description: callback for theme change notification
+// -----------------------------------------------------------------------------
+void cMainGUI::ThemeChange_CallBack(void* parameter, uint32_t contextValue){
+	cMainGUI * pThis = (cMainGUI *)contextValue;
+    if (pThis->m_pBackComponent) pThis->m_pBackComponent->Redraw();
+    if (pThis->m_pMainComponent) pThis->m_pMainComponent->Redraw();
 }
 
 // =============================================================================

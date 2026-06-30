@@ -143,11 +143,11 @@ void cUIVuMeter::Redraw() {
 // ---------------------------------------------------------------------------------
 void cUIVuMeter::drawStatPartOffLayer() {
     // Clear layer with background color
-    m_pVuMeterLayer->eraseLayer(__pActivePalette->VuMeterBack);
+    m_pVuMeterLayer->eraseLayer(__ThemesManager->VuMeterBack);
 
     // Configure text rendering
     m_pVuMeterLayer->setFont(FONTSB);
-    m_pVuMeterLayer->setTextFrontColor(__pActivePalette->VuMeterText);
+    m_pVuMeterLayer->setTextFrontColor(__ThemesManager->VuMeterText);
 
     // Draw channel labels
     m_pVuMeterLayer->setCursor(5, YVuMeterInL + VuMeterLROffset);
@@ -167,10 +167,10 @@ void cUIVuMeter::drawStatPartOffLayer() {
     m_pVuMeterLayer->drawChar('R');
 
     // Draw VU-meter frames
-    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterInL - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __pActivePalette->VuMeterLine);
-    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterInR - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __pActivePalette->VuMeterLine);
-    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterOutL - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __pActivePalette->VuMeterLine);
-    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterOutR - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __pActivePalette->VuMeterLine);
+    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterInL - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __ThemesManager->VuMeterLine);
+    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterInR - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __ThemesManager->VuMeterLine);
+    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterOutL - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __ThemesManager->VuMeterLine);
+    m_pVuMeterLayer->drawRect(XVuMeter - 1, YVuMeterOutR - 1, VuMeterWidth + 2, VuMeterHeight + 2, 1, __ThemesManager->VuMeterLine);
 
 }
 
@@ -180,40 +180,40 @@ void cUIVuMeter::drawStatPartOffLayer() {
 // ---------------------------------------------------------------------------------
 void cUIVuMeter::drawDynPartOffLayer() {
     // Erase old levels by filling with background color
-    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterInL, VuMeterWidth, VuMeterHeight, __pActivePalette->VuMeterBack);
-    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterInR, VuMeterWidth, VuMeterHeight, __pActivePalette->VuMeterBack);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterInL, VuMeterWidth, VuMeterHeight, __ThemesManager->VuMeterBack);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterInR, VuMeterWidth, VuMeterHeight, __ThemesManager->VuMeterBack);
 
     // Draw current signal levels based on dB percentage
-    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterInL, VuMeterWidth * m_VuMeterInLeft.getLevelPercentDB(), VuMeterHeight, __pActivePalette->VuMeterCursor);
-    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterInR, VuMeterWidth * m_VuMeterInRight.getLevelPercentDB(), VuMeterHeight, __pActivePalette->VuMeterCursor);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterInL, VuMeterWidth * m_VuMeterInLeft.getLevelPercentDB(), VuMeterHeight, __ThemesManager->VuMeterCursor);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterInR, VuMeterWidth * m_VuMeterInRight.getLevelPercentDB(), VuMeterHeight, __ThemesManager->VuMeterCursor);
 
     // Erase old levels by filling with background color
-    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterOutL, VuMeterWidth, VuMeterHeight, __pActivePalette->VuMeterBack);
-    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterOutR, VuMeterWidth, VuMeterHeight, __pActivePalette->VuMeterBack);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterOutL, VuMeterWidth, VuMeterHeight, __ThemesManager->VuMeterBack);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterOutR, VuMeterWidth, VuMeterHeight, __ThemesManager->VuMeterBack);
 
     // Draw current signal levels based on dB percentage
-    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterOutL, VuMeterWidth * m_VuMeterOutLeft.getLevelPercentDB(), VuMeterHeight, __pActivePalette->VuMeterCursor);
-    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterOutR, VuMeterWidth * m_VuMeterOutRight.getLevelPercentDB(), VuMeterHeight, __pActivePalette->VuMeterCursor);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterOutL, VuMeterWidth * m_VuMeterOutLeft.getLevelPercentDB(), VuMeterHeight, __ThemesManager->VuMeterCursor);
+    m_pVuMeterLayer->drawFillRect(XVuMeter, YVuMeterOutR, VuMeterWidth * m_VuMeterOutRight.getLevelPercentDB(), VuMeterHeight, __ThemesManager->VuMeterCursor);
 
     // Draw peak indicators for left channel
     uint16_t XPeakLine = XVuMeter + VuMeterWidth * m_VuMeterInLeft.getPeakPercentDB();
-    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterInL, XPeakLine, YVuMeterInL + VuMeterHeight, __pActivePalette->VuMeterPeak);
-    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterInL, XPeakLine - 1, YVuMeterInL + VuMeterHeight, __pActivePalette->VuMeterPeak);
+    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterInL, XPeakLine, YVuMeterInL + VuMeterHeight, __ThemesManager->VuMeterPeak);
+    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterInL, XPeakLine - 1, YVuMeterInL + VuMeterHeight, __ThemesManager->VuMeterPeak);
 
     // Draw peak indicators for right channel
     XPeakLine = XVuMeter + VuMeterWidth * m_VuMeterInRight.getPeakPercentDB();
-    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterInR, XPeakLine, YVuMeterInR + VuMeterHeight, __pActivePalette->VuMeterPeak);
-    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterInR, XPeakLine - 1, YVuMeterInR + VuMeterHeight, __pActivePalette->VuMeterPeak);
+    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterInR, XPeakLine, YVuMeterInR + VuMeterHeight, __ThemesManager->VuMeterPeak);
+    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterInR, XPeakLine - 1, YVuMeterInR + VuMeterHeight, __ThemesManager->VuMeterPeak);
 
     // Draw peak indicators for left channel
     XPeakLine = XVuMeter + VuMeterWidth * m_VuMeterOutLeft.getPeakPercentDB();
-    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterOutL, XPeakLine, YVuMeterOutL + VuMeterHeight, __pActivePalette->VuMeterPeak);
-    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterOutL, XPeakLine - 1, YVuMeterOutL + VuMeterHeight, __pActivePalette->VuMeterPeak);
+    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterOutL, XPeakLine, YVuMeterOutL + VuMeterHeight, __ThemesManager->VuMeterPeak);
+    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterOutL, XPeakLine - 1, YVuMeterOutL + VuMeterHeight, __ThemesManager->VuMeterPeak);
 
     // Draw peak indicators for right channel
     XPeakLine = XVuMeter + VuMeterWidth * m_VuMeterOutRight.getPeakPercentDB();
-    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterOutR, XPeakLine, YVuMeterOutR + VuMeterHeight, __pActivePalette->VuMeterPeak);
-    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterOutR, XPeakLine - 1, YVuMeterOutR + VuMeterHeight, __pActivePalette->VuMeterPeak);
+    m_pVuMeterLayer->drawLine(XPeakLine, YVuMeterOutR, XPeakLine, YVuMeterOutR + VuMeterHeight, __ThemesManager->VuMeterPeak);
+    m_pVuMeterLayer->drawLine(XPeakLine - 1, YVuMeterOutR, XPeakLine - 1, YVuMeterOutR + VuMeterHeight, __ThemesManager->VuMeterPeak);
 
     // Update left channel clipping indicator if state changed
     bool IsClipping = m_VuMeterInLeft.isClipping();
@@ -223,7 +223,7 @@ void cUIVuMeter::drawDynPartOffLayer() {
             XVuMeter + VuMeterWidth + ClipXOffset + ClipRadius,
             YVuMeterInL + (VuMeterHeight / 2),
             ClipRadius,
-            IsClipping ? __pActivePalette->VuMeterClip : __pActivePalette->VuMeterBack
+            IsClipping ? __ThemesManager->VuMeterClip : __ThemesManager->VuMeterBack
         );
     }
 
@@ -235,7 +235,7 @@ void cUIVuMeter::drawDynPartOffLayer() {
             XVuMeter + VuMeterWidth + ClipXOffset + ClipRadius,
             YVuMeterInR + (VuMeterHeight / 2),
             ClipRadius,
-            IsClipping ? __pActivePalette->VuMeterClip : __pActivePalette->VuMeterBack
+            IsClipping ? __ThemesManager->VuMeterClip : __ThemesManager->VuMeterBack
         );
     }
 
@@ -247,7 +247,7 @@ void cUIVuMeter::drawDynPartOffLayer() {
             XVuMeter + VuMeterWidth + ClipXOffset + ClipRadius,
             YVuMeterOutL + (VuMeterHeight / 2),
             ClipRadius,
-            IsClipping ? __pActivePalette->VuMeterClip : __pActivePalette->VuMeterBack
+            IsClipping ? __ThemesManager->VuMeterClip : __ThemesManager->VuMeterBack
         );
     }
 
@@ -259,7 +259,7 @@ void cUIVuMeter::drawDynPartOffLayer() {
             XVuMeter + VuMeterWidth + ClipXOffset + ClipRadius,
             YVuMeterOutR + (VuMeterHeight / 2),
             ClipRadius,
-            IsClipping ? __pActivePalette->VuMeterClip : __pActivePalette->VuMeterBack
+            IsClipping ? __ThemesManager->VuMeterClip : __ThemesManager->VuMeterBack
         );
     }
 
