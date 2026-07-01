@@ -21,6 +21,10 @@ namespace DadGUI {
 cThemesManager __ThemesManager;
 
 // -----------------------------------------------------------------------------
+// Event manager
+GUI_EventManager __GUI_EventManager;
+
+// -----------------------------------------------------------------------------
 // Slot Memory Manager
 cMemoryManager __MemoryManager;  // Global memory manager instance
 

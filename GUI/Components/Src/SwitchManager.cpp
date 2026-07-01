@@ -29,7 +29,7 @@ void cSwitchOnOff::Init(DadDrivers::cSwitch* pFootSwitch, uint32_t EffectID) {
     m_pFootSwitch = pFootSwitch;  // Store footswitch reference
     m_OldPressCount = 0;          // Initialize press count tracking
     m_LastPressTime = 0;          // Reset last press timestamp
-    __GUI_EventManager.Subscribe_FastUpdate(this, EffectID); // Register with GUI update system
+    DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this, EffectID); // Register with GUI update system
 }
 //-----------------------------------------------------------------------------------
 // Function: Update
@@ -83,7 +83,7 @@ void cTapTempoMemChange::Init(DadDrivers::cSwitch* pFootSwitch,
     m_TempoType = TempoType;      // Set tempo calculation type
     m_pParameter = pParameter;    // Store parameter to control
     m_PeriodUpdateCount = 0;      // Initialize period update tracking
-    __GUI_EventManager.Subscribe_FastUpdate(this, EffectID); // Register with GUI update system
+    DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this, EffectID); // Register with GUI update system
 }
 
 //-----------------------------------------------------------------------------------

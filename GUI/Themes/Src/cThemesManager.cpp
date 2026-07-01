@@ -15,9 +15,8 @@
 #include "cThemesManager.h"
 #include "GUI_Event.h"
 
-extern DadGUI::GUI_EventManager __GUI_EventManager;
-
 namespace DadGUI {
+extern GUI_EventManager __GUI_EventManager;
 
 #if __has_include("UserPalette.h")
 #include "UserPalette.h"

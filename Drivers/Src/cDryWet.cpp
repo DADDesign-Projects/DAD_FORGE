@@ -71,8 +71,8 @@ void cDryWet::Init(float MinDry, float MaxDry, float TimeChange) {
     m_OldDryVolumeIndex = 0u;
 
     // Subscribe to GUI events
-    __GUI_EventManager.Subscribe_FastUpdate(this);
-    __GUI_EventManager.Subscribe_RT_Process(this);
+    DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this);
+    DadGUI::__GUI_EventManager.Subscribe_RT_Process(this);
 }
 
 // -----------------------------------------------------------------------------

@@ -83,7 +83,7 @@ void cInfoView::Deactivate() {
 void cInfoView::Update() {
 	if(m_isActive == false) return;  // Skip update if not active
 
-	bool Dirty = __GUI_EventManager.sendEventToActive_SerializeIsDirty();  // Check if parameters have been modified
+	bool Dirty = DadGUI::__GUI_EventManager.sendEventToActive_SerializeIsDirty();  // Check if parameters have been modified
 
 	// Check if any monitored state (slot, dirty, On/Off) has changed
 	if ((m_MemState != __MemOnOff) ||

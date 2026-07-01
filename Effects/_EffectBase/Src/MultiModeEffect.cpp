@@ -32,7 +32,7 @@ namespace DadEffect {
     // Description: Activates the effect and sets up GUI components
     //
     void cMultiModeEffectBase::Activate(){
-    	__GUI_EventManager.SetActiveFamily4AllEvents(m_ID);    // Set event family for this effect
+    	DadGUI::__GUI_EventManager.SetActiveFamily4AllEvents(m_ID);    // Set event family for this effect
         __GUI.activeMainComponent(&m_Menu);                    // Set menu as active main component
         onActivate();                                          // Delegate to derived class activation
     }
@@ -89,7 +89,7 @@ namespace DadEffect {
         m_cParameterInfoView.Init();                        // Initialize parameter info view
 
         // Configure GUI event routing
-        __GUI_EventManager.SetActiveFamily4AllEvents(m_pActiveEffect->getID()); // Set event family for active effect
+        DadGUI::__GUI_EventManager.SetActiveFamily4AllEvents(m_pActiveEffect->getID()); // Set event family for active effect
 
         // Activate GUI components
         __GUI.activeBackComponent(&m_InfoView);             // Set info view as background component
@@ -104,7 +104,7 @@ namespace DadEffect {
         __GUI.RegisterEndRestoreListener(EndRestoreEvent, (uint32_t) this);
 
         // Subscribe to fast GUI update events
-        __GUI_EventManager.Subscribe_FastUpdate(this);
+        DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this);
     }
 
     // -----------------------------------------------------------------------------

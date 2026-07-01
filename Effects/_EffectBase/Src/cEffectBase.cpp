@@ -39,7 +39,7 @@ void cEffectBase::Initialize()
     m_Menu.addMenuItem(&m_PanelOfSystemView,     "System");
 
     // Configure GUI identifiers and components
-    __GUI_EventManager.SetActiveFamily4AllEvents(EffectID);
+    DadGUI::__GUI_EventManager.SetActiveFamily4AllEvents(EffectID);
 
     __GUI.activeBackComponent(&m_InfoView);
     __GUI.activeMainComponent(&m_Menu);
@@ -54,7 +54,7 @@ void cEffectBase::Initialize()
     __GUI.RegisterEndRestoreListener(EndRestoreEvent, (uint32_t)this);
 
     // Subscribe to fast GUI update events
-    __GUI_EventManager.Subscribe_FastUpdate(this);
+    DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this);
 }
 
 // -----------------------------------------------------------------------------

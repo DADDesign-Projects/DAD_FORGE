@@ -39,7 +39,7 @@ void cPanelOfTone::Initialize(uint32_t SerializeID) {
     m_TrebleView.Init(&m_Treble, "Treble", "Treble", "dB", "dB");
 
     // Subscribe to the RT_ProcessOut event
-    __GUI_EventManager.Subscribe_RT_ProcessOut(this);
+    DadGUI::__GUI_EventManager.Subscribe_RT_ProcessOut(this);
 
     // Initialize cPanelOfParameterView
     cPanelOfParameterView::Init(&m_BassView, &m_MidView, &m_TrebleView);

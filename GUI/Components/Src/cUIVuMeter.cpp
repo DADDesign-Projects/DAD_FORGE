@@ -59,9 +59,9 @@ void cUIVuMeter::Init() {
     m_MemClippingOutLeft  = false;  // Left channel clipping memory
     m_MemClippingOutRight = false;  // Right channel clipping memory
 
-    __GUI_EventManager.Subscribe_Update(this);
-    __GUI_EventManager.Subscribe_RT_ProcessIn(this);
-    __GUI_EventManager.Subscribe_RT_ProcessOut(this);
+    DadGUI::__GUI_EventManager.Subscribe_Update(this);
+    DadGUI::__GUI_EventManager.Subscribe_RT_ProcessIn(this);
+    DadGUI::__GUI_EventManager.Subscribe_RT_ProcessOut(this);
 }
 
 // ---------------------------------------------------------------------------------

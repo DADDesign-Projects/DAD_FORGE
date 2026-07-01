@@ -51,12 +51,12 @@ void cUIParameter::Init(uint32_t SerializeID,
     m_MemUIParameterValue = m_TargetValue;
 
     // Register parameter with GUI serialization and real-time processing systems
-    __GUI_EventManager.Subscribe_AllSerializeEvents(this, SerializeID);
-    __GUI_EventManager.Subscribe_Update(this, SerializeID);
+    DadGUI::__GUI_EventManager.Subscribe_AllSerializeEvents(this, SerializeID);
+    DadGUI::__GUI_EventManager.Subscribe_Update(this, SerializeID);
 	if(RTProcess){
-		__GUI_EventManager.Subscribe_RT_Process(this, SerializeID);
+		DadGUI::__GUI_EventManager.Subscribe_RT_Process(this, SerializeID);
 	}else{
-		__GUI_EventManager.Subscribe_FastUpdate(this, SerializeID);
+		DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this, SerializeID);
 	}
 }
 

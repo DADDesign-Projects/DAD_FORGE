@@ -31,7 +31,7 @@ void cParameterInfoView::Init() {
 
     // Register callback for parameter change notification
     __GUI.RegisterParameterListener(ParameterChange, (uint32_t) this);
-    __GUI_EventManager.Subscribe_Update(this, 0);
+    DadGUI::__GUI_EventManager.Subscribe_Update(this, 0);
 }
 
 // ---------------------------------------------------------------------------------

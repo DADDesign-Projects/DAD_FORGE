@@ -31,7 +31,7 @@ void cBypassOnOffManager::Initialize(volatile uint8_t* pEffectState) {
     m_InternalState = eInternalEffectState_t::bypass;       // Internal state starts as bypass
     m_OldEffectState = eInternalEffectState_t::bypass;      // Initialize previous effect state to bypass
     m_FadeInProcess = false;                                // No fade in progress at startup
-    __GUI_EventManager.Subscribe_FastUpdate(this);          // Subscribe to GUI fast update events
+    DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this);          // Subscribe to GUI fast update events
     ResetPIN(ByPass);                                       // Ensure the bypass relay is in correct initial state
     SetPIN(AUDIO_MUTE);                                     // Effect is not muted at startup
 }

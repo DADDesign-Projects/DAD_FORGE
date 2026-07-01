@@ -30,8 +30,13 @@ namespace DadGUI {
 extern cThemesManager __ThemesManager;
 
 // -----------------------------------------------------------------------------
+// Event manager
+extern GUI_EventManager __GUI_EventManager;
+
+// -----------------------------------------------------------------------------
 // Slot Memory Manager
 extern cMemoryManager __MemoryManager;  // Global memory manager instance
+
 
 class cParameterView;
 

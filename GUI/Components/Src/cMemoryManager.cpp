@@ -113,7 +113,7 @@ bool cMemoryManager::RestoreSlot(uint8_t Slot){
     // Deserialize and restore GUI state
     DadPersistentStorage::cSerialize Serializer;
     Serializer.setBuffer(pBuffer, Size);                           // Set serialization buffer
-    __GUI_EventManager.sendEvent_SerializeRestore(m_MemoryHeader.m_SlotID[Slot], &Serializer); // Restore GUI from data
+    DadGUI::__GUI_EventManager.sendEvent_SerializeRestore(m_MemoryHeader.m_SlotID[Slot], &Serializer); // Restore GUI from data
 
     // Update active slot information
     m_MemoryHeader.m_ActiveSlot = Slot;                            // Set new active slot
@@ -134,7 +134,7 @@ bool cMemoryManager::SaveSlot(uint8_t Slot, uint32_t SlotID){
     DadPersistentStorage::cSerialize Serializer;
 
     // Serialize current GUI state
-    __GUI_EventManager.sendEvent_SerializeSave(SlotID, &Serializer); // Serialize GUI state
+    DadGUI::__GUI_EventManager.sendEvent_SerializeSave(SlotID, &Serializer); // Serialize GUI state
 
     const uint8_t* pBuffer = nullptr;                              // Pointer to serialized data
     uint32_t Size = Serializer.getBuffer(&pBuffer);                // Get data size
