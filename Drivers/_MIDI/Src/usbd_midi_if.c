@@ -89,6 +89,8 @@ extern void OnNoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
 extern void OnControlChange(uint8_t channel, uint8_t control, uint8_t value);
 extern void OnProgramChange(uint8_t channel, uint8_t program);
 
+extern void UsbMidiCallback(uint8_t code, uint8_t channel, uint8_t data1, uint8_t data2);
+
 static int8_t MIDI_Receive_FS(uint8_t *Buf, uint32_t Len)
 {
     // Process received MIDI packets (in blocks of 4 bytes)
@@ -100,6 +102,14 @@ static int8_t MIDI_Receive_FS(uint8_t *Buf, uint32_t Len)
         uint8_t channel = status & 0x0F;        // MIDI channel
         uint8_t Data1 = Buf[i + 2];             // First data byte
         uint8_t Data2 = Buf[i + 3];             // Second data byte
+
+        UsbMidiCallback(cin, channel, Data1, Data2);
+	    // Prepare for next packet reception
+	    USBD_MIDI_SetRxBuffer(&hUsbMidiDeviceFS, UserRxBuffer);
+	    USBD_MIDI_ReceivePacket(&hUsbMidiDeviceFS);
+
+	    return (USBD_OK);
+
 
         // Process according to message type
         switch (cin)

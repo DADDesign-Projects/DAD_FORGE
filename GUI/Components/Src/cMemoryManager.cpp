@@ -46,6 +46,11 @@ void cMemoryManager::Init(){
         // Restore previously active slot
         RestoreSlot(m_MemoryHeader.m_ActiveSlot);
     }
+
+    // Register MIDI callbacks for preset and system control
+    __Midi.addControlChangeCallback(MIDI_CC_PRESET_UP, reinterpret_cast<uint32_t>(this), &MIDI_PresetUp_CallBack);
+    __Midi.addControlChangeCallback(MIDI_CC_PRESET_DOWN, reinterpret_cast<uint32_t>(this), &MIDI_PresetDown_CallBack);
+    __Midi.addProgramChangeCallback(reinterpret_cast<uint32_t>(this), &MIDI_ProgramChange_CallBack);
 }
 
 // ---------------------------------------------------------------------------------

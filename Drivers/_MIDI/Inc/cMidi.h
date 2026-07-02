@@ -1,7 +1,7 @@
 //==================================================================================
 //==================================================================================
 // File: cMidi.h
-// Description: MIDI interface management with callback registration system
+// Description: MIDI interface management
 //
 // Copyright (c) 2025 Dad Design. All rights reserved.
 //==================================================================================
@@ -14,16 +14,38 @@
 // =============================================================================
 
 #include "main.h"
+#include "GUI_Event.h"
 #include <vector>
-
 
 // =============================================================================
 // Constants and Definitions
 // =============================================================================
 
-#define MIDI_BUFFER_SIZE 128   // Size of the MIDI ring buffer
+#define MIDI_BUFFER_SIZE   128   // Size of the MIDI ring buffer
+#define MIDI_USB_FIFO_SIZE 40    // Size of the MIDI USB FIFO buffer
+
 #define MULTI_CHANNEL 0xFF     // Special value to listen on all MIDI channels
 
+// =============================================================================
+// MIDI USB Code Index Numbers (CIN) definitions
+// =============================================================================
+
+#define MIDI_CIN_MISC               0x00  // Miscellaneous function codes
+#define MIDI_CIN_CABLE_EVENT        0x01  // Cable events
+#define MIDI_CIN_2BYTE_SYS_COMMON   0x02  // System common messages (2 bytes)
+#define MIDI_CIN_3BYTE_SYS_COMMON   0x03  // System common messages (3 bytes)
+#define MIDI_CIN_SYSEX_START        0x04  // System exclusive start or continue
+#define MIDI_CIN_SYSEX_END_1BYTE    0x05  // System exclusive end with 1 byte
+#define MIDI_CIN_SYSEX_END_2BYTE    0x06  // System exclusive end with 2 bytes
+#define MIDI_CIN_SYSEX_END_3BYTE    0x07  // System exclusive end with 3 bytes
+#define MIDI_CIN_NOTE_OFF           0x08  // Note Off message
+#define MIDI_CIN_NOTE_ON            0x09  // Note On message
+#define MIDI_CIN_POLY_KEYPRESS      0x0A  // Polyphonic Key Pressure
+#define MIDI_CIN_CONTROL_CHANGE     0x0B  // Control Change message
+#define MIDI_CIN_PROGRAM_CHANGE     0x0C  // Program Change message
+#define MIDI_CIN_CHANNEL_PRESSURE   0x0D  // Channel Pressure message
+#define MIDI_CIN_PITCH_BEND         0x0E  // Pitch Bend Change message
+#define MIDI_CIN_SINGLE_BYTE        0x0F  // Single byte message
 // =============================================================================
 // Callback Type Definitions
 // =============================================================================
@@ -64,13 +86,67 @@ struct Note_CallbackEntry {
     NoteChangeCallback callback;        // Function to call when Note On/Off is received
 };
 
+
+//**********************************************************************************
+// UsbMidiCallback
+// Callback function for handling incoming MIDI events originating from the USB bus.
+//**********************************************************************************
+
+extern "C" {
+void UsbMidiCallback(uint8_t code, uint8_t channel, uint8_t data1, uint8_t data2);
+}
+
 namespace DadDrivers {
+// =============================================================================
+// MIDI message reception from the USB bus.
+// =============================================================================
+
+//**********************************************************************************
+// MIDI event structure
+//**********************************************************************************
+typedef struct {
+    uint8_t code;  			// Event type
+    uint8_t channel;
+    uint8_t data1;
+    uint8_t data2;
+} stMidiEvent_t;
+
+//**********************************************************************************
+// class cMidiFifo
+// FIFO buffer management for USB MIDI messages.
+//**********************************************************************************
+class cMidiFifo{
+public:
+	cMidiFifo()=default;
+	~cMidiFifo()=default;
+
+	//**********************************************************************************
+	// MidiFifoPush
+	// Add MIDI event to FIFO buffer (thread-safe)
+	//**********************************************************************************
+	bool Push(const stMidiEvent_t* event);
+
+	//**********************************************************************************
+	// Pull
+	// get and Remove MIDI event from FIFO buffer
+	//**********************************************************************************
+	bool Pull(stMidiEvent_t* event);
+
+protected:
+
+	// FIFO buffer and management variables
+	stMidiEvent_t 	m_midiFifoBuffer[MIDI_USB_FIFO_SIZE];  	// FIFO buffer
+	uint16_t 		m_midiFifoHead = 0;                		// Head index
+	uint16_t 		m_midiFifoTail = 0;                		// Tail index
+	uint16_t 		m_midiFifoCount = 0;               		// Number of events in FIFO
+};
+
 
 //**********************************************************************************
 // class cMidi
 // MIDI message parser and event handler with callback registration
 //**********************************************************************************
-class cMidi {
+class cMidi : public DadGUI::iGUI_EventListener{
 public:
     // =========================================================================
     // Public Methods
@@ -100,7 +176,7 @@ public:
     // Process any MIDI messages in the buffer
     // Should be called regularly from the main loop
     // -------------------------------------------------------------------------
-    void ProcessBuffer();
+    void on_GUI_FastUpdate() override;
 
     // -------------------------------------------------------------------------
     // Register a callback for a specific Control Change message

@@ -1,13 +1,14 @@
 //==================================================================================
 //==================================================================================
 // File: cMidi.cpp
-// Description: MIDI UART interface management with DMA reception and message parsing
+// Description: MIDI interface management
 //
 // Copyright (c) 2025 Dad Design. All rights reserved.
 //==================================================================================
 //==================================================================================
 
 #include "cMidi.h"
+#include "MainGUI.h"
 #include "Sections.h"
 
 // =============================================================================
@@ -43,7 +44,56 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart){
     __MidiBufferWriteIndex = (__MidiBufferWriteIndex + 1) % MIDI_BUFFER_SIZE;  // Increment write index with wrap-around
 }
 
+//**********************************************************************************
+// UsbMidiCallback
+// Callback function for handling incoming MIDI events originating from the USB bus.
+//**********************************************************************************
+DadDrivers::cMidiFifo __MidiFifo;
+
+void UsbMidiCallback(uint8_t code, uint8_t channel, uint8_t data1, uint8_t data2){
+	DadDrivers::stMidiEvent_t Event;
+	Event.code = code;
+	Event.channel = channel;
+	Event.data1 = data1;
+	Event.data2 = data2;
+	__MidiFifo.Push(& Event);
+}
+
 namespace DadDrivers {
+
+//**********************************************************************************
+// class cMidiFifo
+// FIFO buffer management for USB MIDI messages.
+//**********************************************************************************
+
+//**********************************************************************************
+// MidiFifoPush
+// Add MIDI event to FIFO buffer (thread-safe)
+//**********************************************************************************
+bool cMidiFifo::Push(const stMidiEvent_t* event) {
+	uint16_t nextHead = (m_midiFifoHead + 1) % MIDI_USB_FIFO_SIZE;
+	if (nextHead == m_midiFifoTail) {
+		return false; // FIFO full
+	}
+	m_midiFifoBuffer[m_midiFifoHead] = *event;
+	m_midiFifoHead = nextHead;
+	m_midiFifoCount++;
+	return true;
+}
+
+//**********************************************************************************
+// Pull
+// get and Remove MIDI event from FIFO buffer
+//**********************************************************************************
+bool cMidiFifo::Pull(stMidiEvent_t* event) {
+	if (m_midiFifoCount == 0) {
+		return false; // FIFO empty
+	}
+	*event = m_midiFifoBuffer[m_midiFifoTail];
+	m_midiFifoTail = (m_midiFifoTail + 1) % MIDI_USB_FIFO_SIZE;
+	m_midiFifoCount--;
+	return true;
+}
 
 //**********************************************************************************
 // class cMidi
@@ -68,6 +118,8 @@ void cMidi::Initialize(UART_HandleTypeDef* phuart, uint8_t Channel){
     m_dataIndex = 0;                      // Reset data byte counter
     m_ccCallbacks.clear();                // Clear any existing callbacks
 
+    DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this);
+
     // Start DMA reception in circular mode (continuously receives data)
     HAL_UART_Receive_DMA(phuart, __RxData, 2);
 }
@@ -76,8 +128,10 @@ void cMidi::Initialize(UART_HandleTypeDef* phuart, uint8_t Channel){
 // Process any MIDI messages in the buffer
 // Should be called regularly from the main loop
 // -----------------------------------------------------------------------------
-void cMidi::ProcessBuffer(){
-    // Process all available bytes in the buffer
+void cMidi::on_GUI_FastUpdate(){
+
+	// ****************************************************************************
+    // Process all available bytes in the UART buffer
     while (__MidiBufferReadIndex != __MidiBufferWriteIndex) {
         uint8_t byte = __MidiBuffer[__MidiBufferReadIndex];  // Get next byte from buffer
         __MidiBufferReadIndex = (__MidiBufferReadIndex + 1) % MIDI_BUFFER_SIZE;  // Increment read index
@@ -100,6 +154,38 @@ void cMidi::ProcessBuffer(){
                 m_dataIndex = 0;                 // Reset for next message
             }
         }
+    }
+
+    // ****************************************************************************
+    // Process all pending MIDI events from the USB FIFO
+    stMidiEvent_t event;
+
+    // Safely pop event from FIFO with interrupts disabled
+    __disable_irq();
+    bool IsNotEmpty = __MidiFifo.Pull(&event);
+    __enable_irq();
+
+    // Process all events in FIFO
+    while (IsNotEmpty) {
+        switch (event.code) {
+            case MIDI_CIN_NOTE_ON :
+                OnNoteOn(event.channel, event.data1, event.data2);
+                break;
+            case MIDI_CIN_NOTE_OFF:
+                OnNoteOff(event.channel, event.data1, event.data2);
+                break;
+            case MIDI_CIN_CONTROL_CHANGE:
+                OnControlChange(event.channel, event.data1, event.data2);
+                break;
+            case MIDI_CIN_PROGRAM_CHANGE:
+                OnProgramChange(event.channel, event.data1);
+                break;
+        }
+
+        // Get next event with interrupts disabled
+        __disable_irq();
+        IsNotEmpty = __MidiFifo.Pull(&event);
+        __enable_irq();
     }
 }
 
@@ -263,22 +349,22 @@ uint8_t cMidi::getDataLength(uint8_t status) const {
 // @param data - Array of data bytes
 // -----------------------------------------------------------------------------
 void cMidi::parseMessage(uint8_t status, uint8_t* data) const {
-    uint8_t type = status & 0xF0;      // Extract message type (Note On, CC, etc.)
-    uint8_t channel = status & 0x0F;   // Extract MIDI channel (0-15)
+    uint8_t type = (status >> 4 ) & 0x0F; // Extract message type (Note On, CC, etc.)
+    uint8_t channel = status & 0x0F;     // Extract MIDI channel (0-15)
 
     // Route message to appropriate handler based on type
     switch (type) {
-        case 0x80:  // Note Off
+        case MIDI_CIN_NOTE_OFF:
             OnNoteOff(channel, data[0], data[1]);
             break;
-        case 0x90:  // Note On (velocity 0 = Note Off)
+        case MIDI_CIN_NOTE_ON:  // Note On (velocity 0 = Note Off)
             if (data[1]) OnNoteOn(channel, data[0], data[1]);  // Non-zero velocity = Note On
             else OnNoteOff(channel, data[0], 0);               // Zero velocity = Note Off
             break;
-        case 0xB0:  // Control Change
+        case MIDI_CIN_CONTROL_CHANGE:
             OnControlChange(channel, data[0], data[1]);
             break;
-        case 0xC0:  // Program Change
+        case MIDI_CIN_PROGRAM_CHANGE:
             OnProgramChange(channel, data[0]);
             break;
         // Other MIDI message types could be added here

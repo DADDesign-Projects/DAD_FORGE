@@ -41,7 +41,7 @@ class cParameterView;
 //   and system-wide GUI operations.
 //**********************************************************************************
 
-class cMainGUI : public iGUI_EventListener
+class cMainGUI
 {
 public:
     virtual ~cMainGUI() = default;
@@ -65,14 +65,6 @@ public:
     // Description: Initializes memory management and sets up system callbacks.
     // -------------------------------------------------------------------------
     void Start();
-
-    // -------------------------------------------------------------------------
-    // on_GUI_Update
-    //
-    // Description: Handles GUI update events, updates components and manages
-    //   palette changes.
-    // -------------------------------------------------------------------------
-    void on_GUI_Update() override;
 
     // -------------------------------------------------------------------------
     // activeMainComponent

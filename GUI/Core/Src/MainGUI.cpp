@@ -66,7 +66,6 @@ void cMainGUI::Initialize()
 
     // Initialize state variables
     __GUI_EventManager.Clear();
-    __GUI_EventManager.Subscribe_Update(this);
 
     __ThemesManager.Initialize();
     __ThemesManager.RegisterThemeChangeListener(ThemeChange_CallBack, (uint32_t) this);
@@ -91,30 +90,10 @@ void cMainGUI::Start()
     // Initialize memory management system
     __MemoryManager.Init();
 
-    // Register MIDI callbacks for preset and system control
-    __Midi.addControlChangeCallback(MIDI_CC_PRESET_UP, reinterpret_cast<uint32_t>(&__MemoryManager), &cMemoryManager::MIDI_PresetUp_CallBack);
-    __Midi.addControlChangeCallback(MIDI_CC_PRESET_DOWN, reinterpret_cast<uint32_t>(&__MemoryManager), &cMemoryManager::MIDI_PresetDown_CallBack);
-    __Midi.addProgramChangeCallback(reinterpret_cast<uint32_t>(&__MemoryManager), &cMemoryManager::MIDI_ProgramChange_CallBack);
+
     __Midi.addControlChangeCallback(MIDI_CC_ON, 0, &MIDI_On_CallBack);
     __Midi.addControlChangeCallback(MIDI_CC_OFF, 0, &MIDI_Off_CallBack);
     __Midi.addControlChangeCallback(MIDI_CC_BYPASS, 0, &MIDI_ByPass_CallBack);
-}
-
-//----------------------------------------------------------------------------
-// Update Management
-//----------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------
-// on_GUI_Update
-//
-// Description: Processes GUI update events, updates components and manages
-//   palette changes.
-//----------------------------------------------------------------------------
-void cMainGUI::on_GUI_Update()
-{
-    // Update main UI components
-    if (m_pBackComponent) m_pBackComponent->Update();
-    if (m_pMainComponent) m_pMainComponent->Update();
 }
 
 //----------------------------------------------------------------------------
@@ -180,7 +159,6 @@ void cMainGUI::MainLoop()
 {
     uint32_t lastGUIFast    = HAL_GetTick();
     uint32_t lastGUI        = HAL_GetTick();
-    uint32_t lastMIDI       = HAL_GetTick();
     uint32_t lastGeneral    = HAL_GetTick();
 
 #ifdef MONITOR
@@ -191,27 +169,22 @@ void cMainGUI::MainLoop()
     {
         uint32_t currentTick = HAL_GetTick();
 
-        // 1. GUI Fast Update
+        // GUI Fast Update
         if (currentTick - lastGUIFast >= GUI_FAST_UPDATE_MS)
         {
             lastGUIFast += GUI_FAST_UPDATE_MS;  // Drift correction
             DadGUI::__GUI_EventManager.sendEventToActive_FastUpdate();
         }
 
-        // 2. GUI Standard
+        // GUI Standard
         if (currentTick - lastGUI >= GUI_UPDATE_MS)
         {
             lastGUI += GUI_UPDATE_MS;
+            // Update main UI components
+            if (m_pBackComponent) m_pBackComponent->Update();
+            if (m_pMainComponent) m_pMainComponent->Update();
             DadGUI::__GUI_EventManager.sendEventToActive_Update();
             __Display.flush();
-        }
-
-        // 3. MIDI
-        if (currentTick - lastMIDI >= MIDI_UPDATE_MS)
-        {
-            lastMIDI += MIDI_UPDATE_MS;
-            __Midi.ProcessBuffer();
-            //ProcessMidiFifo();
         }
 
 #ifdef MONITOR
