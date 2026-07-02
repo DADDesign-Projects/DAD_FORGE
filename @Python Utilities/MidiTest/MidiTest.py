@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import mido
+import mido.backends.rtmidi   # ← IMPORTANT pour PyInstaller
 import os
 import json
 
@@ -190,8 +191,7 @@ class PotentiometerMIDI:
             for ch in channels:
                 msg = mido.Message('program_change', channel=ch, program=prog)
                 self.midi_output.send(msg)
-            messagebox.showinfo("Succès", f"Program Change {prog} envoyé sur canal(s) {
-                                 'OMNI' if self.omni_mode else self.midi_channel+1}")
+            messagebox.showinfo("Succès", f"Program Change {prog} envoyé sur canal(s) {'OMNI' if self.omni_mode else self.midi_channel+1}")
         except:
             messagebox.showerror("Erreur", "Programme invalide (0-127)")
 
