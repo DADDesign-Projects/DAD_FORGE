@@ -11,6 +11,8 @@
 #include "cDisplay.h"
 #include "cFlasherStorage.h"
 
+extern DadGUI::cBypassOnOffManager __BypassOnOffManager;
+
 namespace DadGUI {
 
 //**********************************************************************************
@@ -33,7 +35,7 @@ void cInfoView::Init() {
 	m_pInfoLayer  = ADD_LAYER(__Display, InfoLayer, 0, MENU_HEIGHT + PARAM_HEIGHT, 0);  // Create display layer
 	m_MemSlot     = MAX_SLOT + 1;                                                       // Initialize memory slot
 	m_MemDirty    = false;                                                              // Initialize dirty flag
-	m_MemState    = eOnOff::ByPass;                                                     // Initialize memory state
+	m_MemState    = eEffectState_t::bypass;                                             // Initialize memory state
 	m_isActive	  = false;                                                              // Initialize active state
 	m_NumImageInfoLayer = -1;
 	for(uint8_t Index=0; Index < MAX_IMAGE_LAYER; Index++){
@@ -59,9 +61,9 @@ void cInfoView::Init() {
 // Called when this component becomes active (brought to foreground)
 //==================================================================================
 void cInfoView::Activate() {
-	m_isActive = true;                                             // Set active flag
-	m_pInfoLayer->changeZOrder(10);                                // Bring to foreground
-	m_MemState = eOnOff::ByPass;                                   // Set default state
+	m_isActive = true;                                              // Set active flag
+	m_pInfoLayer->changeZOrder(10);                                 // Bring to foreground
+	m_MemState = eEffectState_t::bypass;                            // Set default state
 	ShowView(false, __MemoryManager.getActiveSlot() + 1, "BYPASS"); // Display initial view
 }
 
@@ -86,32 +88,33 @@ void cInfoView::Update() {
 	bool Dirty = DadGUI::__GUI_EventManager.sendEventToActive_SerializeIsDirty();  // Check if parameters have been modified
 
 	// Check if any monitored state (slot, dirty, On/Off) has changed
-	if ((m_MemState != __MemOnOff) ||
+	eEffectState_t State = __BypassOnOffManager.getTargetState();
+	if ((m_MemState != State) ||
 		(m_MemSlot != __MemoryManager.getActiveSlot()) ||
 		(m_MemDirty != Dirty)) {
 
-		std::string State;  // String representation of current state
+		std::string strState;  // String representation of current state
 
 		// Map current memory state to string representation
-		switch (__MemOnOff) {
-			case eOnOff::ByPass:
-				State = "BYPASS";
-				m_MemState = eOnOff::ByPass;
+		switch (State) {
+			case eEffectState_t::bypass:
+				strState = "BYPASS";
+				m_MemState = eEffectState_t::bypass;
 				break;
-			case eOnOff::Off:
-				State = "OFF";
-				m_MemState = eOnOff::Off;
+			case eEffectState_t::off:
+				strState = "OFF";
+				m_MemState = eEffectState_t::off;
 				break;
-			case eOnOff::On:
-				State = "ON";
-				m_MemState = eOnOff::On;
+			case eEffectState_t::on:
+				strState = "ON";
+				m_MemState = eEffectState_t::on;
 				break;
 		}
 
 		// Update memory display with new state
 		m_MemDirty = Dirty;                                // Update dirty flag
 		m_MemSlot  = __MemoryManager.getActiveSlot();      // Update current slot
-		ShowView(Dirty, m_MemSlot + 1, State);            // Refresh display
+		ShowView(Dirty, m_MemSlot + 1, strState);            // Refresh display
 	}
 }
 
@@ -120,21 +123,22 @@ void cInfoView::Update() {
 //==================================================================================
 void cInfoView::Redraw(){
 	if(m_isActive){
-		std::string State;  // String representation of current state
+		std::string strState;  // String representation of current state
+		eEffectState_t State = __BypassOnOffManager.getTargetState();
 
 		// Determine current state string
-		switch (__MemOnOff) {
-			case eOnOff::ByPass:
-				State = "BYPASS";
+		switch (State) {
+			case eEffectState_t::bypass:
+				strState = "BYPASS";
 				break;
-			case eOnOff::Off:
-				State = "OFF";
+			case eEffectState_t::off:
+				strState = "OFF";
 				break;
-			case eOnOff::On:
-				State = "ON";
+			case eEffectState_t::on:
+				strState = "ON";
 				break;
 		}
-		ShowView(m_MemDirty, m_MemSlot + 1, State);  // Refresh display with current state
+		ShowView(m_MemDirty, m_MemSlot + 1, strState);  // Refresh display with current state
 	}
 }
 

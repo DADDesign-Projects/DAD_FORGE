@@ -10,6 +10,7 @@
 #pragma once
 
 #include "GUI_Include.h"
+#include "cBypassOnOffManager.h"
 #include <string>
 
 #define MAX_IMAGE_LAYER 10
@@ -68,7 +69,7 @@ protected:
     DadGFX::cLayer* 	 m_pInfoLayer;       // Pointer to the dedicated display layer
     DadGFX::cImageLayer* m_pImageInfoLayer[MAX_IMAGE_LAYER]; // Pointer to the image layer for Info Layer background
     int8_t				 m_NumImageInfoLayer;
-    eOnOff          	 m_MemState;         // Cached ON/OFF/BYPASS state
+    eEffectState_t     	 m_MemState;         // Cached ON/OFF/BYPASS state
     uint8_t         	 m_MemSlot;          // Cached memory slot index
     bool            	 m_MemDirty;         // Cached dirty flag
 };

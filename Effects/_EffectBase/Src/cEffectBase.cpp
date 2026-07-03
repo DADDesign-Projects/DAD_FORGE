@@ -59,12 +59,12 @@ void cEffectBase::Initialize()
 
 // -----------------------------------------------------------------------------
 // Audio processing function: processes one input/output audio buffer
-void cEffectBase::Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence)
+void cEffectBase::Process(AudioBuffer *pIn, AudioBuffer *pOut, DadGUI::eEffectState_t State, bool Silence)
 {
     AudioBuffer OutEffect;
 
     // Process audio through child effect
-    onProcess(pIn, &OutEffect, OnOff, Silence);
+    onProcess(pIn, &OutEffect, State, Silence);
 
     // Apply wet gain fade for smooth effect/memory switching
     if (!isZero(m_FadeIncrement)) {

@@ -89,11 +89,6 @@ void cMainGUI::Start()
 {
     // Initialize memory management system
     __MemoryManager.Init();
-
-
-    __Midi.addControlChangeCallback(MIDI_CC_ON, 0, &MIDI_On_CallBack);
-    __Midi.addControlChangeCallback(MIDI_CC_OFF, 0, &MIDI_Off_CallBack);
-    __Midi.addControlChangeCallback(MIDI_CC_BYPASS, 0, &MIDI_ByPass_CallBack);
 }
 
 //----------------------------------------------------------------------------
@@ -215,40 +210,6 @@ void cMainGUI::MainLoop()
     }
 }
 
-
-//----------------------------------------------------------------------------
-// MIDI Callback Functions
-//----------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------
-// MIDI_On_CallBack
-//
-// Description: MIDI callback for system ON command.
-//----------------------------------------------------------------------------
-void cMainGUI::MIDI_On_CallBack(uint8_t control, uint8_t value, uint32_t userData)
-{
-    __OnOffCmd = On;  // Set system state to ON
-}
-
-//----------------------------------------------------------------------------
-// MIDI_Off_CallBack
-//
-// Description: MIDI callback for system OFF command.
-//----------------------------------------------------------------------------
-void cMainGUI::MIDI_Off_CallBack(uint8_t control, uint8_t value, uint32_t userData)
-{
-    __OnOffCmd = Off;  // Set system state to OFF
-}
-
-//----------------------------------------------------------------------------
-// MIDI_ByPass_CallBack
-//
-// Description: MIDI callback for system BYPASS command.
-//----------------------------------------------------------------------------
-void cMainGUI::MIDI_ByPass_CallBack(uint8_t control, uint8_t value, uint32_t userData)
-{
-    __OnOffCmd = ByPass;  // Set system state to BYPASS
-}
 
 } // namespace DadGUI
 

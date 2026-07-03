@@ -9,6 +9,9 @@
 //==================================================================================
 
 #include "SwitchManager.h"
+#include "cBypassOnOffManager.h"
+
+extern DadGUI::cBypassOnOffManager __BypassOnOffManager;
 
 namespace DadGUI {
 
@@ -50,14 +53,15 @@ void cSwitchOnOff::on_GUI_FastUpdate() {
         if (SwitchState == 0) {
         	m_OldPressCount = PressCount;
         	if(PressDuration < 1.0f){
-                if (__OnOffCmd == eOnOff::Off || __OnOffCmd == eOnOff::ByPass) {
-                    __OnOffCmd = eOnOff::On;   // Turn on if currently off or in bypass
-                } else if (__OnOffCmd == eOnOff::On) {
-                    __OnOffCmd = eOnOff::Off;  // Turn off if currently on
+        		eEffectState_t State = __BypassOnOffManager.getTargetState();
+                if (State == eEffectState_t::off || State == eEffectState_t::bypass) {
+                	__BypassOnOffManager.setState(eEffectState_t::on);   // Turn on if currently off or in bypass
+                } else if (State == eEffectState_t::on) {
+                	__BypassOnOffManager.setState(eEffectState_t::off);  // Turn off if currently on
                 }
         	}
         }else if(PressDuration > 1.0f ){
-        		__OnOffCmd = eOnOff::ByPass;
+        	__BypassOnOffManager.setState(eEffectState_t::bypass);
         }
     }
 }

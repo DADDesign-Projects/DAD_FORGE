@@ -66,7 +66,7 @@ uint32_t cTemplateEffect::getEffectID(){
 // Method: Process
 // Description: Audio processing function - processes one input/output audio buffer
 // -----------------------------------------------------------------------------
-void cTemplateEffect::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence){
+void cTemplateEffect::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, DadGUI::eEffectState_t State, bool Silence){
     // Retrieve current gain value from parameter system
     float gainValue = m_ParameterGain.getValue()/100;
     

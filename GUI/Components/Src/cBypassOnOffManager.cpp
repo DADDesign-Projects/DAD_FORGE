@@ -24,16 +24,19 @@ namespace DadGUI {
 // Initializes the manager with default values.
 // Sets initial states for target, internal, and effect states to 'bypass'.
 // Ensures that the bypass relay is correctly initialized at startup.
-void cBypassOnOffManager::Initialize(volatile uint8_t* pEffectState) {
-    if(!pEffectState) Error_Handler();                      // Ensure valid pointer is provided
-    m_pEffectState = pEffectState;                          // Store pointer to principal effect state variable
-    m_TargetState = eInternalEffectState_t::bypass;         // Initialize to bypass state
-    m_InternalState = eInternalEffectState_t::bypass;       // Internal state starts as bypass
-    m_OldEffectState = eInternalEffectState_t::bypass;      // Initialize previous effect state to bypass
+void cBypassOnOffManager::Initialize() {
+    m_TargetState = eEffectState_t::bypass;         		// Initialize to bypass state
+    m_InternalState = eEffectState_t::bypass;       		// Internal state starts as bypass
+    m_OldEffectState = eEffectState_t::bypass;      		// Initialize previous effect state to bypass
     m_FadeInProcess = false;                                // No fade in progress at startup
-    DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this);          // Subscribe to GUI fast update events
+    DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this);  // Subscribe to GUI fast update events
     ResetPIN(ByPass);                                       // Ensure the bypass relay is in correct initial state
     SetPIN(AUDIO_MUTE);                                     // Effect is not muted at startup
+
+    // Midi Callback
+    __Midi.addControlChangeCallback(MIDI_CC_ON, (uint32_t) this, &MIDI_On_CallBack);
+    __Midi.addControlChangeCallback(MIDI_CC_OFF, (uint32_t) this, &MIDI_Off_CallBack);
+    __Midi.addControlChangeCallback(MIDI_CC_BYPASS, (uint32_t) this, &MIDI_ByPass_CallBack);
 }
 
 // -----------------------------------------------------------------------------
@@ -41,28 +44,22 @@ void cBypassOnOffManager::Initialize(volatile uint8_t* pEffectState) {
 // This function checks whether a fade process has completed and updates the
 // effect state accordingly based on the internal transition state.
 void cBypassOnOffManager::on_GUI_FastUpdate() {
-    // Check if the global effect state has changed since last update
-    // If so, capture the new value and update the target state
-    // Then, perform the appropriate transition.
-    __disable_irq();
-    m_TargetState = (eInternalEffectState_t) *m_pEffectState;   // Update the target state based on global effect state
-    __enable_irq();
 
     if(m_OldEffectState != m_TargetState) {
         m_OldEffectState = m_TargetState;                       // Store the previous effect state
 
         // Execute appropriate transition based on target state
         switch (m_TargetState) {
-            case eInternalEffectState_t::bypass:
-                if (m_InternalState == eInternalEffectState_t::on) OnToBypass();
-                else if (m_InternalState == eInternalEffectState_t::off) OffToBypass();
+            case eEffectState_t::bypass:
+                if (m_InternalState == eEffectState_t::on) OnToBypass();
+                else if (m_InternalState == eEffectState_t::off) OffToBypass();
                 break;
-            case eInternalEffectState_t::off:
-                if (m_InternalState == eInternalEffectState_t::on) OnToOff();
+            case eEffectState_t::off:
+                if (m_InternalState == eEffectState_t::on) OnToOff();
                 break;
-            case eInternalEffectState_t::on:
-                if (m_InternalState == eInternalEffectState_t::bypass) BypassToOn();
-                else if (m_InternalState == eInternalEffectState_t::off) OffToOn();
+            case eEffectState_t::on:
+                if (m_InternalState == eEffectState_t::bypass) BypassToOn();
+                else if (m_InternalState == eEffectState_t::off) OffToOn();
                 break;
         }
     }
@@ -71,10 +68,40 @@ void cBypassOnOffManager::on_GUI_FastUpdate() {
     if (m_FadeInProcess && (__DryWet.getState() == (uint8_t) m_TargetState)) {
         m_FadeInProcess = false;                               // Reset fade flag when complete
         m_InternalState = m_TargetState;                       // Update internal state to match target
-        if(m_InternalState == eInternalEffectState_t::bypass) {
+        if(m_InternalState == eEffectState_t::bypass) {
             ResetPIN(ByPass);
         }
     }
+}
+
+//----------------------------------------------------------------------------
+// MIDI_On_CallBack
+//
+// Description: MIDI callback for system ON command.
+//----------------------------------------------------------------------------
+void cBypassOnOffManager::MIDI_On_CallBack(uint8_t control, uint8_t value, uint32_t userData){
+	cBypassOnOffManager* pThis = (cBypassOnOffManager* ) userData;
+	pThis->setState(eEffectState_t::on);
+}
+
+//----------------------------------------------------------------------------
+// MIDI_Off_CallBack
+//
+// Description: MIDI callback for system OFF command.
+//----------------------------------------------------------------------------
+void cBypassOnOffManager::MIDI_Off_CallBack(uint8_t control, uint8_t value, uint32_t userData){
+	cBypassOnOffManager* pThis = (cBypassOnOffManager* ) userData;
+	pThis->setState(eEffectState_t::off);
+}
+
+//----------------------------------------------------------------------------
+// MIDI_ByPass_CallBack
+//
+// Description: MIDI callback for system BYPASS command.
+//----------------------------------------------------------------------------
+void cBypassOnOffManager::MIDI_ByPass_CallBack(uint8_t control, uint8_t value, uint32_t userData){
+	cBypassOnOffManager* pThis = (cBypassOnOffManager* ) userData;
+	pThis->setState(eEffectState_t::bypass);
 }
 
 } // namespace DadGUI

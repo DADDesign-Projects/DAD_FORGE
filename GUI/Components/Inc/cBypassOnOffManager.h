@@ -19,7 +19,7 @@ namespace DadGUI {
 
 // -----------------------------------------------------------------------------
 // Enum representing internal state transitions for handling complex behavior during state changes
-enum class eInternalEffectState_t : uint8_t {
+enum class eEffectState_t : uint8_t {
     bypass = 0,
     off,
     on
@@ -45,9 +45,7 @@ public:
 
     // -----------------------------------------------------------------------------
     // Initializes the manager with default values.
-    // Sets initial states for target, internal, and effect states to 'bypass'.
-    // Ensures that the bypass relay is correctly initialized at startup.
-    void Initialize(volatile uint8_t* pEffectState);
+    void Initialize();
 
     // -----------------------------------------------------------------------------
     // Handles GUI fast update events.
@@ -56,11 +54,21 @@ public:
     void on_GUI_FastUpdate() override;
 
     // -----------------------------------------------------------------------------
+    // Set state of effect
+    void setState(eEffectState_t State){
+    	m_TargetState = State;
+    }
+
+    // -----------------------------------------------------------------------------
     // Returns the current effect state.
-    // Provides access to the current operational mode of the effect.
-    // Useful for status reporting and conditional logic in GUI components.
-    eInternalEffectState_t getState() const {
-        return m_InternalState;  // Return internal state instead of m_EffecState
+    eEffectState_t getTargetState() const {
+        return m_TargetState;
+    }
+
+    // -----------------------------------------------------------------------------
+    // Returns the current effect state.
+    eEffectState_t getState() const {
+        return m_InternalState;  // Return internal state
     }
 
 protected:
@@ -105,15 +113,34 @@ protected:
         m_FadeInProcess = true;
     }
 
+    // -------------------------------------------------------------------------
+    // MIDI_On_CallBack
+    //
+    // Description: MIDI callback for system ON command.
+    // -------------------------------------------------------------------------
+    static void MIDI_On_CallBack(uint8_t control, uint8_t value, uint32_t userData);
+
+    // -------------------------------------------------------------------------
+    // MIDI_Off_CallBack
+    //
+    // Description: MIDI callback for system OFF command.
+    // -------------------------------------------------------------------------
+    static void MIDI_Off_CallBack(uint8_t control, uint8_t value, uint32_t userData);
+
+    // -------------------------------------------------------------------------
+    // MIDI_ByPass_CallBack
+    //
+    // Description: MIDI callback for system BYPASS command.
+    // -------------------------------------------------------------------------
+    static void MIDI_ByPass_CallBack(uint8_t control, uint8_t value, uint32_t userData);
+
 private:
     // =============================================================================
     // Member variables
-    // alignas(4) is used to workaround a compiler bug at -O3 optimization level.
-    alignas(4) eInternalEffectState_t    m_TargetState;      // Target state for transition management
-    alignas(4) eInternalEffectState_t    m_InternalState;    // Internal state tracking for transitions
-    alignas(4) volatile uint8_t*         m_pEffectState;     // Pointer to the current effect state
-    alignas(4) eInternalEffectState_t    m_OldEffectState;   // Previous effect state for comparison
-    alignas(4) bool                      m_FadeInProcess;    // Flag to track if a fade is in progress
+    eEffectState_t    	m_TargetState;      // Target state for transition management
+    eEffectState_t    	m_InternalState;    // Internal state tracking for transitions
+    eEffectState_t    	m_OldEffectState;   // Previous effect state for comparison
+    bool                m_FadeInProcess;    // Flag to track if a fade is in progress
 };
 
 } // namespace DadGUI

@@ -245,27 +245,6 @@ protected:
     // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
-    // MIDI_On_CallBack
-    //
-    // Description: MIDI callback for system ON command.
-    // -------------------------------------------------------------------------
-    static void MIDI_On_CallBack(uint8_t control, uint8_t value, uint32_t userData);
-
-    // -------------------------------------------------------------------------
-    // MIDI_Off_CallBack
-    //
-    // Description: MIDI callback for system OFF command.
-    // -------------------------------------------------------------------------
-    static void MIDI_Off_CallBack(uint8_t control, uint8_t value, uint32_t userData);
-
-    // -------------------------------------------------------------------------
-    // MIDI_ByPass_CallBack
-    //
-    // Description: MIDI callback for system BYPASS command.
-    // -------------------------------------------------------------------------
-    static void MIDI_ByPass_CallBack(uint8_t control, uint8_t value, uint32_t userData);
-
-    // -------------------------------------------------------------------------
     // ThemeChange_CallBack
     //
     // Description: Callback for theme change notification.

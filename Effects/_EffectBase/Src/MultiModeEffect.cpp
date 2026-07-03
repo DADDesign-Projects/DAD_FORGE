@@ -111,9 +111,9 @@ namespace DadEffect {
     // Process
     // Description: Real-time audio processing delegate to active effect
     //
-    void cMainMultiModeEffect::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence){
+    void cMainMultiModeEffect::Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence){
     		AudioBuffer OutEffect;
-    		m_pActiveEffect->Process(pIn, &OutEffect, OnOff, Silence); // Process audio through active effect
+    		m_pActiveEffect->Process(pIn, &OutEffect, State, Silence); // Process audio through active effect
 
     		// Apply wet gain fade for smooth effect/memory switching
         	if(!isZero(m_FadeIncrement)){

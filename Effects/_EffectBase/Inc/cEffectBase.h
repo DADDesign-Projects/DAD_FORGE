@@ -12,6 +12,7 @@
 #include "GUI_Include.h"
 #include "cPanelOfSystemView.h"
 #include "cParameterInfoView.h"
+#include "cBypassOnOffManager.h"
 
 namespace DadEffect {
 
@@ -37,11 +38,11 @@ public:
 
     // -----------------------------------------------------------------------------
     // Main Audio processing function
-    void Process(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence);
+    void Process(AudioBuffer *pIn, AudioBuffer *pOut, DadGUI::eEffectState_t State, bool Silence);
 
     // -----------------------------------------------------------------------------
     // Child audio processing function: processes one input/output audio buffer
-    virtual void onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence) = 0;
+    virtual void onProcess(AudioBuffer *pIn, AudioBuffer *pOut, DadGUI::eEffectState_t State, bool Silence) = 0;
 
     // -----------------------------------------------------------------------------
     // Periodically updates switch state and detects user actions

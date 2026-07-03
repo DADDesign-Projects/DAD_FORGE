@@ -75,7 +75,7 @@ public:
     // Process
     // Description: Pure virtual method for real-time audio processing
     //
-    virtual void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) = 0;
+    virtual void Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) = 0;
 
     // =============================================================================
     // Getter Methods
@@ -139,7 +139,7 @@ public:
     // Process
     // Description: Real-time audio processing delegate to active effect
     //
-    void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence);
+    void Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence);
 
     // -----------------------------------------------------------------------------
     // getEffect
