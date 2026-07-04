@@ -19,7 +19,9 @@
 
 namespace DadGUI {
 
-// Global color palette declarations
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
 extern sColorPalette __ColorPalette[]; // Array of available palettes
 
 //**********************************************************************************

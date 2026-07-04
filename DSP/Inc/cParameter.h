@@ -10,7 +10,6 @@
 #pragma once
 
 #include "main.h"
-#include "sections.h"
 
 namespace DadDSP {
 

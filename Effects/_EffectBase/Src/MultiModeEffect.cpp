@@ -10,6 +10,20 @@
 #include "MultiModeEffect.h"
 #include "GPIO.h"
 #include "DadUtilities.h"
+#include "GUI_Event.h"
+#include "MainGUI.h"
+#include "cSwitch.h"
+
+// *****************************************************************************
+// Global variable declarations
+// *****************************************************************************
+extern DadGUI::cMainGUI			__GUI;
+extern DadDrivers::cSwitch		__Switch1;
+extern DadDrivers::cSwitch		__Switch2;
+
+namespace DadGUI {
+    extern GUI_EventManager __GUI_EventManager;
+}
 
 namespace DadEffect {
 

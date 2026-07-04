@@ -8,9 +8,25 @@
 //==================================================================================
 
 #include "cUIMemory.h"
-#include "HardwareAndCo.h"
+#include "GUI_Defines.h"
+#include "cDisplay.h"
+#include "cMemoryManager.h"
+#include "cEncoder.h"
+#include "MainGUI.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadDrivers::cEncoder 	__Encoder0;
+extern DadDrivers::cEncoder 	__Encoder1;
+extern DadDrivers::cEncoder 	__Encoder2;
+extern DadDrivers::cEncoder 	__Encoder3;
+extern DadGFX::cDisplay 	__Display;
+extern DadGUI::cMainGUI		__GUI;
 
 namespace DadGUI {
+extern cMemoryManager   __MemoryManager;        // Global memory manager instance
+
 
 //**********************************************************************************
 // Layers declaration

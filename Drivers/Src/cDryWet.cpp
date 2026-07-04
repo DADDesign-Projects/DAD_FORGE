@@ -15,9 +15,11 @@
 #include "cDryWet.h"
 #include "cSoftSPI.h"
 #include "MainGUI.h"
-#include "HardwareAndCo.h"
 #include "DadUtilities.h"
 
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
 extern DadDrivers::cSoftSPI __SoftSPI;
 
 namespace DadDrivers {

@@ -3,8 +3,8 @@
 // Description: Audio hardware management implementation for STM32H MPU
 // Optimized for Speed using ARM DSP Extensions and Hardware Intrinsics
 //==================================================================================
+#include "HardwareDefines.h"
 #include "AudioManager.h"
-#include "HardwareAndCo.h"
 #include "arm_math.h" // Nécessaire pour les intrinsics ARM et CMSIS-DSP
 
 // =============================================================================

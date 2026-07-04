@@ -8,8 +8,18 @@
 //==================================================================================
 
 #include "cPanelOfSystemView.h"
+#include "GUI_Defines.h"
+#include "cThemesManager.h"
+#include "cMidi.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadDrivers::cMidi __Midi;
 
 namespace DadGUI {
+
+extern cThemesManager   __ThemesManager;        // Themes manager instance
 
 //**********************************************************************************
 // Class: cPanelOfSystemView

@@ -14,7 +14,6 @@
 #pragma once
 
 #include "main.h"
-#include "Sections.h"
 #include "AudioManager.h"
 #include <cstdint>
 #include <cmath>

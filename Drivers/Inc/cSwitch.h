@@ -10,7 +10,6 @@
 #pragma once
 
 #include "main.h"
-#include "Sections.h"
 #include <cstdint>
 
 namespace DadDrivers {

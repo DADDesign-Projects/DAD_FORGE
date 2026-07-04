@@ -9,9 +9,9 @@
 //==================================================================================
 
 #pragma once
-
-#include "GUI_Include.h"
+#include "GUI_Event.h"
 #include "cParameter.h"
+#include "cSwitch.h"
 
 namespace DadGUI {
 

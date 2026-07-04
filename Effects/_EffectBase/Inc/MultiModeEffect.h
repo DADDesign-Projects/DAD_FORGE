@@ -7,11 +7,17 @@
 //==================================================================================
 //==================================================================================
 #pragma once
-#include "GUI_Include.h"
 #include "cPanelOfSystemView.h"
 #include "cPanelOfEffectChoice.h"
 #include "cPanelOfTone.h"
 #include "cParameterInfoView.h"
+#include "cBypassOnOffManager.h"
+#include "cUIMenu.h"
+#include "cUIMemory.h"
+#include "cUIParameter.h"
+#include "cUIVuMeter.h"
+#include "cInfoView.h"
+#include "SwitchManager.h"
 
 namespace DadEffect {
 

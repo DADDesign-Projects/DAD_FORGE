@@ -10,10 +10,17 @@
 
 #include "SwitchManager.h"
 #include "cBypassOnOffManager.h"
+#include "GUI_Event.h"
+#include "cMemoryManager.h"
 
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
 extern DadGUI::cBypassOnOffManager __BypassOnOffManager;
 
 namespace DadGUI {
+extern cMemoryManager	__MemoryManager;
+extern GUI_EventManager __GUI_EventManager;
 
 //**********************************************************************************
 // Class: cSwitchOnOff
@@ -32,7 +39,7 @@ void cSwitchOnOff::Init(DadDrivers::cSwitch* pFootSwitch, uint32_t EffectID) {
     m_pFootSwitch = pFootSwitch;  // Store footswitch reference
     m_OldPressCount = 0;          // Initialize press count tracking
     m_LastPressTime = 0;          // Reset last press timestamp
-    DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this, EffectID); // Register with GUI update system
+    __GUI_EventManager.Subscribe_FastUpdate(this, EffectID); // Register with GUI update system
 }
 //-----------------------------------------------------------------------------------
 // Function: Update
@@ -61,6 +68,7 @@ void cSwitchOnOff::on_GUI_FastUpdate() {
                 }
         	}
         }else if(PressDuration > 1.0f ){
+          	m_OldPressCount = PressCount;
         	__BypassOnOffManager.setState(eEffectState_t::bypass);
         }
     }
@@ -87,7 +95,7 @@ void cTapTempoMemChange::Init(DadDrivers::cSwitch* pFootSwitch,
     m_TempoType = TempoType;      // Set tempo calculation type
     m_pParameter = pParameter;    // Store parameter to control
     m_PeriodUpdateCount = 0;      // Initialize period update tracking
-    DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this, EffectID); // Register with GUI update system
+    __GUI_EventManager.Subscribe_FastUpdate(this, EffectID); // Register with GUI update system
 }
 
 //-----------------------------------------------------------------------------------

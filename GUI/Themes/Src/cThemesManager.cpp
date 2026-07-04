@@ -16,6 +16,9 @@
 #include "GUI_Event.h"
 
 namespace DadGUI {
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
 extern GUI_EventManager __GUI_EventManager;
 
 #if __has_include("UserPalette.h")

@@ -9,9 +9,7 @@
 
 #pragma once
 
-#include "GUI_Include.h"
 #include "cPanelOfParameters.h"
-#include <stdint.h>
 #include "BiquadFilter.h"
 
 namespace DadGUI {

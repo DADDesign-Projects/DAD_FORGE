@@ -7,13 +7,28 @@
 //==================================================================================
 //==================================================================================
 
+#include "GUI_Defines.h"
 #include "cInfoView.h"
 #include "cDisplay.h"
 #include "cFlasherStorage.h"
+#include "GUI_Event.h"
+#include "cDisplay.h"
+#include "cMemoryManager.h"
+#include "cThemesManager.h"
+#include "MainGUI.h"
 
-extern DadGUI::cBypassOnOffManager __BypassOnOffManager;
-
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadGFX::cDisplay 		  				__Display;
+extern DadGUI::cBypassOnOffManager 				__BypassOnOffManager;
+extern DadPersistentStorage::cFlasherStorage	__FlasherStorage;
+extern DadGUI::cMainGUI 						__GUI;
 namespace DadGUI {
+
+extern GUI_EventManager __GUI_EventManager;
+extern cMemoryManager	__MemoryManager;
+extern cThemesManager	__ThemesManager;
 
 //**********************************************************************************
 // Layer declaration for info view display

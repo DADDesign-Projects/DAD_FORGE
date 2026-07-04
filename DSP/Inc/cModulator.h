@@ -12,7 +12,6 @@
 #include "main.h"
 #include "cDCO.h"
 #include "cDelayLine.h"
-#include "Sections.h"
 
 namespace DadDSP {
 

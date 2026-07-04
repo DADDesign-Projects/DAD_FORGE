@@ -11,16 +11,7 @@
 #include <stdint.h>             // Standard integer types
 #include <cstring>
 #include <vector>               // STL vector for dynamic arrays
-
-#if __has_include("Sections.h")
-    #include "Sections.h"
-#else
-	#define DUMMY_INCLUDE_DISPLAY
-	#define NO_CACHE_RAM
-	#define SDRAM_SECTION
-	#define ERR_SECTION
-#endif
-
+#include "HardwareDefines.h"
 #include "GFX.h"                // GFX library
 #include "TFT_SPI.h"            // SPI driver for the TFT display
 
@@ -181,7 +172,7 @@ friend class cImageLayer;
 // --------------------------------------------------------------------------
 // Constructor
 // Initializes the display manager, clears layers, and resets layer change flag
-#ifdef DUMMY_INCLUDE_DISPLAY
+#ifdef DEFAULT_INCLUDE
 	cDisplay() =  delete; // Need Section.h or DisplayConfig.h
 #else
 	cDisplay(){

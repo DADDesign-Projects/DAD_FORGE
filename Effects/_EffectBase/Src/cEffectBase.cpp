@@ -10,6 +10,15 @@
 #include "cEffectBase.h"
 #include "GPIO.h"
 #include "DadUtilities.h"
+#include "cSwitch.h"
+#include "MainGUI.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadDrivers::cSwitch 	__Switch1;
+extern DadDrivers::cSwitch 	__Switch2;
+extern DadGUI::cMainGUI		__GUI;
 
 namespace DadEffect {
 

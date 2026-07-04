@@ -8,7 +8,16 @@
 //==================================================================================
 
 #include "ParameterViews.h"
-#include "HardwareAndCo.h"
+#include "MainGUI.h"
+#include "cEncoder.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadGUI::cMainGUI __GUI;
+extern DadDrivers::cEncoder	__Encoder1;
+extern DadDrivers::cEncoder	__Encoder2;
+extern DadDrivers::cEncoder	__Encoder3;
 
 namespace DadGUI {
 

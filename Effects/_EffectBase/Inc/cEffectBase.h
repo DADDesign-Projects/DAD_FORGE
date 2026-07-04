@@ -9,10 +9,14 @@
 
 #pragma once
 
-#include "GUI_Include.h"
 #include "cPanelOfSystemView.h"
 #include "cParameterInfoView.h"
 #include "cBypassOnOffManager.h"
+#include "cUIMemory.h"
+#include "cUIVuMeter.h"
+#include "cUIMenu.h"
+#include "cInfoView.h"
+#include "SwitchManager.h"
 
 namespace DadEffect {
 

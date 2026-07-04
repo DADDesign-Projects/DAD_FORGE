@@ -7,7 +7,17 @@
 //==================================================================================
 //==================================================================================
 
+#include "HardwareDefines.h"
 #include "cPanelOfTone.h"
+#include "GUI_Event.h"
+#include "MainGUI.h"
+#include "ParameterViews.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadGUI::GUI_EventManager __GUI_EventManager;
+extern DadGUI::cMainGUI		    __GUI;
 
 namespace DadGUI {
 

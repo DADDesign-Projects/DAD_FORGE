@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include "GUI_Include.h"
 #include "cPanelOfParameters.h"
 
 namespace DadGUI {

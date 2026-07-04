@@ -10,8 +10,10 @@
 
 #pragma once
 
-#include "GUI_Include.h"
 #include <string>
+#include <vector>
+#include "iUIComponent.h"
+#include "cDisplay.h"
 
 namespace DadGUI {
 

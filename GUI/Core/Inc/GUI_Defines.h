@@ -30,7 +30,6 @@ constexpr uint8_t MAX_SLOT = 10;  // Maximum number of memory slots
 // Number of palettes
 #define NB_PALETTE 8
 
-#endif
 //**********************************************************************************
 // GUI Layout Overview
 //
@@ -73,78 +72,7 @@ constexpr uint8_t MAX_SLOT = 10;  // Maximum number of memory slots
 
 #define INFO_HEIGHT         (SCREEN_HEIGHT - (MENU_HEIGHT + PARAM_HEIGHT))  // Calculated info area height
 
-// =============================================================================
-// Color Palette Definition
-// =============================================================================
-
-// Structure defining a complete color palette for the GUI
-struct sColorPalette {
-    // Menu colors
-    DadGFX::sColor MenuBack;        // Menu background color
-    DadGFX::sColor MenuText;        // Menu text color
-    DadGFX::sColor MenuActiveText;  // Active menu text color
-    DadGFX::sColor MenuActive;      // Active menu item color
-    DadGFX::sColor MenuArrow;       // Menu arrow color
-
-    // Parameter area colors
-    DadGFX::sColor ParameterBack;   // Parameter background color
-    DadGFX::sColor ParameterName;   // Parameter name color
-    DadGFX::sColor ParameterNum;    // Parameter number color
-    DadGFX::sColor ParameterValue;  // Parameter value color
-    DadGFX::sColor ParameterLines;  // Parameter lines color
-    DadGFX::sColor ParameterCursor; // Parameter cursor color
-
-    // Parameter info colors
-    DadGFX::sColor ParamInfoBack;   // Parameter info background
-    DadGFX::sColor ParamInfoName;   // Parameter info name color
-    DadGFX::sColor ParamInfoValue;  // Parameter info value color
-
-    // Main info colors
-    DadGFX::sColor MainInfoBack;    // Main info background
-    DadGFX::sColor MainInfoMem;     // Memory indicator color
-    DadGFX::sColor MainInfoDirty;   // Dirty state indicator color
-    DadGFX::sColor MainInfoState;   // System state color
-
-    // Memory View colors
-    DadGFX::sColor MemViewBack;     // Memory view background
-    DadGFX::sColor MemViewText;     // Memory view text color
-    DadGFX::sColor MemViewLine;     // Memory view line color
-    DadGFX::sColor MemViewActive;   // Active memory item color
-
-    // VuMeter View colors
-    DadGFX::sColor VuMeterBack;     // VU meter background
-    DadGFX::sColor VuMeterText;     // VU meter text color
-    DadGFX::sColor VuMeterLine;     // VU meter line color
-    DadGFX::sColor VuMeterCursor;   // VU meter cursor color
-    DadGFX::sColor VuMeterPeak;     // VU meter peak indicator color
-    DadGFX::sColor VuMeterClip;     // VU meter clip indicator color
-
-    // Splash screen colors
-    DadGFX::sColor SplatchBack;     // Splash screen background
-    DadGFX::sColor SplatchText;     // Splash screen text color
-};
-
-// =============================================================================
-// Font Shortcuts
-// =============================================================================
-
-#define FONTXXS    __GUI.GetFontXXS()    // Extra extra small font
-#define FONTXXSB   __GUI.GetFontXXSB()   // Extra extra small bold font
-#define FONTXS     __GUI.GetFontXS()     // Extra small font
-#define FONTXSB    __GUI.GetFontXSB()    // Extra small bold font
-#define FONTS      __GUI.GetFontS()      // Small font
-#define FONTSB     __GUI.GetFontSB()     // Small bold font
-#define FONTM      __GUI.GetFontM()      // Medium font
-#define FONTMB     __GUI.GetFontMB()     // Medium bold font
-#define FONTL      __GUI.GetFontL()      // Large font
-#define FONTLB     __GUI.GetFontLB()     // Large bold font
-#define FONTXL     __GUI.GetFontXL()     // Extra large font
-#define FONTXLB    __GUI.GetFontXLB()    // Extra large bold font
-#define FONTXXL    __GUI.GetFontXXL()    // Extra extra large font
-#define FONTXXLB   __GUI.GetFontXXLB()   // Extra extra large bold font
-#define FONTXXXL   __GUI.GetFontXXXL()   // Extra extra extra large font
-#define FONTXXXLB  __GUI.GetFontXXXLB()  // Extra extra extra large bold font
-
+#endif
 } // namespace DadGUI
 
 //***End of file**************************************************************

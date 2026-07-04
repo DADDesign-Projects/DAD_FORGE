@@ -9,8 +9,13 @@
 
 #include "Serialize.h"
 #include "cParameter.h"
-#include "HardwareAndCo.h"
 #include <algorithm>  // pour std::abs, std::min, etc.
+#include "cMidi.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadDrivers::cMidi __Midi;
 
 namespace DadDSP {
 

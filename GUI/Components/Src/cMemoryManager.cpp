@@ -8,10 +8,21 @@
 //==================================================================================
 
 #include "cMemoryManager.h"
-#include "HardwareAndCo.h"
 #include "ID.h"
+#include "cBlockStorageManager.h"
+#include "cMidi.h"
+#include "GUI_Event.h"
+#include "MainGUI.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadPersistentStorage::cBlockStorageManager __BlockStorageManager; // Read and write data on persistent block storage
+extern DadDrivers::cMidi 	__Midi;
+extern DadGUI::cMainGUI		__GUI;
 
 namespace DadGUI {
+extern GUI_EventManager __GUI_EventManager;     // Event manager instance
 
 constexpr uint32_t MEM_HEADER_ID = BUILD_ID('M','E','M','A');   // Memory header identifier
 constexpr uint32_t SLOT_ID       = BUILD_ID('S','L','O', 0);    // Base ID for memory slots

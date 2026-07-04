@@ -8,7 +8,6 @@
 //==================================================================================
 
 #pragma once
-#include "Sections.h"
 #include "iUIComponent.h"
 #include "cMemoryManager.h"
 #include "GUI_Event.h"
@@ -20,15 +19,35 @@
 #include "cThemesManager.h"
 #include "cMonitor.h"
 
+// =============================================================================
+// Font Shortcuts
+// =============================================================================
+
+#define FONTXXS    __GUI.GetFontXXS()    // Extra extra small font
+#define FONTXXSB   __GUI.GetFontXXSB()   // Extra extra small bold font
+#define FONTXS     __GUI.GetFontXS()     // Extra small font
+#define FONTXSB    __GUI.GetFontXSB()    // Extra small bold font
+#define FONTS      __GUI.GetFontS()      // Small font
+#define FONTSB     __GUI.GetFontSB()     // Small bold font
+#define FONTM      __GUI.GetFontM()      // Medium font
+#define FONTMB     __GUI.GetFontMB()     // Medium bold font
+#define FONTL      __GUI.GetFontL()      // Large font
+#define FONTLB     __GUI.GetFontLB()     // Large bold font
+#define FONTXL     __GUI.GetFontXL()     // Extra large font
+#define FONTXLB    __GUI.GetFontXLB()    // Extra large bold font
+#define FONTXXL    __GUI.GetFontXXL()    // Extra extra large font
+#define FONTXXLB   __GUI.GetFontXXLB()   // Extra extra large bold font
+#define FONTXXXL   __GUI.GetFontXXXL()   // Extra extra extra large font
+#define FONTXXXLB  __GUI.GetFontXXXLB()  // Extra extra extra large bold font
+
 namespace DadGUI {
 
-//----------------------------------------------------------------------------
-// Global Variables
-//----------------------------------------------------------------------------
-
-extern cThemesManager __ThemesManager;          // Themes manager instance
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern cThemesManager 	__ThemesManager;        // Themes manager instance
 extern GUI_EventManager __GUI_EventManager;     // Event manager instance
-extern cMemoryManager __MemoryManager;          // Global memory manager instance
+extern cMemoryManager 	__MemoryManager;        // Global memory manager instance
 
 
 class cParameterView;

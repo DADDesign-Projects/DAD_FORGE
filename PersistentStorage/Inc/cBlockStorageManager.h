@@ -8,9 +8,7 @@
 //==================================================================================
 
 #pragma once
-
-#include "PersistentDefine.h"
-
+#include "DefaultPersistentDefine.h"
 namespace DadPersistentStorage {
 
 //**********************************************************************************
@@ -60,13 +58,17 @@ public:
     // =============================================================================
     // Public Methods
     // =============================================================================
-
+#ifdef DUMMY_INCLUDE_PERSISTENT
+    // -----------------------------------------------------------------------------
+    // Constructor - dummy PersistentDefine.h not find
+    cBlockStorageManager(uint8_t* pTabSaveBlock) = delete;
+#else
     // -----------------------------------------------------------------------------
     // Constructor - initializes the storage manager with block array
     cBlockStorageManager(uint8_t* pTabSaveBlock) {
         m_pTabSaveBlock = (sSaveBlock*) pTabSaveBlock;
     }
-
+#endif
     // -----------------------------------------------------------------------------
     // Initializes the persistent storage system
     bool Init(uint32_t NumBuild);

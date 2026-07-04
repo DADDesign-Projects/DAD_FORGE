@@ -7,10 +7,23 @@
 //==================================================================================
 //==================================================================================
 
+//#include "GUI_Defines.h"
 #include "cUIVuMeter.h"
-#include "HardwareAndCo.h"
+#include "cDisplay.h"
+#include "cMemoryManager.h"
+#include "cThemesManager.h"
+#include "MainGUI.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadGFX::cDisplay __Display;
+extern DadGUI::cMainGUI __GUI;
 
 namespace DadGUI {
+
+extern GUI_EventManager __GUI_EventManager;
+extern cThemesManager	__ThemesManager;
 
 //**********************************************************************************
 // Layer declaration
@@ -59,9 +72,9 @@ void cUIVuMeter::Init() {
     m_MemClippingOutLeft  = false;  // Left channel clipping memory
     m_MemClippingOutRight = false;  // Right channel clipping memory
 
-    DadGUI::__GUI_EventManager.Subscribe_Update(this);
-    DadGUI::__GUI_EventManager.Subscribe_RT_ProcessIn(this);
-    DadGUI::__GUI_EventManager.Subscribe_RT_ProcessOut(this);
+    __GUI_EventManager.Subscribe_Update(this);
+    __GUI_EventManager.Subscribe_RT_ProcessIn(this);
+    __GUI_EventManager.Subscribe_RT_ProcessOut(this);
 }
 
 // ---------------------------------------------------------------------------------

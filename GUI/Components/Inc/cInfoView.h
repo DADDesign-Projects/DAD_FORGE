@@ -8,8 +8,7 @@
 //==================================================================================
 
 #pragma once
-
-#include "GUI_Include.h"
+#include "iUIComponent.h"
 #include "cBypassOnOffManager.h"
 #include <string>
 

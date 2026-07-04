@@ -8,9 +8,22 @@
 //==================================================================================
 
 #include "cPanelOfEffectChoice.h"
-//#include "HardwareAndCo.h"
+#include "GUI_Defines.h"
+#include "cDisplay.h"
+#include "cEncoder.h"
+#include "cThemesManager.h"
+#include "MainGUI.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadGUI::cMainGUI			__GUI;
+extern DadGFX::cDisplay			__Display;
+extern DadDrivers::cEncoder		__Encoder0;
 
 namespace DadGUI {
+
+extern cThemesManager __ThemesManager;
 
 //**********************************************************************************
 // Layer declaration

@@ -8,8 +8,8 @@
 //==================================================================================
 #pragma once
 
-#include "GUI_Include.h"
 #include "cUIParameter.h"
+#include "cDisplay.h"
 #include <string>
 #include <vector>
 

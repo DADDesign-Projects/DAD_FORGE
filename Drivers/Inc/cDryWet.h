@@ -13,7 +13,6 @@
 
 #pragma once
 #include "main.h"
-#include "sections.h"
 #include "GUI_Event.h"
 
 // State definitions for Dry/Wet control

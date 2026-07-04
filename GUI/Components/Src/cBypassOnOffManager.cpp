@@ -8,8 +8,18 @@
 //==================================================================================
 
 #include "cBypassOnOffManager.h"
+#include "GUI_Event.h"
+#include "cMidi.h"
+#include "GUI_Defines.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadDrivers::cMidi __Midi;
 
 namespace DadGUI {
+
+extern DadGUI::GUI_EventManager __GUI_EventManager;
 
 //**********************************************************************************
 // cBypassOnOffManager
@@ -29,7 +39,7 @@ void cBypassOnOffManager::Initialize() {
     m_InternalState = eEffectState_t::bypass;       		// Internal state starts as bypass
     m_OldEffectState = eEffectState_t::bypass;      		// Initialize previous effect state to bypass
     m_FadeInProcess = false;                                // No fade in progress at startup
-    DadGUI::__GUI_EventManager.Subscribe_FastUpdate(this);  // Subscribe to GUI fast update events
+    __GUI_EventManager.Subscribe_FastUpdate(this);  // Subscribe to GUI fast update events
     ResetPIN(ByPass);                                       // Ensure the bypass relay is in correct initial state
     SetPIN(AUDIO_MUTE);                                     // Effect is not muted at startup
 

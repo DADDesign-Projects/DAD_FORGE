@@ -7,9 +7,19 @@
 //==================================================================================
 //==================================================================================
 
-#include "HardwareAndCo.h"
 #include "cPaletteBuilder.h"
+#include "cThemesManager.h"
+#include "cMemoryManager.h"
 #include "GPIO.h"
+#include "MainGUI.h"
+#include "cDisplay.h"
+#include "cFlasherStorage.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadGFX::cDisplay __Display;
+extern DadPersistentStorage::cFlasherStorage __FlasherStorage;
 
 namespace DadGUI {
 

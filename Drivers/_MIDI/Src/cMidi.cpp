@@ -9,7 +9,6 @@
 
 #include "cMidi.h"
 #include "MainGUI.h"
-#include "Sections.h"
 
 // =============================================================================
 // Global Variables

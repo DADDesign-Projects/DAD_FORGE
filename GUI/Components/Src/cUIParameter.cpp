@@ -7,11 +7,20 @@
 //==================================================================================
 //==================================================================================
 
+#include "HardwareDefines.h"
 #include "GUI_Defines.h"
 #include "cUIParameter.h"
-#include "HardwareAndCo.h"
+#include "GUI_Event.h"
+#include "MainGUI.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadGUI::cMainGUI __GUI;
 
 namespace DadGUI {
+
+extern GUI_EventManager __GUI_EventManager;     // Event manager instance
 
 //**********************************************************************************
 // Class: cUIParameter

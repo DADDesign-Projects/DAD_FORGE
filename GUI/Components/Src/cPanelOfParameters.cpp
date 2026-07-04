@@ -6,9 +6,19 @@
 // Copyright (c) 2025-2026 Dad Design.
 //==================================================================================
 //==================================================================================
+#include "GUI_Defines.h"
 #include "cPanelOfParameters.h"
+#include "cDisplay.h"
+#include "cThemesManager.h"
+
+// *****************************************************************************
+// Global variables declarations
+// *****************************************************************************
+extern DadGFX::cDisplay __Display;
 
 namespace DadGUI {
+
+extern cThemesManager   __ThemesManager;        // Themes manager instance
 
 //**********************************************************************************
 // Class: cPanelOfParameterView

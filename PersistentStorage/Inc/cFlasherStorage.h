@@ -10,7 +10,7 @@
 #pragma once
 
 #include "main.h"
-#include "PersistentDefine.h"
+#include "DefaultPersistentDefine.h"
 
 namespace DadPersistentStorage {
 
