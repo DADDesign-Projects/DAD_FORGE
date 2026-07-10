@@ -14,6 +14,7 @@
 // ======================================================================
 #include "cThemesManager.h"
 #include "GUI_Event.h"
+#include "@Options.h"
 
 namespace DadGUI {
 // *****************************************************************************
@@ -24,6 +25,7 @@ extern GUI_EventManager __GUI_EventManager;
 #if __has_include("UserPalette.h")
 #include "UserPalette.h"
 #else
+
 //**********************************************************************************
 // Color Palette Definitions
 //**********************************************************************************

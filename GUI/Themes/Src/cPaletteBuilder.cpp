@@ -12,7 +12,9 @@
 // Copyright (c) 2025-2026 DadDesign-project.
 //****************************************************************************
 #include "main.h"
+
 #include "cPaletteBuilder.h"
+#include "@Options.h"
 
 #ifdef PALETTE_BUILDER
 #define FIFO_SIZE 2000

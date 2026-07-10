@@ -29,6 +29,8 @@ constexpr uint8_t MAX_SLOT = 10;  // Maximum number of memory slots
 
 // Number of palettes
 #define NB_PALETTE 8
+#endif
+
 
 //**********************************************************************************
 // GUI Layout Overview
@@ -72,7 +74,7 @@ constexpr uint8_t MAX_SLOT = 10;  // Maximum number of memory slots
 
 #define INFO_HEIGHT         (SCREEN_HEIGHT - (MENU_HEIGHT + PARAM_HEIGHT))  // Calculated info area height
 
-#endif
+
 } // namespace DadGUI
 
 //***End of file**************************************************************
