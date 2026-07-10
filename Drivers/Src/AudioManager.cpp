@@ -38,6 +38,12 @@ SAI_HandleTypeDef *__phSaiTx = nullptr;
 SAI_HandleTypeDef *__phSaiRx = nullptr;
 
 // =============================================================================
+// Default  AudioCallback Function
+// =============================================================================
+void __attribute__((weak)) AudioCallback(AudioBuffer* input, AudioBuffer* output){
+}
+
+// =============================================================================
 // Optimized Conversion Functions
 // =============================================================================
 
@@ -126,8 +132,6 @@ inline void ProcessRxCallback(SAI_HandleTypeDef *hsai, int32_t* sourceBuffer, Au
         ConvertToAudioBuffer(sourceBuffer, In);
 
         // 2. Traitement Audio (Callback Utilisateur)
-        // Note: Si ce callback est long, il devrait être fait hors interruption
-        // (via un flag dans le main loop)
         AudioCallback(In, targetFloatBuf);
 
         // 3. Swap Buffer Output

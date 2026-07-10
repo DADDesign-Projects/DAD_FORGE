@@ -56,6 +56,7 @@ void cEffectBase::Initialize()
     // Initialize audio processing settings
     __DryWet.setMix(100);
 
+
     m_cParameterInfoView.Init();
 
     // Register memory restore event listeners

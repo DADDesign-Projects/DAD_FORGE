@@ -11,6 +11,12 @@
 
 #include "MultiModeEffect.h"
 
+#define DECLARE_EFFECT DadEffect::cTemplateMainMultiModeEffect __Effect
+#define EFFECT_NAME "Template multi-mode"
+#define EFFECT_VERSION "Version 1.0"
+#define EFFECT_SPLATCH_SCREEN "Template.png"
+constexpr uint32_t EFFECT_BUILD =   BUILD_ID('T', 'P', 'M', '1');
+
 namespace DadEffect {
 
 //**********************************************************************************
@@ -44,7 +50,7 @@ public:
     // Process
     // Audio processing method - applies effect to input buffer
     // -----------------------------------------------------------------------------
-    void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) override;
+    void Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) override;
 
 protected:
     // =============================================================================
@@ -93,7 +99,7 @@ public:
     // Process
     // Audio processing method - applies effect to input buffer
     // -----------------------------------------------------------------------------
-    void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) override;
+    void Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) override;
 
 protected:
     // =============================================================================

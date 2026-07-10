@@ -6,10 +6,10 @@
 // Copyright (c) 2026 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "EffectsConfig.h"
-#ifdef REVERB_EFFECT
+#include "@EffectsConfig.h"
+#if ACTIVE_EFFECT == EFFECT_REVERB
+#include "Sections.h"
 #include "Reverb.h"
-#include "HardwareAndCo.h"
 #include <cmath>
 
 namespace DadEffect {
@@ -334,7 +334,11 @@ void cReverb::onInitialize() {
     m_SizeView.Init(&m_Size, "Size", "Size", "%", "%");
 
     // Panel Initialization
+#ifdef HARD_DRYWET
+    m_ParameterMainPanel.Init(&m_TimeView, nullptr, &m_PreDelayView);
+#else
     m_ParameterMainPanel.Init(&m_TimeView, &m_PreDelayView, &m_MixView);
+#endif
     m_ParameterEffectPanel.Init(&m_ModDepthView, nullptr, &m_ShimmerView);
     m_ParameterTonePanel.Init(&m_BassView, nullptr, &m_TrebleView);
     m_ParameterAdvancedPanel.Init(&m_DampingView, &m_DampingModView, &m_SizeView);
@@ -368,9 +372,16 @@ void cReverb::updateDelayLengths() {
 // Audio processing function - processes one input/output audio buffer
 // STEREO: Early reflections stereo + Late reverb mono
 // -----------------------------------------------------------------------------
-void cReverb::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence) {
+void cReverb::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, DadGUI::eEffectState_t State, bool Silence) {
     float inL = pIn->Left;
     float inR = pIn->Right;
+
+    #ifdef HARD_DRYWET
+    if(State == DadGUI::eEffectState_t::off){
+        inL = 0;
+        inR = 0;
+    }
+	#endif
 
     // ─────────────────────────────────────────────────────────────────────────────
     // 1. Pre-delay (stereo)
@@ -522,9 +533,11 @@ void cReverb::TimeChange(DadDSP::cParameter* pParameter, uint32_t CallbackUserDa
 // Callback: MixChange - Updates dry/wet mix parameters
 // ---------------------------------------------------------------------------------
 void cReverb::MixChange(DadDSP::cParameter* pParameter, uint32_t CallbackUserData) {
+#ifndef HARD_DRYWET
 	const float exponent = 1.5f;
-    __DryWet.setNormalizedMix(powf(pParameter->getNormalizedValue(), exponent));
-	//__DryWet.setMix(pParameter->getValue());
+    //__DryWet.setNormalizedMix(powf(pParameter->getNormalizedValue(), exponent));
+	__DryWet.setMix(pParameter->getValue());
+#endif
 }
 
 // ---------------------------------------------------------------------------------

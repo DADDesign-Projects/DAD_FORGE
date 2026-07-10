@@ -6,8 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "EffectsConfig.h"
-#ifdef MODULATIONS_EFFECT
+#include "@EffectsConfig.h"
+#if ACTIVE_EFFECT == EFFECT_MODULATIONS
 #include "cFlanger.h"
 
 // Modulator offset constants for different delay lines
@@ -106,7 +106,11 @@ void cFlanger::onInitialize() {
     // =============================================================================
 
     // Group parameters into panels for menu organization
+#ifndef HARD_DRYWET
     m_PanelFlanger.Init(&m_DeepView, &m_FeedBackView, &m_DryWetMixView);
+#else
+    m_PanelFlanger.Init(&m_DeepView, nullptr, &m_FeedBackView);
+#endif
 
     // =============================================================================
     // MAIN MENU CONFIGURATION SECTION
@@ -123,7 +127,11 @@ void cFlanger::onInitialize() {
 // ---------------------------------------------------------------------------------
 void cFlanger::onActivate() {
     // Set initial dry/wet mix when effect is activated
+#ifndef HARD_DRYWET
     __DryWet.setMix(m_DryWetMix.getValue());
+#else
+    __DryWet.setMix(100);
+#endif
 }
 
 // ---------------------------------------------------------------------------------
@@ -138,7 +146,7 @@ void cFlanger::onDesactivate() {
 // Method: Process
 // Description: Audio processing method - applies chorus effect to input buffer
 // ---------------------------------------------------------------------------------
-void cFlanger::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) {
+void cFlanger::Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) {
 
     // Declare processing variables
     float OutLeft;   	// Single chorus output left channel
@@ -168,7 +176,9 @@ void cFlanger::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool S
 // ---------------------------------------------------------------------------------
 void cFlanger::MixChange(DadDSP::cParameter *pParameter, uint32_t CallbackUserData) {
     // Update dry/wet mix with current parameter value
+#ifndef HARD_DRYWET
     __DryWet.setMix(pParameter->getValue());
+#endif
 }
 
 } // namespace DadEffect

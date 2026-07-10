@@ -9,12 +9,17 @@
 
 #pragma once
 
-#include "GUI_Include.h"
 #include "cEffectBase.h"
 #include "cPanelOfSystemView.h"
 #include "cDCO.h"
 #include "BiquadFilter.h"
 #include "cDelayLine.h"
+
+#define DECLARE_EFFECT DadEffect::cDelay __Effect
+#define EFFECT_NAME "Delay"
+#define EFFECT_VERSION "Version 1.01"
+#define EFFECT_SPLATCH_SCREEN "Delay.png"
+constexpr uint32_t EFFECT_BUILD =   BUILD_ID('D', 'E', 'L', '1');
 
 namespace DadEffect {
 constexpr uint32_t DELAY_ID BUILD_ID('D', 'E', 'L', 'A');
@@ -56,7 +61,7 @@ public:
     //   pOut - Pointer to output audio buffer
     //   OnOff - Effect state (bypassed or active)
     // -----------------------------------------------------------------------------
-    void onProcess(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence);
+    void onProcess(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence);
 
     // -----------------------------------------------------------------------------
     // Static callbacks (UI parameter change handlers)

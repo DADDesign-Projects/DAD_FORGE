@@ -6,9 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "EffectsConfig.h"
-#ifdef TEMPLATE_EFFECT
-#include "cTemplateEffect.h"
+#include "@EffectsConfig.h"
+#if ACTIVE_EFFECT == EFFECT_TEMPLATE
 #include "GPIO.h"
 
 namespace DadEffect {

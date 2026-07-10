@@ -10,6 +10,12 @@
 #pragma once
 
 #include "cEffectBase.h"
+#define DECLARE_EFFECT DadEffect::cTemplateEffect __Effect
+#define EFFECT_NAME "Template"
+#define EFFECT_VERSION "Version 1.0"
+#define EFFECT_SPLATCH_SCREEN "Template.png"
+constexpr uint32_t EFFECT_BUILD =   BUILD_ID('T', 'E', 'M', '1');
+
 
 namespace DadEffect {
 

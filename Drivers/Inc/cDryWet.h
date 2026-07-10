@@ -15,6 +15,7 @@
 #include "main.h"
 #include "GUI_Event.h"
 
+// -----------------------------------------------------------------------------
 // State definitions for Dry/Wet control
 enum class eDryWetState_t : uint8_t {
     bypass = 0,
@@ -31,7 +32,7 @@ namespace DadDrivers {
 // during delay mix operations. Includes fading and incremental mix control.
 //**********************************************************************************
 
-class alignas(4) cDryWet : public DadGUI::iGUI_EventListener {
+class cDryWet : public DadGUI::iGUI_EventListener {
 public:
     // =============================================================================
     // Constructor / Destructor

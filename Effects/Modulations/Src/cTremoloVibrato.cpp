@@ -6,8 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "EffectsConfig.h"
-#ifdef MODULATIONS_EFFECT
+#include "@EffectsConfig.h"
+#if ACTIVE_EFFECT == EFFECT_MODULATIONS
 #include "cTremoloVibrato.h"
 
 // Vibrato constants
@@ -88,9 +88,9 @@ void cTremoloVibrato::onInitialize(){
 	m_DryWetMixView.Init(&m_DryWetMix, "Dry", "Dry", "%", "%");                   // Dry/Wet mix view
 	m_LFORatioView.Init(&m_LFORatio, "Ratio", "Ratio", "%", "%");                 // LFO ratio view
 	m_LFOShapeView.Init(&m_LFOShape, "Shape", "Shape");                           // LFO shape view
-	m_LFOShapeView.AddDiscreteValue("Sine", "Sine wave");                                 // Sinus shape option
-	m_LFOShapeView.AddDiscreteValue("Triangle", "Triangle wave");                                 // Sinus shape option
-	m_LFOShapeView.AddDiscreteValue("Square", "Square wave");                          // Square shape option
+	m_LFOShapeView.AddDiscreteValue("Sine", "Sine wave");                         // Sinus shape option
+	m_LFOShapeView.AddDiscreteValue("Triangle", "Triangle wave");                 // Sinus shape option
+	m_LFOShapeView.AddDiscreteValue("Square", "Square wave");                     // Square shape option
 	m_StereoModeView.Init(&m_StereoMode, "Stereo", "Stereo");                     // Stereo mode view
 	m_StereoModeView.AddDiscreteValue("No", "No St. Effect");                     // No stereo effect
 	m_StereoModeView.AddDiscreteValue("Trem", "Tremolo St.");                     // Tremolo stereo
@@ -100,18 +100,21 @@ void cTremoloVibrato::onInitialize(){
     // =============================================================================
     // MENU GROUPING SECTION
     // =============================================================================
-
-	m_ItemTremoloMenu.Init(&m_TremoloDeepView, &m_VibratoDeepView, &m_DryWetMixView); // Tremolo menu items
-	m_ItemLFOMenu.Init(&m_LFOShapeView, &m_LFORatioView, &m_FreqView);                // LFO menu items
-	m_ItemStereoMode.Init(&m_StereoModeView, nullptr, nullptr);                       // Stereo mode menu item
+#ifndef HARD_DRYWET
+	m_ItemTremoloMenu.Init(&m_TremoloDeepView, &m_VibratoDeepView, &m_DryWetMixView);// Tremolo menu items
+#else
+	m_ItemTremoloMenu.Init(&m_TremoloDeepView, nullptr, &m_VibratoDeepView); 		// Tremolo menu items
+#endif
+	m_ItemLFOMenu.Init(&m_LFOShapeView, &m_LFORatioView, &m_FreqView);              // LFO menu items
+	m_ItemStereoMode.Init(&m_StereoModeView, nullptr, nullptr);                     // Stereo mode menu item
 
     // =============================================================================
     // MAIN MENU CONFIGURATION SECTION
     // =============================================================================
 
-	m_Menu.addMenuItem(&m_ItemTremoloMenu, "Tre/Vib");   // Add tremolo menu to main section
-	m_Menu.addMenuItem(&m_ItemLFOMenu, "LFO");        // Add LFO menu to LFO section
-	m_Menu.addMenuItem(&m_ItemStereoMode, "Stereo");  // Add stereo mode to stereo section
+	m_Menu.addMenuItem(&m_ItemTremoloMenu, "Tre/Vib");  							// Add tremolo menu to main section
+	m_Menu.addMenuItem(&m_ItemLFOMenu, "LFO");        								// Add LFO menu to LFO section
+	m_Menu.addMenuItem(&m_ItemStereoMode, "Stereo");  								// Add stereo mode to stereo section
 
     // =============================================================================
     // LFO AND DELAY BUFFER INITIALIZATION SECTION
@@ -135,7 +138,11 @@ void cTremoloVibrato::onInitialize(){
 // Description: Called when effect becomes active
 // ---------------------------------------------------------------------------------
 void cTremoloVibrato::onActivate(){
+#ifndef HARD_DRYWET
 	__DryWet.setMix(100-m_DryWetMix.getValue());  // Set initial dry/wet mix
+#else
+	__DryWet.setMix(100);  // Set initial dry/wet mix
+#endif
 }
 
 // ---------------------------------------------------------------------------------
@@ -150,7 +157,7 @@ void cTremoloVibrato::onDesactivate(){
 // Method: Process
 // Description: Audio processing method - applies effect to input buffer
 // ---------------------------------------------------------------------------------
-void cTremoloVibrato::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence){
+void cTremoloVibrato::Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence){
     // Update LFO phases
 	m_LFOLeft.Step();
 	m_LFORight.Step();
@@ -230,10 +237,10 @@ void cTremoloVibrato::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff,
 	m_ModulationLineRight.Push(pIn->Right);
 
     // Process output based on effect on/off state
-	if(OnOff == eOnOff::On){
+	if(State == DadGUI::eEffectState_t::on){
         // Effect ON: apply modulated delay and tremolo
-		pOut->Right = m_ModulationLineLeft.Pull(DelayLeft) * VolumeModulationLeft;
-		pOut->Left = m_ModulationLineRight.Pull(DelayRight) * VolumeModulationRight;
+		pOut->Right = m_ModulationLineRight.Pull(DelayLeft) * VolumeModulationLeft;
+		pOut->Left = m_ModulationLineLeft.Pull(DelayRight) * VolumeModulationRight;
 	}else{
         // Effect OFF: output silence
 		pOut->Right = 0.0f;
@@ -275,7 +282,11 @@ void cTremoloVibrato::RatioChange(DadDSP::cParameter *pParameter, uint32_t Callb
 // ---------------------------------------------------------------------------------
 void cTremoloVibrato::MixChange(DadDSP::cParameter *pParameter, uint32_t CallbackUserData){
     // Update dry/wet mix (inverted since parameter represents dry level)
+#ifndef HARD_DRYWET
 	__DryWet.setMix(100-pParameter->getValue());
+#else
+	__DryWet.setMix(100);
+#endif
 }
 
 } // namespace DadEffect

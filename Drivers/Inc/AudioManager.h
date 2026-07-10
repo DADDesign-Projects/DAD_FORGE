@@ -32,11 +32,6 @@ struct AudioBuffer {
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// Audio processing callback function
-// -----------------------------------------------------------------------------
-extern void AudioCallback(AudioBuffer *pIn, AudioBuffer *pOut);
-
-// -----------------------------------------------------------------------------
 // Initialize and start audio processing
 // -----------------------------------------------------------------------------
 extern HAL_StatusTypeDef StartAudio(SAI_HandleTypeDef *phSaiTx, SAI_HandleTypeDef *phSaiRx);

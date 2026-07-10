@@ -6,8 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "EffectsConfig.h"
-#ifdef MODULATIONS_EFFECT
+#include "@EffectsConfig.h"
+#if ACTIVE_EFFECT == EFFECT_MODULATIONS
 #include "cPhaser.h"
 
 namespace DadEffect {
@@ -91,7 +91,11 @@ void cPhaser::onInitialize() {
     // =============================================================================
 
     // Group parameters into panels for menu organization
+#ifndef HARD_DRYWET
     m_PanelPhaser.Init(&m_DeepView, &m_SpeedView, &m_DryWetMixView);
+#else
+    m_PanelPhaser.Init(&m_DeepView, nullptr, &m_SpeedView);
+#endif
     m_PanelOptions.Init(&m_FeedbackView, nullptr, &m_ModeView);
 
     // =============================================================================
@@ -149,7 +153,11 @@ void cPhaser::onActivate() {
     }
 
     // Set initial dry/wet mix from parameter
+#ifndef HARD_DRYWET
     __DryWet.setMix(m_DryWetMix.getValue());
+#else
+    __DryWet.setMix(100);
+#endif
 }
 
 // ---------------------------------------------------------------------------------
@@ -164,7 +172,7 @@ void cPhaser::onDesactivate() {
 // Method: Process
 // Description: Audio processing method - applies phaser effect to input buffer
 // ---------------------------------------------------------------------------------
-void cPhaser::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) {
+void cPhaser::Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) {
     // Step 1: Update LFOs
     m_LeftLFO.Step();
     m_RightLFO.Step();
@@ -262,7 +270,9 @@ void cPhaser::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Si
 // ---------------------------------------------------------------------------------
 void cPhaser::MixChange(DadDSP::cParameter* pParameter, uint32_t CallbackUserData) {
     // Update dry/wet mix with current parameter value
+#ifndef HARD_DRYWET
     __DryWet.setMix(pParameter->getValue());
+#endif
 }
 
 // ---------------------------------------------------------------------------------

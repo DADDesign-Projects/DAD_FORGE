@@ -9,13 +9,18 @@
 
 #pragma once
 
-#include "GUI_Include.h"
 #include "cEffectBase.h"
 #include "cDCO.h"
 #include "BiquadFilter.h"
 #include "cDelayLine.h"
 #include "cFastLFO.h"
 #include "cPitchShifter.h"
+
+#define DECLARE_EFFECT DadEffect::cReverb __Effect
+#define EFFECT_NAME "Reverb"
+#define EFFECT_VERSION "Version 1.0"
+#define EFFECT_SPLATCH_SCREEN "Reverb.png"
+constexpr uint32_t EFFECT_BUILD = BUILD_ID('R', 'E', 'V', '1');
 
 namespace DadEffect {
 
@@ -85,7 +90,7 @@ public:
     // -----------------------------------------------------------------------------
     // Audio processing function - processes one input/output audio buffer
     // -----------------------------------------------------------------------------
-    void onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence) override;
+    void onProcess(AudioBuffer *pIn, AudioBuffer *pOut, DadGUI::eEffectState_t State, bool Silence) override;
 
 protected:
 

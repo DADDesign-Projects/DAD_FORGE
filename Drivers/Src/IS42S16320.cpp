@@ -17,7 +17,7 @@ extern SDRAM_HandleTypeDef hsdram1;
 // -----------------------------------------------------------------------------
 // SDRAM_Initialize
 // -----------------------------------------------------------------------------
-void SDRAM_Initialize()
+void IS42S16320_Initialize()
 {
     FMC_SDRAM_CommandTypeDef Command = {};  // SDRAM command structure
 

@@ -21,7 +21,7 @@
 // Global variables declarations
 // *****************************************************************************
 extern DadGFX::cDisplay 		  				__Display;
-extern DadGUI::cBypassOnOffManager 				__BypassOnOffManager;
+extern DadGUI::iBypassOnOffManager*				__pBypassOnOffManager;
 extern DadPersistentStorage::cFlasherStorage	__FlasherStorage;
 extern DadGUI::cMainGUI 						__GUI;
 namespace DadGUI {
@@ -103,7 +103,8 @@ void cInfoView::Update() {
 	bool Dirty = DadGUI::__GUI_EventManager.sendEventToActive_SerializeIsDirty();  // Check if parameters have been modified
 
 	// Check if any monitored state (slot, dirty, On/Off) has changed
-	eEffectState_t State = __BypassOnOffManager.getTargetState();
+	eEffectState_t State = __pBypassOnOffManager->getTargetState();
+
 	if ((m_MemState != State) ||
 		(m_MemSlot != __MemoryManager.getActiveSlot()) ||
 		(m_MemDirty != Dirty)) {
@@ -139,7 +140,7 @@ void cInfoView::Update() {
 void cInfoView::Redraw(){
 	if(m_isActive){
 		std::string strState;  // String representation of current state
-		eEffectState_t State = __BypassOnOffManager.getTargetState();
+		eEffectState_t State = __pBypassOnOffManager->getTargetState();
 
 		// Determine current state string
 		switch (State) {

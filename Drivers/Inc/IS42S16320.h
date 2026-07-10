@@ -18,6 +18,6 @@
 //**********************************************************************************
 // Function declarations
 //**********************************************************************************
-extern void SDRAM_Initialize();  // Initialize SDRAM controller
+extern void IS42S16320_Initialize();  // Initialize SDRAM controller
 
 //***End of file**************************************************************

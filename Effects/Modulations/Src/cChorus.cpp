@@ -6,8 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "EffectsConfig.h"
-#ifdef MODULATIONS_EFFECT
+#include "@EffectsConfig.h"
+#if ACTIVE_EFFECT == EFFECT_MODULATIONS
 
 #include "cChorus.h"
 
@@ -130,7 +130,11 @@ void cChorus::onInitialize() {
     // =============================================================================
 
     // Group parameters into panels for menu organization
+#ifdef HARD_DRYWET
+    m_PanelChorus.Init(&m_DeepView, nullptr, &m_ModeView);
+#else
     m_PanelChorus.Init(&m_DeepView, &m_ModeView, &m_DryWetMixView);
+#endif
 
     // =============================================================================
     // MAIN MENU CONFIGURATION SECTION
@@ -146,7 +150,11 @@ void cChorus::onInitialize() {
 // ---------------------------------------------------------------------------------
 void cChorus::onActivate() {
     // Set initial dry/wet mix when effect is activated
+#ifndef HARD_DRYWET
     __DryWet.setMix(m_DryWetMix.getValue());
+#else
+    __DryWet.setNormalizedMix(1.0f);
+#endif
 }
 
 // ---------------------------------------------------------------------------------
@@ -161,7 +169,7 @@ void cChorus::onDesactivate() {
 // Method: Process
 // Description: Audio processing method - applies chorus effect to input buffer
 // ---------------------------------------------------------------------------------
-void cChorus::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) {
+void cChorus::Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) {
 
     // Declare processing variables
     float OutSingleLeft;   // Single chorus output left channel
@@ -208,7 +216,9 @@ void cChorus::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Si
 // ---------------------------------------------------------------------------------
 void cChorus::MixChange(DadDSP::cParameter *pParameter, uint32_t CallbackUserData) {
     // Update dry/wet mix with current parameter value
-    __DryWet.setMix(pParameter->getValue());
+#ifndef HARD_DRYWET
+	__DryWet.setMix(pParameter->getValue());
+#endif
 }
 
 // ---------------------------------------------------------------------------------

@@ -6,8 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "EffectsConfig.h"
-#ifdef DELAY_EFFECT
+#include "@EffectsConfig.h"
+#if ACTIVE_EFFECT == EFFECT_DELAY
 #include "Delay.h"
 
 constexpr float DELAY_MAX_TIME = 1.5f;  // Maximum delay time in seconds
@@ -99,7 +99,7 @@ void cDelay::onInitialize() {
     // Parameter Views Setup
     m_TimeView.Init(&m_Time, "Time", "Time", "s", "second");  		// Time parameter view
     m_RepeatView.Init(&m_Repeat, "Rep.", "Repeat", "%", "%");  		// Repeat parameter view
-    m_MixView.Init(&m_Mix, "Wet Mix", "Wet Mix", "%", "%");  				// Mix parameter view
+    //m_MixView.Init(&m_Mix, "Wet Mix", "Wet Mix", "%", "%"); 		// Mix parameter view
 
     // Discrete values for musical subdivisions
     m_SubDelayView.Init(&m_SubDelay, "Sub", "Sub Delay");  // Subdivision parameter view
@@ -125,7 +125,11 @@ void cDelay::onInitialize() {
     m_ModulationSpeedView.Init(&m_ModulationSpeed, "Speed", "Mod. Speed", "Hz", "Hz"); // Modulation speed view
 
     // Organize parameters into menu groups
-    m_PanelDelay1.Init(&m_TimeView, &m_RepeatView, &m_MixView);  					// Delay 1 menu
+#ifdef HARD_DRYWET
+    m_PanelDelay1.Init(&m_TimeView, nullptr, &m_RepeatView);  					    // Delay 1 menu
+#else
+    m_PanelDelay1.Init(&m_TimeView, &m_RepeatView, &m_MixView*/);  					// Delay 1 menu
+#endif
     m_PanelDelay2.Init(&m_SubDelayView, &m_RepeatDelay2View, &m_BlendD1D2View);  	// Delay 2 menu
     m_PanelTone.Init(&m_BassView, &m_TrebleView, &m_SaturationView);  				// Tone menu
     m_PanelLFO.Init(&m_ModulationDeepView, nullptr, &m_ModulationSpeedView);  		// LFO menu
@@ -146,7 +150,7 @@ void cDelay::onInitialize() {
 // Function: Process
 // Description: Main audio processing function
 // -----------------------------------------------------------------------------
-void cDelay::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool Silence) {
+void cDelay::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, DadGUI::eEffectState_t State, bool Silence) {
 
 	// Update LFO and dry/wet processing
     m_LFO.Step();  // Advance LFO
@@ -230,7 +234,7 @@ void cDelay::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool S
     OutLeft = m_TrebleFilter1.Process(OutLeft, DadDSP::eChannel::Left);     // Apply treble filter
 
     // Feedback path with optional input injection
-    if (OnOff == eOnOff::On) {
+    if (State == DadGUI::eEffectState_t::on) {
         // When effect is on, mix input with feedback
         m_Delay1LineRight.Push((pIn->Right + OutRight) * m_Repeat / 100);  // Push to delay line
         m_Delay1LineLeft.Push((pIn->Left + OutLeft) * m_Repeat / 100);     // Push to delay line
@@ -269,7 +273,7 @@ void cDelay::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool S
     Out2Left = m_TrebleFilter2.Process(Out2Left, DadDSP::eChannel::Left);     // Apply treble filter
 
     // Feedback path for delay 2
-    if (OnOff == eOnOff::On) {
+    if (State == DadGUI::eEffectState_t::on) {
         m_Delay2LineRight.Push((pIn->Right + Out2Right) * m_RepeatDelay2 * 0.01f);  // Push to delay line 2
         m_Delay2LineLeft.Push((pIn->Left + Out2Left) * m_RepeatDelay2 * 0.01f);     // Push to delay line 2
     }else{
@@ -287,7 +291,11 @@ void cDelay::onProcess(AudioBuffer *pIn, AudioBuffer *pOut, eOnOff OnOff, bool S
     OutLeft = ((OutLeft * gain1) + (Out2Left * gain2));     // Blend left channel
 
     // Apply wet gain and output
-    float Mix = 3 * m_Mix.getValue() / 100;
+#ifndef HARD_DRYWET
+    float Mix = m_Mix.getValue() * 0.03;
+#else
+    float Mix = 2;
+#endif
     pOut->Left = OutLeft * Mix;    // Apply wet gain to left channel
     pOut->Right = OutRight * Mix;  // Apply wet gain to right channel
 }

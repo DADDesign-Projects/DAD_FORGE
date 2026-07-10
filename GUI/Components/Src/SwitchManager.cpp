@@ -16,7 +16,7 @@
 // *****************************************************************************
 // Global variables declarations
 // *****************************************************************************
-extern DadGUI::cBypassOnOffManager __BypassOnOffManager;
+extern DadGUI::iBypassOnOffManager* __pBypassOnOffManager;
 
 namespace DadGUI {
 extern cMemoryManager	__MemoryManager;
@@ -60,16 +60,16 @@ void cSwitchOnOff::on_GUI_FastUpdate() {
         if (SwitchState == 0) {
         	m_OldPressCount = PressCount;
         	if(PressDuration < 1.0f){
-        		eEffectState_t State = __BypassOnOffManager.getTargetState();
+        		eEffectState_t State = __pBypassOnOffManager->getTargetState();
                 if (State == eEffectState_t::off || State == eEffectState_t::bypass) {
-                	__BypassOnOffManager.setState(eEffectState_t::on);   // Turn on if currently off or in bypass
+                	__pBypassOnOffManager->setState(eEffectState_t::on);   // Turn on if currently off or in bypass
                 } else if (State == eEffectState_t::on) {
-                	__BypassOnOffManager.setState(eEffectState_t::off);  // Turn off if currently on
+                	__pBypassOnOffManager->setState(eEffectState_t::off);  // Turn off if currently on
                 }
         	}
         }else if(PressDuration > 1.0f ){
           	m_OldPressCount = PressCount;
-        	__BypassOnOffManager.setState(eEffectState_t::bypass);
+        	__pBypassOnOffManager->setState(eEffectState_t::bypass);
         }
     }
 }

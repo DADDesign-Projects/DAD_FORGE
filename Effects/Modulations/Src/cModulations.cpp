@@ -6,8 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "EffectsConfig.h"
-#ifdef MODULATIONS_EFFECT
+#include "@EffectsConfig.h"
+#if ACTIVE_EFFECT == EFFECT_MODULATIONS
 #include "cModulations.h"
 #include "cTremoloVibrato.h"
 #include "cChorus.h"

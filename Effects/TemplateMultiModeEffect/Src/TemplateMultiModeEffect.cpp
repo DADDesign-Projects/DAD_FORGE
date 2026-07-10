@@ -6,8 +6,8 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "EffectsConfig.h"
-#ifdef TEMPLATE_MULTI_MODE_EFFECT
+#include "@EffectsConfig.h"
+#if ACTIVE_EFFECT == EFFECT_TEMPLATE_MULTI_MODE
 #include "TemplateMultiModeEffect.h"
 
 namespace DadEffect {
@@ -54,7 +54,6 @@ void cTemplateMultiModeEffect1::onInitialize(){
 // ---------------------------------------------------------------------------------
 void cTemplateMultiModeEffect1::onActivate(){
 	// Activation logic placeholder
-	// Activation logic placeholder
 	__DryWet.setMix(100);
 }
 
@@ -70,10 +69,11 @@ void cTemplateMultiModeEffect1::onDesactivate(){
 // Process
 // Audio processing method - applies effect to input buffer
 // ---------------------------------------------------------------------------------
-void cTemplateMultiModeEffect1::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence){
+void cTemplateMultiModeEffect1::Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence){
+	float gain = __DryWet.getGainWet();
 	// Apply volume scaling when effect is active
-	pOut->Left = pIn->Left * m_ParameterDemo1.getValue() * __DryWet.getGainWet();
-	pOut->Right = pIn->Right * m_ParameterDemo1.getValue() * __DryWet.getGainWet();
+	pOut->Left = pIn->Left * m_ParameterDemo1.getValue() * gain;
+	pOut->Right = pIn->Right * m_ParameterDemo1.getValue() * gain;
 }
 
 //**********************************************************************************
@@ -134,10 +134,12 @@ void cTemplateMultiModeEffect2::onDesactivate(){
 // Process
 // Audio processing method - applies effect to input buffer
 // ---------------------------------------------------------------------------------
-void cTemplateMultiModeEffect2::Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence){
+void cTemplateMultiModeEffect2::Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence){
 	// Apply volume scaling when effect is active
-	pOut->Left = pIn->Left * m_ParameterDemo1.getValue() * __DryWet.getGainWet();
-	pOut->Right = pIn->Right * m_ParameterDemo1.getValue() * __DryWet.getGainWet();
+	float gain = __DryWet.getGainWet();
+	// Apply volume scaling when effect is active
+	pOut->Left = pIn->Left * m_ParameterDemo1.getValue() * gain;
+	pOut->Right = pIn->Right * m_ParameterDemo1.getValue() * gain;
 }
 
 //**********************************************************************************

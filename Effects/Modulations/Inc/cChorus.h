@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include "GUI_Include.h"
 #include "MultiModeEffect.h"
 #include "cModulator.h"
 #include "cAudioFader.h"
@@ -47,7 +46,7 @@ public:
     // Method: Process
     // Description: Audio processing method - applies effect to input buffer
     // -----------------------------------------------------------------------------
-    void Process(AudioBuffer* pIn, AudioBuffer* pOut, eOnOff OnOff, bool Silence) override;
+    void Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) override;
 
 protected:
     // -----------------------------------------------------------------------------
