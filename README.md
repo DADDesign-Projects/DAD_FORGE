@@ -21,58 +21,57 @@
 
               🔥 Open Source Hardware and Software Platform for Digital Audio Effects 🔊
 ```
-# 🛠️ FORGE Project                 
-**Welcome to the FORGE Project!**  
-**FORGE** (**F**ramework for **O**pen and **R**esourceful **G**uitar **E**ffects) is a software platform designed to empower creators to build their own digital effects pedals for guitar, voice, keyboards, and more.  
-  
-**The goal** of this project is to provide a solid and reliable foundation that handles the full complexity of embedded audio software development, covering both driver-level and middleware-level layers.  
-  
-**FORGE manages** all the hardware interfaces—microcontroller, audio CODEC, encoders, switches, memory devices, TFT display, USB—as well as the software modules needed for the display, user interface, parameter persistence, filter libraries, delay lines, DCO, and more.
+# 🛠️ FORGE Project
 
-This leaves you free to focus on what truly matters: **designing and creating the digital effects you’ve always dreamed of**.  
+Welcome to the **FORGE** project!
 
-**FORGE** runs on the **OSCAR hardware platform** (https://github.com/DADDesign-Projects/OSCAR_P01A01)  
-  
-The framework is **now mature** and fully operational: it already includes a **delay**, a **tremolo/vibrato**, and a **chorus** effect.
+**FORGE** (**F**ramework for **O**pen and **R**esourceful **G**uitar **E**ffects) is a software framework for **STM32** microcontrollers designed to help developers build their own professional digital audio effects for guitars, basses, vocals, keyboards, and many other audio applications.
 
-Development is actively ongoing to add new features, introduce new audio effects, and bring FORGE to additional hardware platforms.
+The goal of FORGE is to provide a robust, efficient, and reliable software foundation that handles the complexity of embedded audio development. It covers everything from low-level hardware drivers to middleware and high-level application components, allowing developers to focus on designing great audio effects instead of infrastructure.
 
-**Follow all the latest updates, project progress, and demos on my [Facebook page](https://www.facebook.com/people/DADDesign-Projects/61583645957068/)! 🎛️🎶**
-# 📁 Project Structure
-The repository is organized as follows:
-   * **DSP/**: DSP components (audio processing, filters, oscillators, etc.)
-   * **Drivers/**: hardware drivers (audio CODEC, GPIO, memory devices, etc.)
-   * **Effects/**: effect implementations (delay, distortion, modulation, etc.)
-   * **GUI/**: graphical user interface (menus, widgets, UI panels)
-   * **PersistentStorage/**: management of parameter saving/loading in non-volatile memory
-   * **STM_GFX2/**: graphics driver and library (ST7789, etc.)
-   * **Utilities/**: shared utility functions (monitoring, logging, conversions, helpers)
+The framework includes all the building blocks required to create professional digital effects:
+
+* Hardware drivers (CODECs, GPIO, SDRAM, QSPI Flash, timers, etc.)
+* **DAD_GFX2** graphics library (ST7789 and other LCD controllers)
+* DSP components (filters, oscillators, delay lines, mixers, envelopes, and more)
+* Graphical user interface (menus, widgets, control panels, VU meters, etc.)
+* **PersistentStorage** for preset management in non-volatile memory
+* Utilities (monitoring, debugging helpers, macros, and more)
+* Development and testing tools (MIDI controller, BIQUAD filter designer, etc.)
+
+FORGE also includes several fully featured, production-quality audio effects. They can be used as-is, customized to fit your own projects, or studied as reference implementations to learn embedded DSP programming on STM32.
+
+The currently available effects include:
+
+* Reverb
+* Delay
+* Chorus
+* Flanger
+* Phaser
+* Vibrato
+* Tremolo
+* ...with many more to come.
+
+FORGE has already been deployed on the following hardware platforms:
+
+* **OSCAR**: https://github.com/DADDesign-Projects/OSCAR_P01A01
+* **PENDA**: https://github.com/DADDesign-Projects/PENDA_01
 
 # 🛠️ Development Tools
-FORGE is developed using STM32CubeIDE, the development environment and IDE provided by STMicroelectronics (https://www.st.com/en/development-tools/stm32cubeide.html).  
-The framework must be integrated as a Git submodule within a main project, allowing easy updates and seamless reuse across multiple projects.
 
-# 🚀 Getting Started
+FORGE is developed using **STM32CubeIDE**, the official development environment provided by STMicroelectronics.
 
-## 1. Clone the OSCAR hardware project
+The framework is intended to be integrated into a project as a **Git submodule**, making it easy to maintain, update, and reuse across multiple applications.
 
-```bash
-git clone --recurse-submodules https://github.com/DADDesign-Projects/OSCAR_P01A01.git
-```
-
-## 2. Create a new audio effect
-Duplicate the template folder: OSCAR_P01A01/DAD_FORGE/Effects/Template
-Rename the folder to match your new effect name.
-Edit the source file: Src/Template.cpp to implement your own audio processing.
-
-## 3. Register your effect
-add your effet in the configuration file: OSCAR_P01A01/DAD_FORGE/Effects/@Config/EffectsConfig.h
-Your effect will then be integrated into the FORGE framework.
-    
 # 📬 Contact
-Feel free to contact me for any questions, feedback, improvement suggestions, or collaboration proposals related to the FORGE framework or the OSCAR hardware platform.
-I am always open to discussion and community contributions (daddesign.projects@gmail.com).  
-  
----
 
+Feel free to contact me if you have any questions, feedback, improvement suggestions, or collaboration ideas regarding the FORGE framework or the OSCAR hardware platform.
+
+Community contributions are always welcome.
+
+📧 [daddesign.projects@gmail.com](mailto:daddesign.projects@gmail.com)
+
+🎛️🎶 Follow all the latest news, project progress, and demonstrations on my Facebook page!
+
+https://www.facebook.com/people/DADDesign-Projects/61583645957068/
 
