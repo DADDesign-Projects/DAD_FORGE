@@ -99,7 +99,7 @@ void cDelay::onInitialize() {
     // Parameter Views Setup
     m_TimeView.Init(&m_Time, "Time", "Time", "s", "second");  		// Time parameter view
     m_RepeatView.Init(&m_Repeat, "Rep.", "Repeat", "%", "%");  		// Repeat parameter view
-    //m_MixView.Init(&m_Mix, "Wet Mix", "Wet Mix", "%", "%"); 		// Mix parameter view
+    m_MixView.Init(&m_Mix, "Wet Mix", "Wet Mix", "%", "%"); 		// Mix parameter view
 
     // Discrete values for musical subdivisions
     m_SubDelayView.Init(&m_SubDelay, "Sub", "Sub Delay");  // Subdivision parameter view
@@ -128,7 +128,7 @@ void cDelay::onInitialize() {
 #ifdef HARD_DRYWET
     m_PanelDelay1.Init(&m_TimeView, nullptr, &m_RepeatView);  					    // Delay 1 menu
 #else
-    m_PanelDelay1.Init(&m_TimeView, &m_RepeatView, &m_MixView*/);  					// Delay 1 menu
+    m_PanelDelay1.Init(&m_TimeView, &m_RepeatView, &m_MixView);  					// Delay 1 menu
 #endif
     m_PanelDelay2.Init(&m_SubDelayView, &m_RepeatDelay2View, &m_BlendD1D2View);  	// Delay 2 menu
     m_PanelTone.Init(&m_BassView, &m_TrebleView, &m_SaturationView);  				// Tone menu
