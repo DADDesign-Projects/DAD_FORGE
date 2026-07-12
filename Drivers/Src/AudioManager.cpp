@@ -175,3 +175,4 @@ HAL_StatusTypeDef StartAudio(SAI_HandleTypeDef *phSaiTx, SAI_HandleTypeDef *phSa
 
     return HAL_SAI_Transmit_DMA(phSaiTx, (uint8_t*)txBuffer, SAI_BUFFER_SIZE);
 }
+

@@ -3,11 +3,11 @@
 // CODEC WM8731 Management
 //
 // file cWM8732.h
-// Copyright(c) 2025 Dad Design.
+// Copyright(c) 2025-2026 DadDesign-Projects.
 //****************************************************************************
 #include "main.h"
 
-namespace Dad {
+namespace DadDrivers {
 #define WM8731_ADR 0x1A
 
 // LEFT LINE IN REGISTER (0x00)
