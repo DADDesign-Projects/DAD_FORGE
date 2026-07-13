@@ -534,7 +534,7 @@ void cReverb::TimeChange(DadDSP::cParameter* pParameter, uint32_t CallbackUserDa
 // ---------------------------------------------------------------------------------
 void cReverb::MixChange(DadDSP::cParameter* pParameter, uint32_t CallbackUserData) {
 #ifndef HARD_DRYWET
-	const float exponent = 1.5f;
+	//const float exponent = 1.5f;
     //__DryWet.setNormalizedMix(powf(pParameter->getNormalizedValue(), exponent));
 	__DryWet.setMix(pParameter->getValue());
 #endif
