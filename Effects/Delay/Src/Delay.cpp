@@ -144,6 +144,8 @@ void cDelay::onInitialize() {
     // Initialize Tap tempo
     m_pTapTempoParameter = &m_Time;
     m_TempoType = DadGUI::eTempoType::period;
+
+    __DryWet.setNormalizedMix(0.0f);
 }
 
 // -----------------------------------------------------------------------------

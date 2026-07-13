@@ -28,6 +28,11 @@ void cEffectBase::Initialize()
 {
     m_Menu.Init();
     m_pTapTempoParameter = nullptr;
+
+    // Initialize audio processing settings
+    __DryWet.setMix(100);
+
+    // Initialize effect
     onInitialize();
     uint32_t EffectID = getEffectID();
 
@@ -52,10 +57,6 @@ void cEffectBase::Initialize()
 
     __GUI.activeBackComponent(&m_InfoView);
     __GUI.activeMainComponent(&m_Menu);
-
-    // Initialize audio processing settings
-    __DryWet.setMix(100);
-
 
     m_cParameterInfoView.Init();
 
