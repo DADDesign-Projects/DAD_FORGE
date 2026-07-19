@@ -51,6 +51,8 @@ The currently available effects include:
 * Vibrato
 * Tremolo
 * ...with many more to come.
+  
+**Documentation and tutorials** for framfork FORGE available here: (https://daddesign-projects.github.io/OSCAR_Documentation/)
 
 FORGE has already been deployed on the following hardware platforms:
 
