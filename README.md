@@ -51,21 +51,24 @@ The currently available effects include:
 * Vibrato
 * Tremolo
 * ...with many more to come.
-  
-**Documentation and tutorials** for framfork FORGE available here: (https://daddesign-projects.github.io/OSCAR_Documentation/)
 
+## Tutorials Documentation and Demos
+- **📄[Documentation](https://daddesign-projects.github.io/OSCAR_Documentation)**
+- **🎶[SoundCloud Demo](https://soundcloud.com/daddesign-projects)**
+ 
+## Hardware platforms
 FORGE has already been deployed on the following hardware platforms:
 
 * **OSCAR**: https://github.com/DADDesign-Projects/OSCAR_P01A01
-* **PENDA**: https://github.com/DADDesign-Projects/PENDA_01
+* **PENDA**: https://github.com/DADDesign-Projects/PENDA-Hardware
 
-# 🛠️ Development Tools
+## 🛠️ Development Tools
 
 FORGE is developed using **STM32CubeIDE**, the official development environment provided by STMicroelectronics.
 
 The framework is intended to be integrated into a project as a **Git submodule**, making it easy to maintain, update, and reuse across multiple applications.
 
-# 📬 Contact
+## 📬 Contact
 
 Feel free to contact me if you have any questions, feedback, improvement suggestions, or collaboration ideas regarding the FORGE framework or the OSCAR hardware platform.
 
