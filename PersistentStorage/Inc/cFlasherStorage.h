@@ -23,7 +23,7 @@ namespace DadPersistentStorage {
 #define MAX_ENTRY_NAME  40
 
 // Maximum number of files that can be stored in the directory
-#define DIR_FILE_COUNT  40
+#define DIR_FILE_COUNT  80
 
 // ---------------------------------------------------------------------------------
 // File type identifiers
