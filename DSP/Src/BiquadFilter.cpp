@@ -19,15 +19,16 @@ namespace DadDSP {
 // -----------------------------------------------------------------------------
 void cBiQuad::Initialize(float sampleRate, float cutoffFreq, float gainDb, float bandwidth, FilterType type) {
     // Store filter parameters
-	m_InvSampleRate = 1.0f / sampleRate; // Sampling rate in second
-    m_cutoffFreq = cutoffFreq;    // Cutoff frequency in Hz
+	m_cutoffFreq = cutoffFreq;    // Cutoff frequency in Hz
     m_gainDb = gainDb;            // Gain in dB
     m_bandwidth = bandwidth;      // Bandwidth parameter
     m_type = type;                // Filter type
+    setSampleRate(sampleRate);	  // set Sample Rate
 
     // Calculate filter coefficients
     CalculateParameters();
 }
+
 // -----------------------------------------------------------------------------
 // Calculate filter coefficients based on current parameters
 // -----------------------------------------------------------------------------
@@ -135,6 +136,23 @@ void cBiQuad::CalculateParameters() {
     m_a4 = a2 * a;    // a2 normalized
     __DMB(); // Data Memory Barrier
     __enable_irq();
+}
+
+// ==========================================================================
+// Calcule  le gain pour une frequence
+float cBiQuad::GainDb(float freq){
+
+	float Phi = 4 * sin(pow(kPi * freq / m_SampleRate, 2.0));
+
+	float num = ((m_a0 * m_a2 * (Phi * Phi)) + pow(m_a0 + m_a1 + m_a2, 2.0) - (((m_a0 * m_a1) + (4 * m_a0 * m_a2) + (m_a1 * m_a2)) * Phi));
+	float denum = (m_a4 * pow(Phi, 2.0)) + pow(m_a3 + m_a4 + 1, 2.0) - (((m_a3 * m_a4) + m_a3 + (4 * +m_a4)) * Phi);
+
+    if ((m_type == FilterType::LPF24) || (m_type == FilterType::HPF24)) {
+        return (20 * log10(sqrt(num / denum))) + (20 * log10(sqrt(num / denum)));
+    }
+    else {
+        return 20 * log10(sqrt(num / denum));
+    }
 }
 
 } // namespace DadDSP

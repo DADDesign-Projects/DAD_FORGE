@@ -151,7 +151,7 @@ public:
     // =============================================================================
     // Parameter setters
     // =============================================================================
-    inline void setSampleRate(float sampleRate) { m_InvSampleRate = 1.0f / sampleRate; }  // Set sampling rate
+    inline void setSampleRate(float sampleRate) { m_SampleRate = sampleRate; m_InvSampleRate = 1.0f / sampleRate; }  // Set sampling rate
     inline void setCutoffFreq(float cutoffFreq) { m_cutoffFreq = cutoffFreq; }        // Set cutoff frequency
     inline void setGainDb(float gainDb) { m_gainDb = gainDb; }                        // Set gain in dB
     inline void setBandwidth(float bandwidth) { m_bandwidth = bandwidth; }            // Set bandwidth
@@ -197,6 +197,7 @@ protected:
     // =============================================================================
     // Filter parameters
     // =============================================================================
+    float m_SampleRate;		   // Sampling rate in Hz
     float m_InvSampleRate;     // Sampling rate in second
     float m_cutoffFreq;        // Cutoff frequency in Hz
     float m_gainDb;            // Gain in dB
