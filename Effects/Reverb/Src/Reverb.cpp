@@ -6,7 +6,7 @@
 // Copyright (c) 2026 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "@EffectsConfig.h"
+#include "EffectsConfig.h"
 #if ACTIVE_EFFECT == EFFECT_REVERB
 #include "Sections.h"
 #include "Reverb.h"

@@ -6,7 +6,7 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "@EffectsConfig.h"
+#include "EffectsConfig.h"
 #if ACTIVE_EFFECT == EFFECT_MODULATIONS
 #include "cTremoloVibrato.h"
 
@@ -157,7 +157,7 @@ void cTremoloVibrato::onDesactivate(){
 // Method: Process
 // Description: Audio processing method - applies effect to input buffer
 // ---------------------------------------------------------------------------------
-void cTremoloVibrato::Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence){
+void cTremoloVibrato::onProcess(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence){
     // Update LFO phases
 	m_LFOLeft.Step();
 	m_LFORight.Step();

@@ -6,7 +6,7 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "@EffectsConfig.h"
+#include "EffectsConfig.h"
 #if ACTIVE_EFFECT == EFFECT_MODULATIONS
 #include "cPhaser.h"
 
@@ -172,7 +172,7 @@ void cPhaser::onDesactivate() {
 // Method: Process
 // Description: Audio processing method - applies phaser effect to input buffer
 // ---------------------------------------------------------------------------------
-void cPhaser::Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) {
+void cPhaser::onProcess(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) {
     // Step 1: Update LFOs
     m_LeftLFO.Step();
     m_RightLFO.Step();

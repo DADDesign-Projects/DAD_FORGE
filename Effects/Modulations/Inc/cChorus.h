@@ -11,7 +11,7 @@
 
 #include "MultiModeEffect.h"
 #include "cModulator.h"
-#include "cAudioFader.h"
+#include "cCrossfader.h"
 
 namespace DadEffect {
 
@@ -46,7 +46,7 @@ public:
     // Method: Process
     // Description: Audio processing method - applies effect to input buffer
     // -----------------------------------------------------------------------------
-    void Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) override;
+    void onProcess(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) override;
 
 protected:
     // -----------------------------------------------------------------------------
@@ -89,7 +89,7 @@ protected:
     DadDSP::cModulator m_Modulator3Left;            // Third modulator left channel
     DadDSP::cModulator m_Modulator3Right;           // Third modulator right channel
 
-    DadDSP::cAudioFader m_Fader;                    // Audio crossfader for mode transitions
+    DadDSP::cCrossfader m_Fader;                    // Audio crossfader for mode transitions
 };
 
 } // namespace DadEffect

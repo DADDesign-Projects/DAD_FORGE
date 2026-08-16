@@ -6,7 +6,7 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "@EffectsConfig.h"
+#include "EffectsConfig.h"
 #if ACTIVE_EFFECT == EFFECT_MODULATIONS
 
 #include "cChorus.h"
@@ -169,7 +169,7 @@ void cChorus::onDesactivate() {
 // Method: Process
 // Description: Audio processing method - applies chorus effect to input buffer
 // ---------------------------------------------------------------------------------
-void cChorus::Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) {
+void cChorus::onProcess(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) {
 
     // Declare processing variables
     float OutSingleLeft;   // Single chorus output left channel

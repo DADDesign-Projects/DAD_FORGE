@@ -7,12 +7,14 @@
 //==================================================================================
 //==================================================================================
 
+#include "HardwareDefines.h"
 #include "MultiModeEffect.h"
 #include "GPIO.h"
 #include "DadUtilities.h"
 #include "GUI_Event.h"
 #include "MainGUI.h"
 #include "cSwitch.h"
+
 
 // *****************************************************************************
 // Global variable declarations
@@ -127,7 +129,7 @@ namespace DadEffect {
     //
     void cMainMultiModeEffect::Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence){
     		AudioBuffer OutEffect;
-    		m_pActiveEffect->Process(pIn, &OutEffect, State, Silence); // Process audio through active effect
+    		m_pActiveEffect->onProcess(pIn, &OutEffect, State, Silence); // Process audio through active effect
 
     		// Apply wet gain fade for smooth effect/memory switching
         	if(!isZero(m_FadeIncrement)){
@@ -145,11 +147,9 @@ namespace DadEffect {
         	}
 
     		// Apply faded gain to effect output
-    		OutEffect.Left *= m_FadGain;
-    		OutEffect.Right *= m_FadGain;
+    		pOut->Left = OutEffect.Left * m_FadGain;
+    		pOut->Right = OutEffect.Right * m_FadGain;
 
-    		// Apply tone processing
-    		m_PanelOfTone.Process(&OutEffect, pOut);
     }
 
     constexpr float FADE_TIME = 0.200f;                     // Fade duration in seconds

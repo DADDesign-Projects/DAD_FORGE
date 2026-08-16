@@ -6,7 +6,7 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
-#include "@EffectsConfig.h"
+#include "EffectsConfig.h"
 #if ACTIVE_EFFECT == EFFECT_MODULATIONS
 #include "cUniVibe.h"
 
@@ -139,7 +139,7 @@ void cUniVibe::onDesactivate() {
 // Method: Process
 // Description: Audio processing method - applies UniVibe phaser effect
 // ---------------------------------------------------------------------------------
-void cUniVibe::Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) {
+void cUniVibe::onProcess(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) {
     // Update LFO position
     m_LFO.Step();
 

@@ -46,7 +46,7 @@ public:
     // Method: Process
     // Description: Audio processing method - applies UniVibe effect to input buffer
     // -----------------------------------------------------------------------------
-    void Process(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) override;
+    void onProcess(AudioBuffer* pIn, AudioBuffer* pOut, DadGUI::eEffectState_t State, bool Silence) override;
 
 protected:
     // -----------------------------------------------------------------------------
