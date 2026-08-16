@@ -340,6 +340,8 @@ private:
     float m_CPULoad;                         // Current CPU load percentage
     float m_EffectTime;                      // Average effect execution time (us)
     float m_Frequency;                       // Average processing frequency (Hz)
+    float m_MaxEffectTime;					 // Max effect execution time (us)
+    float m_MinEffectTime;					 // Min effect execution time (us)
 #endif
 };
 

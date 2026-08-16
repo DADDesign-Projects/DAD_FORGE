@@ -3,7 +3,7 @@
 // File: MainGUI.cpp
 // Description: Implementation of the main GUI controller class
 //
-// Copyright (c) 2025 DadDesign-Projects.
+// Copyright (c) 2025-2026 DadDesign-Projects.
 //==================================================================================
 //==================================================================================
 
@@ -14,6 +14,7 @@
 #include "MainGUI.h"
 #include "cDisplay.h"
 #include "cFlasherStorage.h"
+#include "HardwareDefines.h"
 
 // *****************************************************************************
 // Global variables declarations
@@ -200,6 +201,8 @@ void cMainGUI::MainLoop()
             m_CPULoad    = m_Monitor.getCPULoad_percent();
             m_EffectTime = m_Monitor.getAverageExecutionTime_us();
             m_Frequency  = m_Monitor.getAverageFrequency_Hz();
+            m_MaxEffectTime = m_Monitor.getMaxExecutionTime_us();
+            m_MinEffectTime = m_Monitor.getMinExecutionTime_us();
             m_Monitor.reset();
         }
 #endif
