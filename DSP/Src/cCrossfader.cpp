@@ -1,6 +1,6 @@
 //==================================================================================
 //==================================================================================
-// File: cAudioFader.cpp
+// File: cCrossfader.cpp
 // Description: Audio crossfader implementing equal-power fade curves for smooth transitions
 // between two audio sources while maintaining consistent perceived loudness.
 // 
@@ -8,19 +8,19 @@
 //==================================================================================
 //==================================================================================
 
-#include "cAudioFader.h"
+#include "cCrossfader.h"
 #include <cmath>
 namespace DadDSP {
 
 //**********************************************************************************
-// Class: cAudioFader
+// Class: cCrossfader
 // Description: Handles smooth audio transitions between two sources using equal-power curves
 //**********************************************************************************
 
 //--------------------------------------------------------------------------------
 // Initializes the audio fader with sample rate and fade duration
 //--------------------------------------------------------------------------------
-void cAudioFader::Initialize(uint32_t sampleRate, float fadeTimeSeconds) {
+void cCrossfader::Initialize(uint32_t sampleRate, float fadeTimeSeconds) {
     m_sampleRate        = sampleRate;           // Audio sample rate in Hz
     m_fadeTimeSeconds   = fadeTimeSeconds;      // Fade duration in seconds
     m_totalFadeSamples  = static_cast<int>(m_sampleRate * m_fadeTimeSeconds);  // Total samples for fade
@@ -32,7 +32,7 @@ void cAudioFader::Initialize(uint32_t sampleRate, float fadeTimeSeconds) {
 //--------------------------------------------------------------------------------
 // Starts fade transition from source A to source B
 //--------------------------------------------------------------------------------
-void cAudioFader::startFadeInB() {
+void cCrossfader::startFadeInB() {
     m_currentFadeSample = 0;    // Reset fade counter
     m_state = FADING_IN_B;      // Set state to fading in B
 }
@@ -40,7 +40,7 @@ void cAudioFader::startFadeInB() {
 //--------------------------------------------------------------------------------
 // Starts fade transition from source B to source A
 //--------------------------------------------------------------------------------
-void cAudioFader::startFadeOutA() {
+void cCrossfader::startFadeOutA() {
     m_currentFadeSample = 0;    // Reset fade counter
     m_state = FADING_OUT_A;     // Set state to fading out A
 }
@@ -48,7 +48,7 @@ void cAudioFader::startFadeOutA() {
 //--------------------------------------------------------------------------------
 // Processes audio samples with crossfade between inputs A and B
 //--------------------------------------------------------------------------------
-void cAudioFader::Process(float inputA1, float inputA2, float inputB1, float inputB2,
+void cCrossfader::Process(float inputA1, float inputA2, float inputB1, float inputB2,
                          float& output1, float& output2) {
     float gainA = 1.0f;     // Gain for source A
     float gainB = 0.0f;     // Gain for source B
@@ -111,7 +111,7 @@ void cAudioFader::Process(float inputA1, float inputA2, float inputB1, float inp
 //--------------------------------------------------------------------------------
 // Returns current fade progress as normalized value [0.0, 1.0]
 //--------------------------------------------------------------------------------
-float cAudioFader::getProgress() const {
+float cCrossfader::getProgress() const {
     if (m_totalFadeSamples == 0) return 0.0f;  // Prevent division by zero
 
     float progress = static_cast<float>(m_currentFadeSample) / static_cast<float>(m_totalFadeSamples);
@@ -123,14 +123,14 @@ float cAudioFader::getProgress() const {
 //--------------------------------------------------------------------------------
 // Returns current fade state
 //--------------------------------------------------------------------------------
-cAudioFader::FadeState cAudioFader::getState() const {
+cCrossfader::FadeState cCrossfader::getState() const {
     return m_state;     // Return current state
 }
 
 //--------------------------------------------------------------------------------
 // Returns last completed fade state
 //--------------------------------------------------------------------------------
-cAudioFader::FadeState cAudioFader::getLastState() const {
+cCrossfader::FadeState cCrossfader::getLastState() const {
     return m_lastState; // Return last state
 }
 

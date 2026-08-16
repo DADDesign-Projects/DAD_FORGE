@@ -1,6 +1,6 @@
 //==================================================================================
 //==================================================================================
-// File: cAudioFader.h
+// File: cCrossfader.h
 // Description: Audio crossfader class providing smooth transitions between two audio
 // sources using equal-power crossfade curves to maintain consistent perceived loudness.
 // 
@@ -14,11 +14,11 @@
 namespace DadDSP {
 
 //**********************************************************************************
-// Class: cAudioFader
+// Class: cCrossfader
 // Description: Implements equal-power audio crossfading between two audio sources
 //**********************************************************************************
 
-class cAudioFader
+class cCrossfader
 {
 public:
     // -----------------------------------------------------------------------------
