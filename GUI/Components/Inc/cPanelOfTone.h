@@ -35,7 +35,7 @@ public:
     void Update() override;
 
     // Process audio
-    void Process(AudioBuffer *pIn, AudioBuffer *pOut);
+    void on_GUI_RT_ProcessOut(AudioBuffer *pInOut) override;
 
     // Callback for adjusting filters based on the GUI parameter.
     static void BassChange(DadDSP::cParameter* pParameter, uint32_t Data);

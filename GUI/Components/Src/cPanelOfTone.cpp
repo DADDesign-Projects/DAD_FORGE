@@ -67,10 +67,10 @@ void cPanelOfTone::Update() {
 // -----------------------------------------------------------------------------
 // Process audio
 // -----------------------------------------------------------------------------
-void cPanelOfTone::Process(AudioBuffer *pIn, AudioBuffer *pOut){
-	m_BassBiQuad.ProcessFlast12dbStereo(pIn, pOut);
-	m_MidBiQuad.ProcessFlast12dbStereo(pOut, pOut);
-	m_TrebleBiQuad.ProcessFlast12dbStereo(pOut, pOut);
+void cPanelOfTone::on_GUI_RT_ProcessOut(AudioBuffer *pInOut){
+	m_BassBiQuad.ProcessFlast12dbStereo(pInOut, pInOut);
+	m_MidBiQuad.ProcessFlast12dbStereo(pInOut, pInOut);
+	m_TrebleBiQuad.ProcessFlast12dbStereo(pInOut, pInOut);
 }
 
 // -----------------------------------------------------------------------------

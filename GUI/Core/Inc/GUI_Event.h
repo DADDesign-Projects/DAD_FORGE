@@ -32,10 +32,10 @@ public:
     virtual void on_GUI_RT_Process(){};
 
     // Process audio buffer through GUI object before audio process
-    virtual void on_GUI_RT_ProcessIn(AudioBuffer *pIn){};
+    virtual void on_GUI_RT_ProcessIn(AudioBuffer *pInOut){};
 
     // Process audio buffer through GUI object after audio process
-    virtual void on_GUI_RT_ProcessOut(AudioBuffer *pOut){};
+    virtual void on_GUI_RT_ProcessOut(AudioBuffer *pInOut){};
 
     // Update GUI Object time GUI_UPDATE_MS in __ms__
     virtual void on_GUI_Update(){};
