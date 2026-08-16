@@ -45,6 +45,10 @@ public:
     void Process(AudioBuffer *pIn, AudioBuffer *pOut, DadGUI::eEffectState_t State, bool Silence);
 
     // -----------------------------------------------------------------------------
+    // Child audio processing function: processes bloc (see AUDIO_BUFFER_SIZE) input/output audio buffer
+    virtual bool onBlocProcess(AudioBuffer *pIn, AudioBuffer *pOut){return false;};
+
+    // -----------------------------------------------------------------------------
     // Child audio processing function: processes one input/output audio buffer
     virtual void onProcess(AudioBuffer *pIn, AudioBuffer *pOut, DadGUI::eEffectState_t State, bool Silence) = 0;
 
@@ -85,7 +89,7 @@ protected:
     // TapTempo
     // =============================================================================
     DadDSP::cParameter*                 m_pTapTempoParameter;  // Parameter modified by the TapTempo
-    DadGUI::eTempoType                 m_TempoType;           // Defines the output unit period for seconds or frequency or none
+    DadGUI::eTempoType                  m_TempoType;           // Defines the output unit period for seconds or frequency or none
 
     // =============================================================================
     // Fade for change memory
