@@ -7,10 +7,12 @@
 // Copyright (c) 2025-2026 Dad Design.
 //==================================================================================
 //==================================================================================
+#include "HardwareDefines.h"
 #include "cParameterInfoView.h"
 #include "GUI_Defines.h"
 #include "MainGUI.h"
 #include "ParameterViews.h"
+
 
 // *****************************************************************************
 // Global variables declarations

@@ -15,8 +15,8 @@
 //==============================================================================
 #pragma once
 
-#if __has_include("HardwareAndCoDefines.h")
-#include "HardwareAndCoDefines.h"
+#if __has_include("EffectsOptions.h")
+#include "EffectsOptions.h"
 #else
 #include "main.h"
 #define  DEFAULT_INCLUDE
@@ -35,6 +35,14 @@
 constexpr float MIN_DRY = -45.0f;  // Minimum dry signal level cDryWet
 constexpr float MAX_DRY  = 0.0f;   // Maximum dry signal level cDryWet
 constexpr float FAD_TIME = 5.0f;   // Dry/Wet Fading time in second
+
+//**********************************************************************************
+// Daisy Seed Revision
+//**********************************************************************************
+enum class eHardRev_t{
+	Rev5,
+	Rev7
+};
 
 //**********************************************************************************
 // Audio Manager

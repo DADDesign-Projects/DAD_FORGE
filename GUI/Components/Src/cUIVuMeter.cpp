@@ -7,7 +7,7 @@
 //==================================================================================
 //==================================================================================
 
-//#include "GUI_Defines.h"
+#include "HardwareDefines.h"
 #include "cUIVuMeter.h"
 #include "cDisplay.h"
 #include "cMemoryManager.h"
