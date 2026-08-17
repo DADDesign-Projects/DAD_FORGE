@@ -53,7 +53,7 @@ static_assert(PARTITION_SIZE == SPREAD_PHASES * AUDIO_BUFFER_SIZE, "PARTITION_SI
 
 constexpr float IR_FADE_TIME_MS = 350; // 0,35 second
 
-constexpr float kBlocGain = 1.8f;
+constexpr float kBlocGain = 1.4f;
 
 namespace DadEffect {
 
