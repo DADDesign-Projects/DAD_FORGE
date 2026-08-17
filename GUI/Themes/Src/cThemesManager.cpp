@@ -14,7 +14,7 @@
 // ======================================================================
 #include "cThemesManager.h"
 #include "GUI_Event.h"
-#include "@Options.h"
+#include "Options.h"
 
 namespace DadGUI {
 // *****************************************************************************

@@ -14,7 +14,7 @@
 #include "main.h"
 
 #include "cPaletteBuilder.h"
-#include "@Options.h"
+#include "Options.h"
 
 #ifdef PALETTE_BUILDER
 #define FIFO_SIZE 2000

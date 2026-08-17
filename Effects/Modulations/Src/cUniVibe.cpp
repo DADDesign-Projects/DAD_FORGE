@@ -6,7 +6,12 @@
 // Copyright (c) 2025 Dad Design.
 //==================================================================================
 //==================================================================================
+#if __has_include("EffectsConfig.h")
 #include "EffectsConfig.h"
+#else
+#undef ACTIVE_EFFECT
+#define ACTIVE_EFFECT 500
+#endif
 #if ACTIVE_EFFECT == EFFECT_MODULATIONS
 #include "cUniVibe.h"
 
